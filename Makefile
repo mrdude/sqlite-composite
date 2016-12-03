@@ -5,3 +5,6 @@ EXE=sqlite
 
 all:
 	$(CC) $(CFLAGS) -o $(EXE) $(SRC)
+
+clean:
+	rm -f $(EXE)
