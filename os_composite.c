@@ -121,6 +121,13 @@ static int cFetch(sqlite3_file* file, sqlite3_int64 iOfst, int iAmt, void **pp) 
 static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
 
 /** sqlite3_vfs methods */
+
+/* opens a file
+ * @param vfs
+ * @param zName the name of the file to open
+ * @param baseFile the struct cFile to fill in
+ * @param flags a set of flags from SQLITE_OPEN_*
+ */
 static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
     printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = <flags>)\n", zName);
     struct cFile* file = (struct cFile*)baseFile;
@@ -133,20 +140,29 @@ static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
     return SQLITE_ERROR;
 }
 
+/*
+ * @param vfs
+ * @param zName the name of the file or directory
+ * @param flags the type of access check to perform; is SQLITE_ACCESS_EXISTS, _ACCESS_READWRITE, or _ACCESS_READ
+ * @param pResOut
+ */
 static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
     printf("cAccess(vfs = <ptr>, zName = %s, flags = %d, pResOut = <flags>)\n", zName, flags);
     return SQLITE_ERROR;
 }
 
 static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
-    return SQLITE_ERROR;
+    zOut = "/tmp/sqlitedb_fullpath";
+    for( nOut = 0; zOut[nOut] != '\0'; nOut++ ) {}
+
+    return SQLITE_OK;
 }
 
 /* attempts to return nByte bytes of randomness.
- * @return the actual number of bytes of randomness
+ * @return the actual number of bytes of randomness generated
  */
 static int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
-    return nByte;
+    return 0;
 }
 
 /* sleep for at least the given number of microseconds
