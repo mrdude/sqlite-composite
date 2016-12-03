@@ -53,7 +53,7 @@ static int cCurrentTime(sqlite3_vfs* vfs, double* time);
 static int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time);
 
 /* API structs */
-static const struct sqlite3_io_methods composite_io_methods = {
+static struct sqlite3_io_methods composite_io_methods = {
     .iVersion = 3,
     .xClose = cClose,
     .xRead = cRead,
