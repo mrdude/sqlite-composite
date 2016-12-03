@@ -15,41 +15,49 @@
 #include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
-/** sqlite3_vfs methods */
-static int cOpen(sqlite3_vfs*, const char *zName, sqlite3_file*, int flags, int *pOutFlags) {}
-static int cDelete(sqlite3_vfs*, const char *zName, int syncDir) {}
-static int cAccess(sqlite3_vfs*, const char *zName, int flags, int *pResOut) {}
-static int cFullPathname(sqlite3_vfs*, const char *zName, int nOut, char *zOut) {}
-
-static int cRandomness(sqlite3_vfs*, int nByte, char *zOut) {}
-static int cSleep(sqlite3_vfs*, int microseconds) {}
-static int cCurrentTime(sqlite3_vfs*, double*) {}
-static int cGetLastError(sqlite3_vfs*, int, char *) {}
-static int cCurrentTimeInt64(sqlite3_vfs*, sqlite3_int64*) {}
-
 /* sqlite3_io_methods */
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
 };
 
-static int cClose(sqlite3_file*) {}
-static int cRead(sqlite3_file*, void*, int iAmt, sqlite3_int64 iOfst) {}
-static int cWrite(sqlite3_file*, const void*, int iAmt, sqlite3_int64 iOfst) {}
-static int cTruncate(sqlite3_file*, sqlite3_int64 size) {}
-static int cSync(sqlite3_file*, int flags) {}
-static int cFileSize(sqlite3_file*, sqlite3_int64 *pSize) {}
-static int cLock(sqlite3_file*, int) {}
-static int cUnlock(sqlite3_file*, int) {}
-static int cCheckReservedLock(sqlite3_file*, int *pResOut) {}
-static int cFileControl(sqlite3_file*, int op, void *pArg) {}
-static int cSectorSize(sqlite3_file*) {}
-static int cDeviceCharacteristics(sqlite3_file*) {}
-static int cShmMap(sqlite3_file*, int iPg, int pgsz, int, void volatile**) {}
-static int cShmLock(sqlite3_file*, int offset, int n, int flags) {}
-static void cShmBarrier(sqlite3_file*) {}
-static int cShmUnmap(sqlite3_file*, int deleteFlag) {}
-static int cFetch(sqlite3_file*, sqlite3_int64 iOfst, int iAmt, void **pp) {}
-static int cUnfetch(sqlite3_file*, sqlite3_int64 iOfst, void *p) {}
+static int cClose(sqlite3_file* file) {}
+static int cRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst) {}
+static int cWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst) {}
+static int cTruncate(sqlite3_file* file, sqlite3_int64 size) {}
+static int cSync(sqlite3_file* file, int flags) {}
+static int cFileSize(sqlite3_file* file, sqlite3_int64 *pSize) {}
+static int cLock(sqlite3_file* file, int) {}
+static int cUnlock(sqlite3_file* file, int) {}
+static int cCheckReservedLock(sqlite3_file* file, int *pResOut) {}
+static int cFileControl(sqlite3_file* file, int op, void *pArg) {}
+static int cSectorSize(sqlite3_file* file) {}
+static int cDeviceCharacteristics(sqlite3_file* file) {}
+static int cShmMap(sqlite3_file* file, int iPg, int pgsz, int, void volatile**) {}
+static int cShmLock(sqlite3_file* file, int offset, int n, int flags) {}
+static void cShmBarrier(sqlite3_file* file) {}
+static int cShmUnmap(sqlite3_file* file, int deleteFlag) {}
+static int cFetch(sqlite3_file* file, sqlite3_int64 iOfst, int iAmt, void **pp) {}
+static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
+
+/** sqlite3_vfs methods */
+static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* file, int flags, int *pOutFlags) {}
+static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {}
+static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {}
+static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {}
+
+/* attempts to return nByte bytes of randomness.
+ * @return the actual number of bytes of randomness
+ */
+static int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {}
+
+/* sleep for at least the given number of microseconds
+ */
+static int cSleep(sqlite3_vfs* vfs, int microseconds) {}
+
+static int cGetLastError(sqlite3_vfs* vfs, int, char *) {}
+
+static int cCurrentTime(sqlite3_vfs* vfs, double*) {}
+static int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64*) {}
 
 static const struct sqlite3_io_methods composite_io_methods = {
     .iVersion = 3,
@@ -76,10 +84,10 @@ static const struct sqlite3_io_methods composite_io_methods = {
 static sqlite3_vfs composite_vfs = {
     .iVersion = 3,
     .szOsFile = sizeof(struct cFile),
-    .mxPathname = /* TODO */,
+    .mxPathname = 255, /* what is the actual MAX_PATH? */
     .pNext = 0,
     .zName = "composite",
-    .pAppData = /* TODO */,
+    .pAppData = 0,
     .xOpen = cOpen,
     .xDelete = cDelete,
     .xAccess = cAccess,
