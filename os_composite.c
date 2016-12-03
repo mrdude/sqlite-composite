@@ -32,7 +32,7 @@ static int cCheckReservedLock(sqlite3_file* file, int *pResOut) {}
 static int cFileControl(sqlite3_file* file, int op, void *pArg) {}
 static int cSectorSize(sqlite3_file* file) {}
 static int cDeviceCharacteristics(sqlite3_file* file) {}
-static int cShmMap(sqlite3_file* file, int iPg, int pgsz, int, void volatile**) {}
+static int cShmMap(sqlite3_file* file, int iPg, int pgsz, int i, void volatile** v) {}
 static int cShmLock(sqlite3_file* file, int offset, int n, int flags) {}
 static void cShmBarrier(sqlite3_file* file) {}
 static int cShmUnmap(sqlite3_file* file, int deleteFlag) {}
