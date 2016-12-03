@@ -153,7 +153,7 @@ static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut)
 
 static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
     printf("cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = %s)\n", zName, nOut, zOut);
-    zOut = "/tmp/sqlitedb_fullpath";
+    zOut = zName;
     return SQLITE_OK;
 }
 
