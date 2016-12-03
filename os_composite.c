@@ -15,6 +15,8 @@
 #include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
+#include <stdio.h>
+
 /* sqlite3_io_methods */
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
@@ -40,7 +42,9 @@ static int cFetch(sqlite3_file* file, sqlite3_int64 iOfst, int iAmt, void **pp) 
 static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
 
 /** sqlite3_vfs methods */
-static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* file, int flags, int *pOutFlags) {}
+static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* file, int flags, int *pOutFlags) {
+    printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = <flags>)\n", zName)
+}
 static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {}
 static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {}
 static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {}
