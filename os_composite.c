@@ -152,9 +152,8 @@ static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut)
 }
 
 static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
+    printf("cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = %s)\n", zName, nOut, zOut);
     zOut = "/tmp/sqlitedb_fullpath";
-    for( nOut = 0; zOut[nOut] != '\0'; nOut++ ) {}
-
     return SQLITE_OK;
 }
 
@@ -162,6 +161,7 @@ static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zO
  * @return the actual number of bytes of randomness generated
  */
 static int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
+    printf("cRandomness(vfs = <ptr>, nByte = %d, zOut = <ptr>)\n", nByte);
     return 0;
 }
 
@@ -169,15 +169,21 @@ static int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
  */
 static int cSleep(sqlite3_vfs* vfs, int microseconds) {}
 
-static int cGetLastError(sqlite3_vfs* vfs, int i, char *ch) {}
+static int cGetLastError(sqlite3_vfs* vfs, int i, char *ch) {
+    printf("cGetLastError()\n");
+}
 
 /* "returns a Julian Day Number for the current date and time as a floating point value"
  */
-static int cCurrentTime(sqlite3_vfs* vfs, double* time) {}
+static int cCurrentTime(sqlite3_vfs* vfs, double* time) {
+    printf("cCurrentTime()\n");
+}
 
 /* "returns, as an integer, the Julian Day Number multiplied by 86400000 (the number of milliseconds in a 24-hour day)"
  */
-static int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {}
+static int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
+    printf("cCurrentTimeInt64()\n");
+}
 
 /* init the OS interface */
 int sqlite3_os_init(void){ 
