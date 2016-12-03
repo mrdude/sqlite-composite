@@ -43,7 +43,7 @@ static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
 
 /** sqlite3_vfs methods */
 static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
-    printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = <flags>)\n", zName);
+    raw_printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = <flags>)\n", zName);
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = composite_io_methods;
     return SQLITE_OK;
