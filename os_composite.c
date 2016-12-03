@@ -43,19 +43,32 @@ static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
 
 /** sqlite3_vfs methods */
 static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
-    raw_printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = <flags>)\n", zName);
+    printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = <flags>)\n", zName);
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = composite_io_methods;
     return SQLITE_OK;
 }
-static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {}
-static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {}
-static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {}
+
+static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
+    printf("cDelete(vfs = <ptr>, zName = %s, syncDir = %d)\n", zName, syncDir);
+    return SQLITE_ERROR;
+}
+
+static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
+    printf("cAccess(vfs = <ptr>, zName = %s, flags = %d, pResOut = <flags>)\n", zName, flags);
+    return SQLITE_ERROR;
+}
+
+static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
+    return SQLITE_ERROR;
+}
 
 /* attempts to return nByte bytes of randomness.
  * @return the actual number of bytes of randomness
  */
-static int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {}
+static int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
+    return nByte;
+}
 
 /* sleep for at least the given number of microseconds
  */
