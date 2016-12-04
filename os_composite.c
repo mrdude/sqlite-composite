@@ -66,6 +66,15 @@ static void cMutexLeave(sqlite3_mutex *mutex);
 static int cMutexHeld(sqlite3_mutex *mutex);
 static int cMutexNotheld(sqlite3_mutex *mutex);
 
+/* sqlite_mem function prototypes */
+static void *cMemMalloc(int sz);         /* Memory allocation function */
+static void cMemFree(void* mem);          /* Free a prior allocation */
+static void *cMemRealloc(void* mem, int newSize);  /* Resize an allocation */
+static int cMemSize(void* mem);           /* Return the size of an allocation */
+static int cMemRoundup(int sz);          /* Round up request size to allocation size */
+static int cMemInit(void* pAppData);           /* Initialize the memory allocator */
+static void cMemShutdown(void* pAppData);      /* Deinitialize the memory allocator */
+
 /* API structs */
 static struct sqlite3_io_methods composite_io_methods = {
     .iVersion = 3,
@@ -124,6 +133,17 @@ static const sqlite3_mutex_methods composite_mutex_methods = {
     .xMutexLeave = cMutexLeave,
     .xMutexHeld = cMutexHeld,
     .xMutexNotheld = cMutexNotheld
+};
+
+static const sqlite3_mem_methods composite_mem_methods = {
+    .xMalloc = cMemMalloc,
+    .xFree = cMemFree,
+    .xRealloc = cMemRealloc,
+    .xSize = cMemSize,
+    .xRoundup = cMemRoundup,
+    .xInit = cMemInit,
+    .xShutdown = cMemShutdown,
+    .pAppData = 0
 };
 
 /* sqlite3_io_methods */
@@ -370,12 +390,40 @@ static int cMutexNotheld(sqlite3_mutex *mutex) {
     return 1;
 }
 
+/* Memory allocation function */
+static void *cMemMalloc(int sz) {
+}
+
+/* Free a prior allocation */
+static void cMemFree(void* mem) {
+}
+
+/* Resize an allocation */
+static void *cMemRealloc(void* mem, int newSize) {
+}
+
+/* Return the size of an allocation */
+static int cMemSize(void* mem) {
+}
+
+/* Round up request size to allocation size */
+static int cMemRoundup(int sz) {
+}
+
+/* Initialize the memory allocator */
+static int cMemInit(void* pAppData) {
+}
+
+/* Deinitialize the memory allocator */
+static void cMemShutdown(void* pAppData) {
+}
+
 /* init the OS interface */
 int sqlite3_os_init(void){
   #if SQLITE_THREADSAFE >= 1
     sqlite3_config(SQLITE_CONFIG_MUTEX, &composite_mutex_methods);
   #endif
-
+  sqlite3_config(SQLITE_CONFIG_MALLOC, &composite_mem_methods);
   sqlite3_vfs_register(&composite_vfs, 1);
   return SQLITE_OK;
 }
