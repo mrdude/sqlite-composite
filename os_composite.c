@@ -24,7 +24,7 @@ struct cFile {
     const char* zName;
 };
 
-/* function prototypes */
+/* sqlite_io function prototypes */
 static int cClose(sqlite3_file* file);
 static int cRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst);
 static int cWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst);
@@ -44,6 +44,7 @@ static int cShmUnmap(sqlite3_file* file, int deleteFlag);
 static int cFetch(sqlite3_file* file, sqlite3_int64 iOfst, int iAmt, void **pp);
 static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p);
 
+/* sqlite_vfs function prototypes */
 static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags);
 static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir);
 static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut);
@@ -53,6 +54,17 @@ static int cSleep(sqlite3_vfs* vfs, int microseconds);
 static int cGetLastError(sqlite3_vfs* vfs, int i, char *ch);
 static int cCurrentTime(sqlite3_vfs* vfs, double* time);
 static int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time);
+
+/* sqlite_mutex function prototypes */
+static int cMutexInit(void);
+static int cMutexEnd(void);
+static sqlite3_mutex* cMutexAlloc(int mutexType);
+static void cMutexFree(sqlite3_mutex *mutex);
+static void cMutexEnter(sqlite3_mutex *mutex);
+static int cMutexTry(sqlite3_mutex *mutex);
+static void cMutexLeave(sqlite3_mutex *mutex);
+static int cMutexHeld(sqlite3_mutex *mutex);
+static int cMutexNotheld(sqlite3_mutex *mutex);
 
 /* API structs */
 static struct sqlite3_io_methods composite_io_methods = {
@@ -100,6 +112,18 @@ static sqlite3_vfs composite_vfs = {
     .xSetSystemCall = 0,
     .xGetSystemCall = 0,
     .xNextSystemCall = 0
+};
+
+static const sqlite3_mutex_methods composite_mutex_methods = {
+    .xMutexInit = cMutexInit,
+    .xMutexEnd = cMutexEnd,
+    .xMutexAlloc = cMutexAlloc,
+    .xMutexFree = cMutexFree,
+    .xMutexEnter = cMutexEnter,
+    .xMutexTry = cMutexTry,
+    .xMutexLeave = cMutexLeave,
+    .xMutexHeld = cMutexHeld,
+    .xMutexNotheld = cMutexNotheld
 };
 
 /* sqlite3_io_methods */
@@ -265,8 +289,53 @@ static int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
     printf("cCurrentTimeInt64()\n");
 }
 
+static int cMutexInit(void) {
+}
+
+static int cMutexEnd(void) {
+}
+
+/* creates a mutex of the given type
+ * @param mutexType one of SQLITE_MUTEX_*
+ * @return a pointer to a mutex, or NULL if it couldn't be created
+ */
+static sqlite3_mutex* cMutexAlloc(int mutexType) {
+}
+
+static void cMutexFree(sqlite3_mutex *mutex) {
+}
+
+static void cMutexEnter(sqlite3_mutex *mutex) {
+}
+
+static int cMutexTry(sqlite3_mutex *mutex) {
+}
+
+static void cMutexLeave(sqlite3_mutex *mutex) {
+}
+
+/* returns true if this mutex is held by the calling thread
+ *
+ * this is used only in SQLite assert()'s, so a working
+ * implementation isn't really needed; this can just return TRUE
+ */
+static int cMutexHeld(sqlite3_mutex *mutex) {
+}
+
+/* returns true if this mutex is NOT held by the calling thread
+ *
+ * this is used only in SQLite assert()'s, so a working
+ * implementation isn't really needed; this can just return TRUE
+ */
+static int cMutexNotheld(sqlite3_mutex *mutex) {
+}
+
 /* init the OS interface */
-int sqlite3_os_init(void){ 
+int sqlite3_os_init(void){
+  #if SQLITE_THREADSAFE >= 1
+    sqlite3_config(SQLITE_CONFIG_MUTEX, &composite_mutex_methods);
+  #endif
+
   sqlite3_vfs_register(&composite_vfs, 1);
   return SQLITE_OK;
 }
