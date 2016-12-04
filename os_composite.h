@@ -1,7 +1,9 @@
 #ifndef SQLITE_OS_COMPOSITE_H
 #define SQLITE_OS_COMPOSITE_H
 
-#include "sqlite3.h"
+struct sqlite3_io_methods;
+struct sqlite3_vfs;
+struct sqlite3_int64;
 
 /* API structs */
 extern static struct sqlite3_io_methods composite_io_methods;
