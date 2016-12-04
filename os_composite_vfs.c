@@ -37,7 +37,7 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
 
     /* seek to the correct position */
-    if( lseek(file->fd, iOfst, SEEK_SET) != 0 ) {
+    if( lseek(file->fd, iOfst, SEEK_SET) == -1 ) {
         return SQLITE_IOERR_SEEK;
     }
 
@@ -75,7 +75,7 @@ int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfs
     struct cFile* file = (struct cFile*)baseFile;
 
     /* seek to the correct position */
-    if( lseek(file->fd, iOfst, SEEK_SET) != 0 ) {
+    if( lseek(file->fd, iOfst, SEEK_SET) == -1 ) {
         return SQLITE_IOERR_SEEK;
     }
 
