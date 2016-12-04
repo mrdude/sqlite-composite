@@ -521,11 +521,11 @@ static int _cMemRoundup(int sz) {
         CTRACE_APPEND("cMemRoundup(sz = %d)\n", sz);
     #endif
 
-    const int sz = cMemRoundup(sz);
+    const int newSz = cMemRoundup(sz);
 
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_PRINT();
-        printf("%d\n", sz);
+        printf("newSz = %d\n", newSz);
     #endif
 
     return sz;
