@@ -209,7 +209,7 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = 0;
 
-    if( pOutFlags ) *pOutFlags = 0;
+    if( pOutFlags ) *pOutFlags = flags;
 
     /* does the file exist? */
     int fileExists = 0;
@@ -231,11 +231,8 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
         } else {
             fd = fopen(zName, "w+b");
         }
-
-        if( pOutFlags ) *pOutFlags |= SQLITE_OPEN_READWRITE;
     } else if( flags & SQLITE_OPEN_READONLY ) {
         fd = fopen(zName, "rb");
-        if( pOutFlags ) *pOutFlags |= SQLITE_OPEN_READONLY;
     }
 
     if( fd == NULL ) {
