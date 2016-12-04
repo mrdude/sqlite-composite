@@ -112,7 +112,7 @@ static int _cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
 
 /* sqlite_vfs function prototypes */
 static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
-    return cOpen(vfs, zName, baseFie, flags, pOutFlags);
+    return cOpen(vfs, zName, baseFile, flags, pOutFlags);
 }
 
 static int _cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
