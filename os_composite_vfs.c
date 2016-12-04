@@ -124,13 +124,7 @@ int cUnlock(sqlite3_file* baseFile, int lockType) {
  */
 int cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
     struct cFile* file = (struct cFile*)baseFile;
-
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cCheckReservedLock(file = %s)\n", file->zName);
-    #endif
-
-    *pResOut = 0;
-
+    if( pResOut ) *pResOut = 0;
     return SQLITE_OK;
 }
 

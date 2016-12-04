@@ -185,7 +185,20 @@ static int _cUnlock(sqlite3_file* baseFile, int lockType) {
 }
 
 static int _cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
-    return cCheckReservedLock(baseFile, pResOut);
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cCheckReservedLock(file = %s)", file->zName);
+    #endif
+
+    const int res = cCheckReservedLock(baseFile, pResOut);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf(", pResOut = %d\n", pResOut ? *pResOut : -1);
+    #endif
+
+    return res;
 }
 
 static int _cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
@@ -203,7 +216,7 @@ static int _cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
         printf("\n");
     #endif
 
-    return res;    
+    return res;
 }
 
 static int _cSectorSize(sqlite3_file* baseFile) {
