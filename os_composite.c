@@ -849,7 +849,7 @@ static sqlite3_vfs composite_vfs = {
     .szOsFile = sizeof(struct cFile),
     .mxPathname = 255, /* what is the actual MAX_PATH? */
     .pNext = 0,
-    .zName = "composite",
+    .zName = "composite-inmemfs",
     .pAppData = &composite_vfs_app_data,
     .xOpen = _cOpen,
     .xDelete = _cDelete,
@@ -903,6 +903,8 @@ int sqlite3_os_init(void){
 
   struct composite_vfs_data *data = &composite_vfs_app_data;
   data->random_fd = open("/dev/random", O_RDONLY);
+
+  data->mem = &composite_mem_methods;
 
   return SQLITE_OK;
 }

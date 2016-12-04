@@ -134,6 +134,7 @@ struct cFile {
 };
 
 struct composite_vfs_data {
+    sqlite3_mem_methods* mem;
     int random_fd;
 };
 
