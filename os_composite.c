@@ -34,7 +34,7 @@ static int _cClose(sqlite3_file* baseFile) {
     const int res = cClose(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s", &ch);
+        printf("%s", &ch[0]);
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
