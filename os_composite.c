@@ -33,18 +33,7 @@
 #define SQLITE_COS_PROFILE_MEMORY 0
 #endif
 
-/* cFile */
-struct cFile {
-    struct sqlite3_io_methods* composite_io_methods;
-    const char* zName;
-    FILE* fd;
-    int closed;
-    int deleteOnClose;
-};
-
-struct composite_vfs_data {
-    FILE* random_fd;
-};
+#include "os_composite.h"
 
 /* sqlite_io function prototypes */
 static int cClose(sqlite3_file* file);
