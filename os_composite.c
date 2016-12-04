@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #ifndef SQLITE_COS_PROFILE_VFS
 #define SQLITE_COS_PROFILE_VFS 0
@@ -35,6 +36,9 @@
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
     const char* zName;
+    FILE fd;
+    int closed;
+    int deleteOnClose;
 };
 
 struct composite_vfs_data {
@@ -173,6 +177,10 @@ static int cClose(sqlite3_file* baseFile) {
     printf("cClose(file = '%s')\n", file->zName);
     #endif
 
+    fclose(file->fd);
+    file->closed = 1;
+
+    //TODO delete?
 }
 
 static int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
@@ -307,8 +315,39 @@ static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, in
     #endif
 
     struct cFile* file = (struct cFile*)baseFile;
+    file->composite_io_methods = 0;
+    *pOutFlags = 0;
+
+    if( flags & SQLITE_OPEN_CREATE && flags & SQLITE_OPEN_EXCLUSIVE ) {
+        /* These two flags mean "that file should always be created, and that it is an error if it already exists."
+         * They are always used together.
+         */
+
+         int resOut = 0;
+         cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &resOut)
+         if( pResOut ) {
+             return SQLITE_IOERR; //the file already exists -- error!
+         }
+    }
+
+    FILE fd = NULL;
+    if( flags & SQLITE_OPEN_READWRITE ) {
+        fd = fopen(zName, "rwb");
+        *pOutFlags |= SQLITE_OPEN_READWRITE;
+    } else if( flags & SQLITE_OPEN_READONLY ) {
+        fd = fopen(zName, "rb");
+        *pOutFlags |= SQLITE_OPEN_READONLY;
+    }
+
+    if( fd == NULL ) {
+        return SQLITE_IOERR;
+    }
+    
     file->composite_io_methods = &composite_io_methods;
     file->zName = zName;
+    file->fd = fd;
+    file->closed = 0;
+    file->deleteOnClose = (flags & SQLITE_OPEN_DELETEONCLOSE);
     return SQLITE_OK;
 }
 
@@ -331,7 +370,15 @@ static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut)
     printf("cAccess(vfs = <ptr>, zName = %s, flags = %d, pResOut = <flags>)\n", zName, flags);
     #endif
 
-    return SQLITE_ERROR;
+    if( flags & SQLITE_ACCESS_EXISTS ) {
+        *pResOut = (access(zName, F_OK) != -1);
+    } else if( flags & SQLITE_ACCESS_READWRITE ) {
+        *pResOut = (access(zName, R_OK | W_OK) != -1);
+    } else if( flags & SQLITE_ACCESS_READ ) {
+        *pResOut = (access(zName, R_OK) != -1);
+    }
+
+    return SQLITE_OK;
 }
 
 static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
