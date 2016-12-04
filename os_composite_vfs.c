@@ -126,35 +126,20 @@ int cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
 /* "VFS implementations should return [SQLITE_NOTFOUND] for file control opcodes that they do not recognize."
  */
 int cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cFileControl(file = %s, op = %d, pArg = <>)\n", file->zName, op);
-    #endif
-
     return SQLITE_NOTFOUND;
 }
 
 /* "The xSectorSize() method returns the sector size of the device that underlies the file."
  */
 int cSectorSize(sqlite3_file* baseFile) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cSectorSize(file = %s)\n", file->zName);
-    #endif
-
     return 512; //TODO
 }
 
 /* "The xDeviceCharacteristics() method returns a bit vector describing behaviors of the underlying device"
  */
 int cDeviceCharacteristics(sqlite3_file* baseFile) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cDeviceCharacteristics(file = %s)\n", file->zName);
-    #endif
-
     int flags = 0;
-    flags |= SQLITE_IOCAP_ATOMIC; /* "The SQLITE_IOCAP_ATOMIC property means that all writes of any size are atomic." */
+    //flags |= SQLITE_IOCAP_ATOMIC; /* "The SQLITE_IOCAP_ATOMIC property means that all writes of any size are atomic." */
     //flags |= SQLITE_IOCAP_ATOMIC512; /* "The SQLITE_IOCAP_ATOMICnnn values mean that writes of blocks that are nnn bytes in size and are aligned to an address which is an integer multiple of nnn are atomic." */
     //flags |= SQLITE_IOCAP_ATOMIC1K;
     //flags |= SQLITE_IOCAP_ATOMIC2K;
@@ -265,10 +250,6 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
 }
 
 int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cDelete(vfs = <ptr>, zName = %s, syncDir = %d)\n", zName, syncDir);
-    #endif
-
     return SQLITE_ERROR;
 }
 

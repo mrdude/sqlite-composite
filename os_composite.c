@@ -189,15 +189,68 @@ static int _cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
 }
 
 static int _cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
-    return cFileControl(baseFile, op, pArg);
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cFileControl(file = %s, op = %d, pArg = <...>)\n", file->zName, op);
+    #endif
+
+    const int res = cFileControl(baseFile, op, pArg);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;    
 }
 
 static int _cSectorSize(sqlite3_file* baseFile) {
-    return cSectorSize(baseFile);
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cSectorSize(file = %s)", file->zName);
+    #endif
+
+    const int sectorSize = cSectorSize(baseFile);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        printf("%d\n", sectorSize);
+    #endif
+
+    return sectorSize;
 }
 
 static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
-    return cDeviceCharacteristics(baseFile);
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cDeviceCharacteristics(file = %s)", file->zName);
+    #endif
+
+    const int flags = cDeviceCharacteristics(baseFile);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        printf("flags = [");
+
+        if( flags & SQLITE_IOCAP_ATOMIC ) ) printf(" IOCAP_ATOMIC ");
+        if( flags & SQLITE_IOCAP_ATOMIC512 ) printf(" IOCAP_ATOMIC512 ");
+        if( flags & SQLITE_IOCAP_ATOMIC1K ) printf(" IOCAP_ATOMIC1K ");
+        if( flags & SQLITE_IOCAP_ATOMIC2K ) printf(" IOCAP_ATOMIC2K ");
+        if( flags & SQLITE_IOCAP_ATOMIC4K ) printf(" IOCAP_ATOMIC4K ");
+        if( flags & SQLITE_IOCAP_ATOMIC8K ) printf(" IOCAP_ATOMIC8K ");
+        if( flags & SQLITE_IOCAP_ATOMIC16K ) printf(" IOCAP_ATOMIC16K ");
+        if( flags & SQLITE_IOCAP_ATOMIC32K ) printf(" IOCAP_ATOMIC32K ");
+        if( flags & SQLITE_IOCAP_ATOMIC64K ) printf(" IOCAP_ATOMIC64K ");
+        if( flags & SQLITE_IOCAP_SAFE_APPEND ) printf(" IOCAP_SAFE_APPEND ");
+        if( flags & SQLITE_IOCAP_SEQUENTIAL ) printf(" IOCAP_SEQUENTIAL ");
+        printf("]\n");
+    #endif
+
+    return flags;
 }
 
 static int _cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volatile** v) {
@@ -206,23 +259,23 @@ static int _cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volat
 
 static int _cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[80];
         struct cFile* file = (struct cFile*)baseFile;
-        snprintf(ch, 160, "cShmLock(file = %s, offset = %d, n = %d, flags = [", file->zName, offset, n);
+        CTRACE_STRING_DEF(160);
+        CTRACE_APPEND("cShmLock(file = %s, offset = %d, n = %d, flags = [", file->zName, offset, n);
 
         /* these are the only valid flag combinations */
-        if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_SHARED ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SHM_LOCK | SHM_SHARED ");
-        if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_EXCLUSIVE ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SHM_LOCK | SHM_EXCLUSIVE ");
-        if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_SHARED ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SHM_UNLOCK | SHM_SHARED ");
-        if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_EXCLUSIVE ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SHM_UNLOCK | SHM_EXCLUSIVE ");
+        if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_SHARED ) CTRACE_APPEND(" SHM_LOCK | SHM_SHARED ");
+        if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_EXCLUSIVE ) CTRACE_APPEND(" SHM_LOCK | SHM_EXCLUSIVE ");
+        if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_SHARED ) CTRACE_APPEND(" SHM_UNLOCK | SHM_SHARED ");
+        if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_EXCLUSIVE ) CTRACE_APPEND(" SHM_UNLOCK | SHM_EXCLUSIVE ");
 
-        snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), "])");
+        CTRACE_APPEND("])");
     #endif
 
     const int res = cShmLock(baseFile, offset, n, flags);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s => ", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -286,7 +339,20 @@ static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, i
 }
 
 static int _cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
-    return cDelete(vfs, zName, syncDir);
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_STRING_DEF(160);
+        CTRACE_APPEND("cDelete(vfs = <ptr>, zName = %s, syncDir = %d)", zName, syncDir);
+    #endif
+
+    const int res = cDelete(vfs, zName, syncDir);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 static int _cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
