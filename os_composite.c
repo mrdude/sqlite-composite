@@ -192,7 +192,7 @@ static int _cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cFileControl(file = %s, op = %d, pArg = <...>)\n", file->zName, op);
+        CTRACE_APPEND("cFileControl(file = %s, op = %d, pArg = <...>)", file->zName, op);
     #endif
 
     const int res = cFileControl(baseFile, op, pArg);
