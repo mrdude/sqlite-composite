@@ -13,36 +13,197 @@
 
 #include "os_composite.h"
 
+#define PAGE_SIZE 4096 /* assume a 4096 byte page-size */
+
+/* inmem fs structs */
+struct fs_file {
+    struct composite_vfs_data* cVfs;
+    struct fs_file* next; /* the next file in the list */
+
+    const char* zName; /* the name of the file */
+    int sz; /* the size of the file in bytes */
+    struct fs_block_header* firstBlock; /* the first block in this file */
+    int ref; /* the number of open cFile's the file has */
+};
+
+struct fs_block_header { /* represents a single file block */
+    struct fs_file* file; /* pointer to this block's file */
+    struct fs_block* next; /* pointer to the next block */
+    int sz; /* how much data is in the block? */
+};
+
+/* the amount of max data a single fs_block can hold */
+#define FS_BLOCK_SIZE (PAGE_SIZE - sizeof(struct fs_block_header))
+
+static struct fs_file* _fs_file_list = 0;
+
+/* private inmem fs functions */
+static void* _FS_MALLOC(struct composite_vfs_data* cVfs, int sz ) {
+    return cVfs->mem->xMalloc( cVfs->mem->xRoundup( sz ) );
+}
+
+/* finds the file with the given name, or 0 if it doesn't exist */
+static struct fs_file* _fs_find_file(sqlite_vfs* vfs, const char* zName) {
+    for( struct fs_file* file = _fs_file_list; file != 0; file = file->next ) {
+        if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
+            return file;
+        }
+    }
+    return 0;
+}
+
+static struct fs_file* _fs_file_alloc(sqlite_vfs* vfs, const char *zName) {
+    struct composite_vfs_data* cVfs = (struct composite_vfs_data*)vfs->pAppData;
+    struct fs_file* file = _FS_MALLOC( cVfs, struct fs_file* );
+    if( file == 0 )
+        return 0;
+    
+    file->cVfs = cVfs;
+    file->zName = zName;
+    file->sz = 0;
+    file->firstBlock = 0;
+    file->ref = 0;
+    return file;
+}
+
+/* free the file and all of its blocks */
+static void _fs_file_free(struct fs_file* file) {
+    //TODO
+}
+
+//TODO make this run in less than O(n) time
+static struct fs_block_header* _fs_find_block(struct fs_file* file, int64_t offset, int* bIndex) {
+    int _ = 0;
+    if( bIndex == 0 )
+        bIndex = &_;
+    
+    *bIndex = 0;
+    int64_t index = 0;
+    for( struct fs_block_header* b = file->firstBlock; b != 0; b = b->next ) {
+        if( index > offset ) {
+            return b;
+        }
+        index += FS_BLOCK_SIZE;
+        (*bIndex)++;
+    }
+    return 0;
+}
+
+static struct fs_block_header* _fs_append_block(struct fs_file* file) {
+    struct fs_block_header* hdr = _FS_MALLOC(file->cVfs, PAGE_SIZE);
+    if( hdr == 0 )
+        return 0;
+
+    struct fs_block_header* b = file->firstBlock;
+    if( b == 0 ) {
+        file->firstBlock = hdr;
+        hdr->next = 0;
+    } else {
+        while( b->next != 0)
+            b = b->next;
+        
+        b->next = hdr;
+        hdr->next = 0;
+    }
+    return hdr;
+}
+
+/* inmem fs functions */
+static struct fs_file* fs_open(const char* zName) {
+    //TODO make this atomic
+    //atomic {
+    struct fs_file* file = _fs_find_file(zName);
+    if( file == 0 ) {
+        file = _fs_file_alloc(zName);
+    }
+    //}
+    file->ref++;
+    return file;
+}
+
+static void fs_close(struct fs_file* file) {
+    //TODO make this threadsafe
+    file->ref--;
+    if( file->ref == 0 ) {
+        _fs_file_free(file);
+        file = 0;
+    }
+}
+
+/* returns the number of bytes read, or -1 if an error occurred. short reads are allowed. */
+static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
+    int bIndex = -1;
+    struct fs_block_header* b = _fs_find_block(file, offset, &bIndex);
+    if( b == 0 ) {
+        return 0;
+    }
+
+    int bytes_read = 0;
+    char* data = buf;
+    int i = 0;
+    for( i = 0; i < len; i++ ) {
+        if( offset > (bIndex*FS_BLOCK_SIZE) ) {
+            b = b->next;
+            bIndex++;
+        }
+
+        if( b == 0 )
+            return bytes_read;
+        
+        char* blkData = (char*)(((char*)b) + sizeof(struct fs_block_header));
+        data[i] = blkData[i - (bIndex*FS_BLOCK_SIZE)];
+    }
+
+    return bytes_read;
+}
+
+/* returns the number of bytes written, or -1 if an error occurred */
+static int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf) {
+    int bIndex = -1;
+    struct fs_block_header* b = _fs_find_block(file, offset, &bIndex);
+    if( b == 0 ) {
+        b = _fs_append_block(file);
+        if( b == 0 ) return -1;
+    }
+
+    int bytes_written = 0;
+    int i = 0;
+    for( i = 0; i < len; i++ ) {
+        if( i - (bIndex*FS_BLOCK_SIZE) >= FS_BLOCK_SIZE ) {
+            b = b->next;
+            if( b == 0 ) {
+                b = _fs_append_block(file);
+                if( b == 0 ) return -1;
+            }
+        }
+
+        char charToWrite = ((char*)buf)[i];
+        char* blkData = (char*)(((char*)b) + sizeof(struct fs_block_header));
+        blkData[i - (bIndex*FS_BLOCK_SIZE)] = charToWrite;
+        bytes_written++;
+    }
+
+    return bytes_written;
+}
+
 /* sqlite3_io_methods */
 int cClose(sqlite3_file* baseFile) {
     struct cFile* file = (struct cFile*)baseFile;
-
-    if( close(file->fd) != 0 ) {
-        return SQLITE_IOERR_CLOSE;
-    }
+    
+    fs_close((struct fs_file*)file->fd);
+    file->fd = 0;
 
     file->closed = 1;
-
-    //delete this file if necessary
-    if( file->deleteOnClose ) {
-        if( remove(file->zName) != 0 ) {
-            return SQLITE_IOERR_DELETE;
-        }
-    }
 
     return SQLITE_OK;
 }
 
 int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
-
-    /* seek to the correct position */
-    if( lseek(file->fd, iOfst, SEEK_SET) == -1 ) {
-        return SQLITE_IOERR_SEEK;
-    }
+    struct fs_file* fd = (struct fs_file*)file->fd;
 
     /* read the bytes */
-    int bytesRead = read(file->fd, buf, iAmt);
+    int bytesRead = fs_read(fd, iOfst, iAmt, buf);
 
     /* was there an error? */
     if( bytesRead == -1 ) {
@@ -73,14 +234,9 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
 
 int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
+    struct fs_file* fd = (struct fs_file*)file->fd;
 
-    /* seek to the correct position */
-    if( lseek(file->fd, iOfst, SEEK_SET) == -1 ) {
-        return SQLITE_IOERR_SEEK;
-    }
-
-    /* write the bytes */
-    int bytesWritten = write(file->fd, buf, iAmt);
+    int bytesWritten = fs_write(fd, iOfst, iAmt, buf);
     if( bytesWritten == iAmt ) {
         return SQLITE_OK;
     }
@@ -96,33 +252,15 @@ int cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
 
 int cSync(sqlite3_file* baseFile, int flags) {
     struct cFile* file = (struct cFile*)baseFile;
-
-    int res = 0;
-    if( flags & SQLITE_SYNC_FULL || flags & SQLITE_SYNC_NORMAL ) {
-        res = fsync( file->fd );
-    } else {
-        res = fdatasync( file->fd );
-    }
-
-    if( res != 0 ) {
-        return SQLITE_IOERR_FSYNC;
-    }
-
+    //TODO this is a NOP
     return SQLITE_OK;
 }
 
 int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     struct cFile* file = (struct cFile*)baseFile;
+    struct fs_file* fd = (struct fs_file*)file->fd;
 
-    /* seek to the end, then ask for the position */
-    off_t pos = lseek(file->fd, 0L, SEEK_END);
-
-    if( pos == -1 ) {
-        return SQLITE_IOERR_SEEK;
-    }
-
-    *pSize = pos;
-
+    *pSize = fd->sz;
     return SQLITE_OK;
 }
 
@@ -159,7 +297,7 @@ int cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
 /* "The xSectorSize() method returns the sector size of the device that underlies the file."
  */
 int cSectorSize(sqlite3_file* baseFile) {
-    return 512; //TODO
+    return FS_BLOCK_SIZE;
 }
 
 /* "The xDeviceCharacteristics() method returns a bit vector describing behaviors of the underlying device"
@@ -216,6 +354,8 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = 0;
 
+    flags |= SQLITE_OPEN_DELETEONCLOSE; /* all files are delete on close */
+
     if( pOutFlags ) *pOutFlags = flags;
 
     /* does the file exist? */
@@ -231,20 +371,8 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
          }
     }
 
-    int fd = -1;
-    if( flags & SQLITE_OPEN_READWRITE ) {
-        if( fileExists ) {
-            fd = open(zName, O_RDWR);
-        } else {
-            fd = open(zName,
-                O_RDWR | O_CREAT,
-                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH ); /* everyone has read-write access to this file */
-        }
-    } else if( flags & SQLITE_OPEN_READONLY ) {
-        fd = open(zName, O_RDONLY);
-    }
-
-    if( fd == -1 ) {
+    void* fd = fs_open(zName);
+    if( fd == 0 ) {
         return SQLITE_IOERR;
     }
     
@@ -257,18 +385,7 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
 }
 
 int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
-    /* make sure the file exists */
-    int exists = 0;
-    cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &exists);
-    if( !exists ) {
-        return SQLITE_OK;
-    }
-
-    /* delete the file */
-    if( remove(zName) != 0 ) {
-        return SQLITE_IOERR_DELETE;
-    }
-
+    /* files are simply deleted when no one has them open */
     return SQLITE_OK;
 }
 
@@ -279,27 +396,22 @@ int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
  * @param pResOut
  */
 int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
-    if( flags == SQLITE_ACCESS_EXISTS ) {
-        *pResOut = (access(zName, F_OK) != -1);
-    } else if( flags == SQLITE_ACCESS_READWRITE ) {
-        *pResOut = (access(zName, R_OK | W_OK) != -1);
-    } else if( flags == SQLITE_ACCESS_READ ) {
-        *pResOut = (access(zName, R_OK) != -1);
-    }
-
+    /* all files can be accessed by everyone */
+    //TODO restrict access based on Composite caps
     return SQLITE_OK;
 }
 
 int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
-    const char* full_pathname = "/tmp/";
-    const size_t full_pathname_len = strlen(full_pathname);
-
-    int i = 0;
-    for( ; i < full_pathname_len; i++ ) zOut[i] = full_pathname[i];
-    for( ; i < full_pathname_len + strlen(zName); i++ ) zOut[i] = zName[i - full_pathname_len];
+    const int zNameLen = strnlen(zName, MAX_PATHNAME);
+    if( nOut < zNameLen ) /* these isn't enough room to copy the string */
+        return SQLITE_CANTOPEN;
+    
+    int i;
+    for( i = 0; i < zNameLen; i++ ) {
+        zOut[i] = zName[i];
+    }
     zOut[i] = 0;
 
-    //assert( i < nOut );
     return SQLITE_OK;
 }
 

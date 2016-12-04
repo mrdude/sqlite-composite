@@ -120,6 +120,8 @@
     } while(0)
 #endif
 
+#define MAX_PATHNAME 512
+
 /* API structs */
 extern struct sqlite3_io_methods composite_io_methods;
 extern struct composite_vfs_data composite_vfs_app_data;
@@ -128,7 +130,7 @@ extern struct composite_vfs_data composite_vfs_app_data;
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
     const char* zName;
-    int fd;
+    void* fd;
     int closed;
     int deleteOnClose;
 };

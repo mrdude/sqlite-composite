@@ -847,7 +847,7 @@ struct composite_vfs_data composite_vfs_app_data;
 static sqlite3_vfs composite_vfs = {
     .iVersion = 2,
     .szOsFile = sizeof(struct cFile),
-    .mxPathname = 255, /* what is the actual MAX_PATH? */
+    .mxPathname = MAX_PATHNAME,
     .pNext = 0,
     .zName = "composite-inmemfs",
     .pAppData = &composite_vfs_app_data,
