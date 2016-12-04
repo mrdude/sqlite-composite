@@ -76,7 +76,18 @@ int cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
 
 int cSync(sqlite3_file* baseFile, int flags) {
     struct cFile* file = (struct cFile*)baseFile;
-    //TODO this is a NOP
+
+    int res = 0;
+    if( flags & SQLITE_SYNC_FULL || flags & SQLITE_SYNC_NORMAL ) {
+        res = fsync( file->fd );
+    } else {
+        res = fdatasync( file-fd );
+    }
+
+    if( res != 0 ) {
+        return SQLITE_IOERR_FSYNC;
+    }
+
     return SQLITE_OK;
 }
 
