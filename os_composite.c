@@ -324,7 +324,7 @@ static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, in
          */
 
          int resOut = 0;
-         cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &resOut)
+         cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &resOut);
          if( resOut ) {
              return SQLITE_IOERR; //the file already exists -- error!
          }
