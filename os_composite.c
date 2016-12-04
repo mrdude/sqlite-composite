@@ -16,6 +16,7 @@
 #if SQLITE_OS_OTHER
 
 #include <stdio.h>
+#include <inttypes.h>
 
 /* cFile */
 struct cFile {
