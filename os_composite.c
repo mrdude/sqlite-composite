@@ -186,6 +186,7 @@ static int _cUnlock(sqlite3_file* baseFile, int lockType) {
 
 static int _cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
     #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
         CTRACE_STRING_DEF(80);
         CTRACE_APPEND("cCheckReservedLock(file = %s)", file->zName);
     #endif
