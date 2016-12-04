@@ -16,8 +16,6 @@ void* cMemMalloc(int sz) {
 
 /* Free a prior allocation */
 void cMemFree(void* mem) {
-    
-
     free(mem);
 }
 

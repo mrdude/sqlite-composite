@@ -878,9 +878,9 @@ static const sqlite3_mem_methods composite_mem_methods = {
 /* init the OS interface */
 int sqlite3_os_init(void){
   #if SQLITE_THREADSAFE >= 1
-    //sqlite3_config(SQLITE_CONFIG_MUTEX, &composite_mutex_methods);
+    sqlite3_config(SQLITE_CONFIG_MUTEX, &composite_mutex_methods);
   #endif
-  //sqlite3_config(SQLITE_CONFIG_MALLOC, &composite_mem_methods);
+  sqlite3_config(SQLITE_CONFIG_MALLOC, &composite_mem_methods);
   sqlite3_vfs_register(&composite_vfs, 1);
 
   struct composite_vfs_data *data = &composite_vfs_app_data;
