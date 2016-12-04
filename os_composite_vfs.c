@@ -55,7 +55,7 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
 }
 
 static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
-    printf("_fs_find_alloc()\n");
+    printf("_fs_file_alloc()\n");
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)(vfs->pAppData);
     struct fs_file* file = _FS_MALLOC( cVfs, sizeof(struct fs_file*) );
     if( file == 0 )
@@ -125,11 +125,12 @@ static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
     struct fs_file* file = _fs_find_file(vfs, zName);
     if( file == 0 ) {
         file = _fs_file_alloc(vfs, zName);
-        if( file == 0 ) {
-            return 0;
-        }
     }
     //}
+    if( file == 0 ) {
+        return 0;
+    }
+
     file->ref++;
     return file;
 }
@@ -154,6 +155,7 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     }
 
     int bytes_read = 0;
+    /*
     char* data = buf;
     int i = 0;
     for( i = 0; i < len; i++ ) {
@@ -165,10 +167,10 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
         if( b == 0 )
             return bytes_read;
         
-        char* blkData = (char*)(((char*)b) + sizeof(struct fs_block_header));
+        char* blkData = (char*)(b[1]);
         data[i] = blkData[i - (bIndex*FS_BLOCK_SIZE)];
     }
-
+    */
     return bytes_read;
 }
 
@@ -182,6 +184,8 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
         if( b == 0 ) return -1;
     }
 
+    /*
+
     int bytes_written = 0;
     int i = 0;
     for( i = 0; i < len; i++ ) {
@@ -194,10 +198,11 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
         }
 
         char charToWrite = ((char*)buf)[i];
-        char* blkData = (char*)(((char*)b) + sizeof(struct fs_block_header));
+        char* blkData = (char*)(b[1]);
         blkData[i - (bIndex*FS_BLOCK_SIZE)] = charToWrite;
         bytes_written++;
     }
+    */
 
     return bytes_written;
 }
