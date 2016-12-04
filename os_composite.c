@@ -378,7 +378,7 @@ static int _cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
 /* sqlite_vfs function prototypes */
 static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_STRING_DEF(160);
+        CTRACE_STRING_DEF(320);
         CTRACE_APPEND("cOpen(vfs = <ptr>, zName = '%s', file = <not initialized>, flags = [", zName);
         if( flags & SQLITE_OPEN_MAIN_DB )        CTRACE_APPEND(" OPEN_MAIN_DB ");
         if( flags & SQLITE_OPEN_MAIN_JOURNAL )   CTRACE_APPEND(" OPEN_MAIN_JOURNAL ");
@@ -442,7 +442,7 @@ static int _cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_APPEND(" => ");
         APPEND_ERR_CODE(res);
-        CTRACE_APPEND(", pResOut = %d\n", *pResOut);
+        CTRACE_APPEND(", pResOut = %d", *pResOut);
         CTRACE_PRINT();
     #endif
 
