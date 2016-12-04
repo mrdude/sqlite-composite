@@ -24,7 +24,7 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
 
     /* seek to the correct position */
     if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
-        return SQLITE_IOERR;
+        return SQLITE_IOERR_SEEK;
     }
 
     /* read the bytes */
