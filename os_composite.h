@@ -16,10 +16,10 @@
 
 #if SQLITE_COS_PROFILE_VFS || SQLITE_COS_PROFILE_MUTEX || SQLITE_COS_PROFILE_MEMORY
 #define CTRACE_STRING_DEF(x) const int LEN = x ; \
-    char _ch[ LEN ]; \
+    char _ch[ LEN+1 ]; \
     do { \
         int i = 0; \
-        for( i = 0; i < LEN; i++ ) \
+        for( i = 0; i < LEN+1; i++ ) \
             _ch[i] = 0; \
     } while(0)
 
