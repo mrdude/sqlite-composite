@@ -21,6 +21,7 @@ int cClose(sqlite3_file* baseFile) {
     file->closed = 1;
 
     //TODO delete?
+    return SQLITE_OK;
 }
 
 int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
