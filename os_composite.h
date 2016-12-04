@@ -24,7 +24,7 @@
     } while(0)
 
 #define CTRACE_APPEND(...) do { snprintf(&_ch[ strlen(_ch) ], LEN - strlen(_ch), __VA_ARGS__ ); } while(0)
-#define CTRACE_PRINT(...) do { printf("%s\n", &_ch[0]); } while(0)
+#define CTRACE_PRINT(...) do { fprintf(stderr, "%s\n", &_ch[0]); } while(0)
 
 #define APPEND_ERR_CODE(x) do { \
     switch( x ) { \
