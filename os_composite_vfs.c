@@ -35,9 +35,11 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
         return SQLITE_OK;
     }
 
+/*
     if( feof(file->fd) || ferror(file->fd) ) {
         return SQLITE_IOERR;
     }
+    */
 
     /* if we do a short read, we have to fill the rest of the buffer with 0's */
     int i;
