@@ -19,6 +19,18 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
+#ifndef SQLITE_COS_PROFILE_VFS
+#define SQLITE_COS_PROFILE_VFS 0
+#endif
+
+#ifndef SQLITE_COS_PROFILE_MUTEX
+#define SQLITE_COS_PROFILE_MUTEX 0
+#endif
+
+#ifndef SQLITE_COS_PROFILE_MEMORY
+#define SQLITE_COS_PROFILE_MEMORY 0
+#endif
+
 /* cFile */
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
@@ -150,36 +162,60 @@ static const sqlite3_mem_methods composite_mem_methods = {
 /* sqlite3_io_methods */
 static int cClose(sqlite3_file* baseFile) {
     struct cFile* file = (struct cFile*)baseFile;
+
+    #if SQLITE_COS_PROFILE_VFS
     printf("cClose(file = '%s')\n", file->zName);
+    #endif
+
 }
 
 static int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
+
+    #if SQLITE_COS_PROFILE_VFS
     printf("cRead(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
+    #endif
+
     return SQLITE_IOERR;
 }
 
 static int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
+
+    #if SQLITE_COS_PROFILE_VFS
     printf("cWrite(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
+    #endif
+
     return SQLITE_IOERR;
 }
 
 static int cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     struct cFile* file = (struct cFile*)baseFile;
+    
+    #if SQLITE_COS_PROFILE_VFS
     printf("cTruncate(file = %s, size = %" PRIu64 ")\n", file->zName, size);
+    #endif
+
     return SQLITE_IOERR;
 }
 
 static int cSync(sqlite3_file* baseFile, int flags) {
     struct cFile* file = (struct cFile*)baseFile;
+    
+    #if SQLITE_COS_PROFILE_VFS
     printf("cTruncate(file = %s, flags = [???])\n", file->zName);
+    #endif
+
     return SQLITE_IOERR;
 }
 
 static int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     struct cFile* file = (struct cFile*)baseFile;
+
+    #if SQLITE_COS_PROFILE_VFS
     printf("cFileSize(file = %s)\n", file->zName);
+    #endif
+
     return SQLITE_IOERR;
 }
 
@@ -188,6 +224,8 @@ static int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
  */
 static int cLock(sqlite3_file* baseFile, int lockType) {
     struct cFile* file = (struct cFile*)baseFile;
+
+    #if SQLITE_COS_PROFILE_VFS
     printf("cLock(file = %s, lockType = [", file->zName);
     if( lockType & SQLITE_LOCK_NONE )      printf(" LOCK_NONE ");
     if( lockType & SQLITE_LOCK_SHARED )    printf(" LOCK_SHARED ");
@@ -195,6 +233,8 @@ static int cLock(sqlite3_file* baseFile, int lockType) {
     if( lockType & SQLITE_LOCK_PENDING )   printf(" LOCK_PENDING ");
     if( lockType & SQLITE_LOCK_EXCLUSIVE ) printf(" LOCK_EXCLUSIVE ");
     printf("])\n");
+    #endif
+
     return SQLITE_IOERR;
 }
 
@@ -203,6 +243,8 @@ static int cLock(sqlite3_file* baseFile, int lockType) {
  */
 static int cUnlock(sqlite3_file* baseFile, int lockType) {
     struct cFile* file = (struct cFile*)baseFile;
+
+    #if SQLITE_COS_PROFILE_VFS
     printf("cUnlock(file = %s, lockType = [", file->zName);
     if( lockType & SQLITE_LOCK_NONE )      printf(" LOCK_NONE ");
     if( lockType & SQLITE_LOCK_SHARED )    printf(" LOCK_SHARED ");
@@ -210,6 +252,8 @@ static int cUnlock(sqlite3_file* baseFile, int lockType) {
     if( lockType & SQLITE_LOCK_PENDING )   printf(" LOCK_PENDING ");
     if( lockType & SQLITE_LOCK_EXCLUSIVE ) printf(" LOCK_EXCLUSIVE ");
     printf("])\n");
+    #endif
+
     return SQLITE_IOERR;
 }
 
@@ -236,6 +280,7 @@ static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
  * @param pOutFlags the flags that were actually set
  */
 static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
+    #if SQLITE_COS_PROFILE_VFS
     printf("cOpen(vfs = <ptr>, zName = '%s', file = <not initialized>, flags = [", zName);
     if( flags & SQLITE_OPEN_MAIN_DB )        printf(" OPEN_MAIN_DB ");
     if( flags & SQLITE_OPEN_MAIN_JOURNAL )   printf(" OPEN_MAIN_JOURNAL ");
@@ -253,6 +298,7 @@ static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, in
     if( flags & SQLITE_OPEN_DELETEONCLOSE )  printf(" OPEN_DELETEONCLOSE ");
     if( flags & SQLITE_OPEN_EXCLUSIVE )      printf(" OPEN_EXCLUSIVE ");
     printf("])\n");
+    #endif
 
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = &composite_io_methods;
@@ -261,7 +307,10 @@ static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, in
 }
 
 static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
+    #if SQLITE_COS_PROFILE_VFS
     printf("cDelete(vfs = <ptr>, zName = %s, syncDir = %d)\n", zName, syncDir);
+    #endif
+
     return SQLITE_ERROR;
 }
 
@@ -272,12 +321,18 @@ static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
  * @param pResOut
  */
 static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
+    #if SQLITE_COS_PROFILE_VFS
     printf("cAccess(vfs = <ptr>, zName = %s, flags = %d, pResOut = <flags>)\n", zName, flags);
+    #endif
+
     return SQLITE_ERROR;
 }
 
 static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
+    #if SQLITE_COS_PROFILE_VFS
     printf("cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = %s)\n", zName, nOut, zOut);
+    #endif
+
     zOut = "/tmp/defaultCFullPathname";
     return SQLITE_OK;
 }
@@ -286,36 +341,53 @@ static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zO
  * @return the actual number of bytes of randomness generated
  */
 static int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
+    #if SQLITE_COS_PROFILE_VFS
     printf("cRandomness(vfs = <ptr>, nByte = %d, zOut = <ptr>)\n", nByte);
+    #endif
+
     return 0;
 }
 
 /* sleep for at least the given number of microseconds
  */
-static int cSleep(sqlite3_vfs* vfs, int microseconds) {}
+static int cSleep(sqlite3_vfs* vfs, int microseconds) {
+    #if SQLITE_COS_PROFILE_VFS
+    printf("cSleep(vfs = <vfs>, microseconds = %d)\n", microseconds);
+    #endif
+}
 
 static int cGetLastError(sqlite3_vfs* vfs, int i, char *ch) {
+    #if SQLITE_COS_PROFILE_VFS
     printf("cGetLastError()\n");
+    #endif
 }
 
 /* "returns a Julian Day Number for the current date and time as a floating point value"
  */
 static int cCurrentTime(sqlite3_vfs* vfs, double* time) {
+    #if SQLITE_COS_PROFILE_VFS
     printf("cCurrentTime()\n");
+    #endif
 }
 
 /* "returns, as an integer, the Julian Day Number multiplied by 86400000 (the number of milliseconds in a 24-hour day)"
  */
 static int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
+    #if SQLITE_COS_PROFILE_VFS
     printf("cCurrentTimeInt64()\n");
+    #endif
 }
 
 static int cMutexInit() {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexInit()\n");
+    #endif
 }
 
 static int cMutexEnd() {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexEnd()\n");
+    #endif
 }
 
 /* creates a mutex of the given type
@@ -323,6 +395,7 @@ static int cMutexEnd() {
  * @return a pointer to a mutex, or NULL if it couldn't be created
  */
 static sqlite3_mutex* cMutexAlloc(int mutexType) {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexAlloc(mutexType = ");
     switch( mutexType ) {
         case SQLITE_MUTEX_FAST: printf(" MUTEX_FAST "); break;
@@ -341,17 +414,25 @@ static sqlite3_mutex* cMutexAlloc(int mutexType) {
         case SQLITE_MUTEX_STATIC_VFS3: printf(" MUTEX_STATIC_VFS3 "); break; 
     }
     printf(")\n");
+    #endif
+
 }
 
 static void cMutexFree(sqlite3_mutex *mutex) {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexFree(mutex)\n");
+    #endif
+
 }
 
 /* tries to enter the given mutex.
  * if another thread is in the mutex, this method will block.
  */
 static void cMutexEnter(sqlite3_mutex *mutex) {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexEnter(mutex)\n");
+    #endif
+
 }
 
 /* tries to enter the given mutex.
@@ -361,14 +442,20 @@ static void cMutexEnter(sqlite3_mutex *mutex) {
  *  The SQLite core only ever uses sqlite3_mutex_try() as an optimization so this is acceptable behavior."
  */
 static int cMutexTry(sqlite3_mutex *mutex) {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexTry(mutex)\n");
+    #endif
+
 }
 
 /* exits the given mutex.
  * behavior is undefined if the mutex wasn't entered by the calling thread
  */
 static void cMutexLeave(sqlite3_mutex *mutex) {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexLeave(mutex)\n");
+    #endif
+
 }
 
 /* returns true if this mutex is held by the calling thread
@@ -377,7 +464,10 @@ static void cMutexLeave(sqlite3_mutex *mutex) {
  * implementation isn't really needed; this can just return TRUE
  */
 static int cMutexHeld(sqlite3_mutex *mutex) {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexHeld(mutex)\n");
+    #endif
+
     return 1;
 }
 
@@ -387,49 +477,71 @@ static int cMutexHeld(sqlite3_mutex *mutex) {
  * implementation isn't really needed; this can just return TRUE
  */
 static int cMutexNotheld(sqlite3_mutex *mutex) {
+    #if SQLITE_COS_PROFILE_MUTEX
     printf("cMutexNotheld(mutex)\n");
+    #endif
+
     return 1;
 }
 
 /* Memory allocation function */
 static void *cMemMalloc(int sz) {
+    #if SQLITE_COS_PROFILE_MEMORY
     printf("cMemMalloc(sz = %d)\n", sz);
+    #endif
+
     return malloc(sz);
 }
 
 /* Free a prior allocation */
 static void cMemFree(void* mem) {
+    #if SQLITE_COS_PROFILE_MEMORY
     printf("cMemFree(mem = <ptr>)\n");
+    #endif
+
     free(mem);
 }
 
 /* Resize an allocation */
 static void *cMemRealloc(void* mem, int newSize) {
+    #if SQLITE_COS_PROFILE_MEMORY
     printf("cMemRealloc(mem = <ptr>, newSize = %d)\n", newSize);
+    #endif
+
     return realloc(mem, newSize);
 }
 
 /* Return the size of an allocation */
 static int cMemSize(void* mem) {
+    #if SQLITE_COS_PROFILE_MEMORY
     printf("cMemSize(mem = <ptr>)\n");
+    #endif
     return sizeof(mem);
 }
 
 /* Round up request size to allocation size */
 static int cMemRoundup(int sz) {
+    #if SQLITE_COS_PROFILE_MEMORY
     printf("cMemRoundup(sz = %d)\n", sz);
+    #endif
+
     return sz;
 }
 
 /* Initialize the memory allocator */
 static int cMemInit(void* pAppData) {
+    #if SQLITE_COS_PROFILE_MEMORY
     printf("cMemInit(pAppData = %p)\n", pAppData);
+    #endif
+
     return SQLITE_OK;
 }
 
 /* Deinitialize the memory allocator */
 static void cMemShutdown(void* pAppData) {
+    #if SQLITE_COS_PROFILE_MEMORY
     printf("cMemShutdown(pAppData = %p)\n", pAppData);
+    #endif
 }
 
 /* init the OS interface */
