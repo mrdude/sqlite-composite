@@ -302,13 +302,7 @@ static int cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
     struct cFile* file = (struct cFile*)baseFile;
 
     #if SQLITE_COS_PROFILE_VFS
-    printf("cCheckReservedLock(file = %s, lockType = ", file->zName);
-    if( lockType == SQLITE_LOCK_NONE )      printf("LOCK_NONE");
-    if( lockType == SQLITE_LOCK_SHARED )    printf("LOCK_SHARED");
-    if( lockType == SQLITE_LOCK_RESERVED )  printf("LOCK_RESERVED");
-    if( lockType == SQLITE_LOCK_PENDING )   printf("LOCK_PENDING");
-    if( lockType == SQLITE_LOCK_EXCLUSIVE ) printf("LOCK_EXCLUSIVE");
-    printf(")\n");
+    printf("cCheckReservedLock(file = %s)\n", file->zName);
     #endif
 
     *pResOut = 0;
@@ -332,7 +326,7 @@ static int cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
 static int cSectorSize(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
     struct cFile* file = (struct cFile*)baseFile;
-    printf("cSectorSize(file = %s)\n", file->zName, op);
+    printf("cSectorSize(file = %s)\n", file->zName);
     #endif
 
     return 512; //TODO
@@ -343,7 +337,7 @@ static int cSectorSize(sqlite3_file* baseFile) {
 static int cDeviceCharacteristics(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
     struct cFile* file = (struct cFile*)baseFile;
-    printf("cDeviceCharacteristics(file = %s)\n", file->zName, op);
+    printf("cDeviceCharacteristics(file = %s)\n", file->zName);
     #endif
 
     int flags = 0;
