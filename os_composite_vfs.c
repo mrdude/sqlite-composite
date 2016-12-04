@@ -23,8 +23,10 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
 
     /* seek to the correct position */
-    if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
-        return SQLITE_IOERR_SEEK;
+    if( ftell(file->fd) != iOfst ) {
+        if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
+            return SQLITE_IOERR_SEEK;
+        }
     }
 
     /* read the bytes */
