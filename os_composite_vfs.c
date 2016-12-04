@@ -112,12 +112,12 @@ static struct fs_block_header* _fs_append_block(struct fs_file* file) {
 }
 
 /* inmem fs functions */
-static struct fs_file* fs_open(const char* zName) {
+static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
     //TODO make this atomic
     //atomic {
-    struct fs_file* file = _fs_find_file(zName);
+    struct fs_file* file = _fs_find_file(vfs, zName);
     if( file == 0 ) {
-        file = _fs_file_alloc(zName);
+        file = _fs_file_alloc(vfs, zName);
     }
     //}
     file->ref++;
@@ -374,7 +374,7 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
          }
     }
 
-    void* fd = fs_open(zName);
+    void* fd = fs_open(vfs, zName);
     if( fd == 0 ) {
         return SQLITE_IOERR;
     }
