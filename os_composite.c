@@ -26,15 +26,15 @@
 /* sqlite_io function prototypes */
 static int _cClose(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[80];
         struct cFile* file = (struct cFile*)baseFile;
-        snprintf(ch, 80, "cClose(file = '%s') => ", file->zName);
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cClose(file = '%s') => ", file->zName);
     #endif
 
     const int res = cClose(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -44,15 +44,15 @@ static int _cClose(sqlite3_file* baseFile) {
 
 static int _cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[80];
         struct cFile* file = (struct cFile*)baseFile;
-        snprintf(ch, 80, "cRead(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")", file->zName, iAmt, iOfst);
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cRead(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")", file->zName, iAmt, iOfst);
     #endif
 
     const int res = cRead(baseFile, buf, iAmt, iOfst);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s => ", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -62,15 +62,15 @@ static int _cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOf
 
 static int _cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[80];
         struct cFile* file = (struct cFile*)baseFile;
-        snprintf(ch, 80, "cWrite(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")", file->zName, iAmt, iOfst);
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cWrite(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")", file->zName, iAmt, iOfst);
     #endif
 
     const int res = cWrite(baseFile, buf, iAmt, iOfst);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s => ", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -80,15 +80,15 @@ static int _cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_in
 
 static int _cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[80];
         struct cFile* file = (struct cFile*)baseFile;
-        snprintf(ch, 80, "cTruncate(file = %s, size = %" PRIu64 ")", file->zName, size);
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cTruncate(file = %s, size = %" PRIu64 ")", file->zName, size);
     #endif
 
     const int res = cTruncate(baseFile, size);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s =>", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -98,19 +98,19 @@ static int _cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
 
 static int _cSync(sqlite3_file* baseFile, int flags) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[160];
         struct cFile* file = (struct cFile*)baseFile;
-        snprintf(ch, 160, "cSync(file = %s, flags = [", file->zName);
-        if( flags & SQLITE_SYNC_NORMAL ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SYNC_NORMAL ");
-        if( flags & SQLITE_SYNC_FULL ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SYNC_FULL ");
-        if( flags & SQLITE_SYNC_DATAONLY ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SYNC_DATAONLY ");
-        snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), "])\n");
+        CTRACE_STRING_DEF(160);
+        CTRACE_APPEND("cSync(file = %s, flags = [", file->zName);
+        if( flags & SQLITE_SYNC_NORMAL ) CTRACE_APPEND(" SYNC_NORMAL ");
+        if( flags & SQLITE_SYNC_FULL ) CTRACE_APPEND(" SYNC_FULL ");
+        if( flags & SQLITE_SYNC_DATAONLY ) CTRACE_APPEND(" SYNC_DATAONLY ");
+        CTRACE_APPEND("])");
     #endif
 
     const int res = cSync(baseFile, flags);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s => ", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -120,15 +120,15 @@ static int _cSync(sqlite3_file* baseFile, int flags) {
 
 static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[80];
         struct cFile* file = (struct cFile*)baseFile;
-        snprintf(ch, 80, "cFileSize(file = %s, pSize = <>)", file->zName);
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cFileSize(file = %s, pSize = <>)", file->zName);
     #endif
 
     const int res = cFileSize(baseFile, pSize);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s => ", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf(", pSize = %" PRIu64 "\n", *pSize);
     #endif
@@ -307,30 +307,30 @@ static int _cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
 /* sqlite_vfs function prototypes */
 static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[160];
-        snprintf(ch, 160, "cOpen(vfs = <ptr>, zName = '%s', file = <not initialized>, flags = [", zName);
-        if( flags & SQLITE_OPEN_MAIN_DB )        snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_MAIN_DB ");
-        if( flags & SQLITE_OPEN_MAIN_JOURNAL )   snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_MAIN_JOURNAL ");
-        if( flags & SQLITE_OPEN_TEMP_DB )        snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_TEMP_DB ");
-        if( flags & SQLITE_OPEN_TEMP_JOURNAL )   snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_TEMP_JOURNAL ");
-        if( flags & SQLITE_OPEN_TRANSIENT_DB )   snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_TRANSIENT_DB ");
-        if( flags & SQLITE_OPEN_SUBJOURNAL )     snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_SUBJOURNAL ");
-        if( flags & SQLITE_OPEN_MASTER_JOURNAL ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_MASTER_JOURNAL ");
-        if( flags & SQLITE_OPEN_WAL )            snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_WAL ");
+        CTRACE_STRING_DEF(160);
+        CTRACE_APPEND("cOpen(vfs = <ptr>, zName = '%s', file = <not initialized>, flags = [", zName);
+        if( flags & SQLITE_OPEN_MAIN_DB )        CTRACE_APPEND(" OPEN_MAIN_DB ");
+        if( flags & SQLITE_OPEN_MAIN_JOURNAL )   CTRACE_APPEND(" OPEN_MAIN_JOURNAL ");
+        if( flags & SQLITE_OPEN_TEMP_DB )        CTRACE_APPEND(" OPEN_TEMP_DB ");
+        if( flags & SQLITE_OPEN_TEMP_JOURNAL )   CTRACE_APPEND(" OPEN_TEMP_JOURNAL ");
+        if( flags & SQLITE_OPEN_TRANSIENT_DB )   CTRACE_APPEND(" OPEN_TRANSIENT_DB ");
+        if( flags & SQLITE_OPEN_SUBJOURNAL )     CTRACE_APPEND(" OPEN_SUBJOURNAL ");
+        if( flags & SQLITE_OPEN_MASTER_JOURNAL ) CTRACE_APPEND(" OPEN_MASTER_JOURNAL ");
+        if( flags & SQLITE_OPEN_WAL )            CTRACE_APPEND(" OPEN_WAL ");
         //
-        if( flags & SQLITE_OPEN_READWRITE )      snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_READWRITE ");
-        if( flags & SQLITE_OPEN_CREATE )         snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_CREATE ");
-        if( flags & SQLITE_OPEN_READONLY )       snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_READONLY ");
+        if( flags & SQLITE_OPEN_READWRITE )      CTRACE_APPEND(" OPEN_READWRITE ");
+        if( flags & SQLITE_OPEN_CREATE )         CTRACE_APPEND(" OPEN_CREATE ");
+        if( flags & SQLITE_OPEN_READONLY )       CTRACE_APPEND(" OPEN_READONLY ");
         //
-        if( flags & SQLITE_OPEN_DELETEONCLOSE )  snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_DELETEONCLOSE ");
-        if( flags & SQLITE_OPEN_EXCLUSIVE )      snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " OPEN_EXCLUSIVE ");
-        snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), "])");
+        if( flags & SQLITE_OPEN_DELETEONCLOSE )  CTRACE_APPEND(" OPEN_DELETEONCLOSE ");
+        if( flags & SQLITE_OPEN_EXCLUSIVE )      CTRACE_APPEND(" OPEN_EXCLUSIVE ");
+        CTRACE_APPEND("])");
     #endif
 
     const int res = cOpen(vfs, zName, baseFile, flags, pOutFlags);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s => ", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -489,7 +489,6 @@ static int _cMutexInit(void) {
 
     #if SQLITE_COS_PROFILE_MUTEX
         CTRACE_PRINT();
-        printf(" => ");
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -507,7 +506,6 @@ static int _cMutexEnd(void) {
 
     #if SQLITE_COS_PROFILE_MUTEX
         CTRACE_PRINT();
-        printf(" => ");
         PRINT_ERR_CODE(res);
         printf("\n");
     #endif
@@ -542,7 +540,7 @@ static sqlite3_mutex* _cMutexAlloc(int mutexType) {
 
     #if SQLITE_COS_PROFILE_MUTEX
         CTRACE_PRINT();
-        printf(" => mutex = %p\n", mutex);
+        printf("mutex = %p\n", mutex);
     #endif
 
     return mut;
@@ -558,7 +556,7 @@ static void _cMutexFree(sqlite3_mutex *mutex) {
 
 static void _cMutexEnter(sqlite3_mutex *mutex) {
     #if SQLITE_COS_PROFILE_MUTEX
-    printf("cMutexEnter(mutex)\n");
+        printf("cMutexEnter(mutex)\n");
     #endif
 
     cMutexEnter(mutex);
