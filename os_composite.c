@@ -378,14 +378,14 @@ static int _cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut
 
 static int _cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[80];
-        snprintf(ch, 80, "cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = <...>)", zName, nOut);
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = <...>)", zName, nOut);
     #endif
 
     const int res = cFullPathname(vfs, zName, nOut, zOut);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s => ", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf(", zOut = %s\n", zOut);
     #endif
