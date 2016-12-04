@@ -24,7 +24,7 @@
 #include "os_composite.h"
 
 /* sqlite_io function prototypes */
-static int _cClose(sqlite3_file* file) {
+static int _cClose(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
         char ch[80];
         struct cFile* file = (struct cFile*)baseFile;
@@ -41,72 +41,72 @@ static int _cClose(sqlite3_file* file) {
     return res;
 }
 
-static int _cRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst) {
-    return cRead(file, buf, iAmt, iOfst);
+static int _cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
+    return cRead(baseFile, buf, iAmt, iOfst);
 }
 
-static int _cWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst) {
-    return cWrite(file, buf, iAmt, iOfst);
+static int _cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
+    return cWrite(baseFile, buf, iAmt, iOfst);
 }
 
-static int _cTruncate(sqlite3_file* file, sqlite3_int64 size) {
-    return cTruncate(file, size);
+static int _cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
+    return cTruncate(baseFile, size);
 }
 
-static int _cSync(sqlite3_file* file, int flags) {
-    return cSync(file, flags);
+static int _cSync(sqlite3_file* baseFile, int flags) {
+    return cSync(baseFile, flags);
 }
 
-static int _cFileSize(sqlite3_file* file, sqlite3_int64 *pSize) {
-    return cFileSize(file, pSize);
+static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
+    return cFileSize(baseFile, pSize);
 }
 
-static int _cLock(sqlite3_file* file, int i) {
-    return cLock(file, i);
+static int _cLock(sqlite3_file* baseFile, int i) {
+    return cLock(baseFile, i);
 }
 
-static int _cUnlock(sqlite3_file* file, int i) {
-    return cUnlock(file, i);
+static int _cUnlock(sqlite3_file* baseFile, int i) {
+    return cUnlock(baseFile, i);
 }
 
-static int _cCheckReservedLock(sqlite3_file* file, int *pResOut) {
-    return cCheckReservedLock(file, pResOut);
+static int _cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
+    return cCheckReservedLock(baseFile, pResOut);
 }
 
-static int _cFileControl(sqlite3_file* file, int op, void *pArg) {
-    return cFileControl(file, op, pArg);
+static int _cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
+    return cFileControl(baseFile, op, pArg);
 }
 
-static int _cSectorSize(sqlite3_file* file) {
-    return cSectorSize(file);
+static int _cSectorSize(sqlite3_file* baseFile) {
+    return cSectorSize(baseFile);
 }
 
-static int _cDeviceCharacteristics(sqlite3_file* file) {
-    return cDeviceCharacteristics(file);
+static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
+    return cDeviceCharacteristics(baseFile);
 }
 
-static int _cShmMap(sqlite3_file* file, int iPg, int pgsz, int i, void volatile** v) {
-    return cShmMap(file, iPg, pgsz, i, v);
+static int _cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volatile** v) {
+    return cShmMap(baseFile, iPg, pgsz, i, v);
 }
 
-static int _cShmLock(sqlite3_file* file, int offset, int n, int flags) {
-    return cShmLock(file, offset, n, flags);
+static int _cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
+    return cShmLock(baseFile, offset, n, flags);
 }
 
-static void _cShmBarrier(sqlite3_file* file) {
-    return cShmBarrier(file);
+static void _cShmBarrier(sqlite3_file* baseFile) {
+    return cShmBarrier(baseFile);
 }
 
-static int _cShmUnmap(sqlite3_file* file, int deleteFlag) {
-    return cShmUnmap(file, deleteFlag);
+static int _cShmUnmap(sqlite3_file* baseFile, int deleteFlag) {
+    return cShmUnmap(baseFile, deleteFlag);
 }
 
-static int _cFetch(sqlite3_file* file, sqlite3_int64 iOfst, int iAmt, void **pp) {
-    return cFetch(file, iOfst, iAmt, pp);
+static int _cFetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, int iAmt, void **pp) {
+    return cFetch(baseFile, iOfst, iAmt, pp);
 }
 
-static int _cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {
-    return cUnfetch(file, iOfst, p);
+static int _cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
+    return cUnfetch(baseFile, iOfst, p);
 }
 
 /* sqlite_vfs function prototypes */
