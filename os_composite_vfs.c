@@ -114,11 +114,15 @@ static struct fs_block_header* _fs_append_block(struct fs_file* file) {
 
 /* inmem fs functions */
 static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
+    printf("fs_open()");
     //TODO make this atomic
     //atomic {
     struct fs_file* file = _fs_find_file(vfs, zName);
     if( file == 0 ) {
         file = _fs_file_alloc(vfs, zName);
+        if( file == 0 ) {
+            return 0;
+        }
     }
     //}
     file->ref++;
@@ -126,6 +130,7 @@ static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
 }
 
 static void fs_close(struct fs_file* file) {
+    printf("fs_close()");
     //TODO make this threadsafe
     file->ref--;
     if( file->ref == 0 ) {
@@ -136,6 +141,7 @@ static void fs_close(struct fs_file* file) {
 
 /* returns the number of bytes read, or -1 if an error occurred. short reads are allowed. */
 static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
+    printf("fs_read()");
     int bIndex = -1;
     struct fs_block_header* b = _fs_find_block(file, offset, &bIndex);
     if( b == 0 ) {
@@ -163,6 +169,7 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
 
 /* returns the number of bytes written, or -1 if an error occurred */
 static int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf) {
+    printf("fs_write()");
     int bIndex = -1;
     struct fs_block_header* b = _fs_find_block(file, offset, &bIndex);
     if( b == 0 ) {
