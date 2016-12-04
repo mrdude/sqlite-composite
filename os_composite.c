@@ -455,31 +455,111 @@ static int _cMutexNotheld(sqlite3_mutex *mutex) {
 
 /* sqlite_mem function prototypes */
 static void* _cMemMalloc(int sz) {
-    return cMemMalloc(sz);
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMemMalloc(sz = %d)", sz);
+    #endif
+
+    void* mem = cMemMalloc(sz);
+
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT();
+        printf("mem = %p\n", mem);
+    #endif
+
+    return mem;
 }
 
 static void _cMemFree(void* mem) {
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMemFree(mem = %p)", mem);
+    #endif
+
     cMemFree(mem);
+
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT();
+    #endif
 }
 
 static void* _cMemRealloc(void* mem, int newSize) {
-    return cMemRealloc(mem, newSize);
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMemRealloc(mem = %p, newSize = %d)", mem, newSize);
+    #endif
+
+    void* newPtr = cMemRealloc(mem, newSize);
+
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT();
+        printf("newPtr = %p\n", newPtr);
+    #endif
+
+    return newPtr;
 }
 
 static int _cMemSize(void* mem) {
-    return cMemSize(mem);
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMemSize(mem = %p)", mem);
+    #endif
+
+    const int sz = cMemSize(mem);
+
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT();
+        printf("%d\n", sz);
+    #endif
+
+    return sz;
 }
 
 static int _cMemRoundup(int sz) {
-    return cMemRoundup(sz);
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMemRoundup(sz = %d)\n", sz);
+    #endif
+
+    const int sz = cMemRoundup(sz);
+
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT();
+        printf("%d\n", sz);
+    #endif
+
+    return sz;
 }
 
 static int _cMemInit(void* pAppData) {
-    return cMemInit(pAppData);
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMemInit(pAppData = <>)");
+    #endif
+
+    const int res = cMemInit(pAppData);
+
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n", res);
+    #endif
+
+    return res;
 }
 
 static void _cMemShutdown(void* pAppData) {
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMemShutdown(pAppData = <>)");
+    #endif
+
     cMemShutdown(pAppData);
+
+    #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT();
+        printf("\n", res);
+    #endif
 }
 
 /* API structs */
