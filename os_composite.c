@@ -207,7 +207,8 @@ static int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfs
     }
 
     /* if we do a short read, we have to fill the rest of the buffer with 0's */
-    for( int i = bytesRead; i < iAmt; i++ )
+    int i;
+    for( i = bytesRead; i < iAmt; i++ )
         ((char*)buf)[i] = 0;
 
     return SQLITE_IOERR_SHORT_READ;
