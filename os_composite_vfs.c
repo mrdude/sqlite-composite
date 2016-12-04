@@ -51,26 +51,33 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
 
 int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
-    return SQLITE_IOERR;
+
+    /* seek to the correct position */
+    if( ftell(file->fd) != iOfst ) {
+        if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
+            return SQLITE_IOERR_SEEK;
+        }
+    }
+
+    /* write the bytes */
+    int bytesWritten = fwrite(buf, 1, iAmt, file->fd);
+    if( bytesWritten == iAmt ) {
+        return SQLITE_OK;
+    }
+
+    return SQLITE_IOERR_WRITE;
 }
 
 int cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     struct cFile* file = (struct cFile*)baseFile;
-    return SQLITE_IOERR;
+    //TODO this is a NOP
+    return SQLITE_OK;
 }
 
 int cSync(sqlite3_file* baseFile, int flags) {
     struct cFile* file = (struct cFile*)baseFile;
-    
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cSync(file = %s, flags = [", file->zName);
-    if( flags & SQLITE_SYNC_NORMAL ) printf(" SYNC_NORMAL ");
-    if( flags & SQLITE_SYNC_FULL ) printf(" SYNC_FULL ");
-    if( flags & SQLITE_SYNC_DATAONLY ) printf(" SYNC_DATAONLY ");
-    printf("])\n");
-    #endif
-
-    return SQLITE_IOERR;
+    //TODO this is a NOP
+    return SQLITE_OK;
 }
 
 int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
@@ -80,7 +87,7 @@ int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     if( fseek(file->fd, 0L, SEEK_END) != 0 ) {
         return SQLITE_IOERR_SEEK;
     }
-    
+
     *pSize = ftell(file->fd);
 
     return SQLITE_OK;
