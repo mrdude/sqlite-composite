@@ -15,6 +15,7 @@
 #include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
+#include <string.h>
 #include <stdio.h>
 #include <inttypes.h>
 #include <stdlib.h>
