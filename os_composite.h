@@ -48,6 +48,62 @@
         case SQLITE_WARNING: printf("SQLITE_WARNING"); break; \
         case SQLITE_ROW: printf("SQLITE_ROW"); break; \
         case SQLITE_DONE: printf("SQLITE_DONE"); break; \
+        case SQLITE_IOERR_READ: printf("SQLITE_"); break; \
+        case SQLITE_IOERR_SHORT_READ: printf("SQLITE_IOERR_SHORT_READ"); break; \
+        case SQLITE_IOERR_WRITE: printf("SQLITE_IOERR_WRITE"); break; \
+        case SQLITE_IOERR_FSYNC: printf("SQLITE_IOERR_FSYNC"); break; \
+        case SQLITE_IOERR_DIR_FSYNC: printf("SQLITE_IOERR_DIR_FSYNC"); break; \
+        case SQLITE_IOERR_TRUNCATE: printf("SQLITE_IOERR_TRUNCATE"); break; \
+        case SQLITE_IOERR_FSTAT: printf("SQLITE_IOERR_FSTAT"); break; \
+        case SQLITE_IOERR_UNLOCK: printf("SQLITE_IOERR_UNLOCK"); break; \
+        case SQLITE_IOERR_RDLOCK: printf("SQLITE_IOERR_RDLOCK"); break; \
+        case SQLITE_IOERR_DELETE: printf("SQLITE_IOERR_DELETE"); break; \
+        case SQLITE_IOERR_BLOCKED: printf("SQLITE_IOERR_BLOCKED"); break; \
+        case SQLITE_IOERR_NOMEM: printf("SQLITE_IOERR_NOMEM"); break; \
+        case SQLITE_IOERR_ACCESS: printf("SQLITE_IOERR_ACCESS"); break; \
+        case SQLITE_IOERR_CHECKRESERVEDLOCK: printf("SQLITE_IOERR_CHECKRESERVEDLOCK"); break; \
+        case SQLITE_IOERR_LOCK: printf("SQLITE_IOERR_LOCK"); break; \
+        case SQLITE_IOERR_CLOSE: printf("SQLITE_IOERR_CLOSE"); break; \
+        case SQLITE_IOERR_DIR_CLOSE: printf("SQLITE_IOERR_DIR_CLOSE"); break; \
+        case SQLITE_IOERR_SHMOPEN: printf("SQLITE_IOERR_SHMOPEN"); break; \
+        case SQLITE_IOERR_SHMSIZE: printf("SQLITE_IOERR_SHMSIZE"); break; \
+        case SQLITE_IOERR_SHMLOCK: printf("SQLITE_IOERR_SHMLOCK"); break; \
+        case SQLITE_IOERR_SHMMAP: printf("SQLITE_IOERR_SHMMAP"); break; \
+        case SQLITE_IOERR_SEEK: printf("SQLITE_IOERR_SEEK"); break; \
+        case SQLITE_IOERR_DELETE_NOENT: printf("SQLITE_IOERR_DELETE_NOENT"); break; \
+        case SQLITE_IOERR_MMAP: printf("SQLITE_IOERR_MMAP"); break; \
+        case SQLITE_IOERR_GETTEMPPATH: printf("SQLITE_IOERR_GETTEMPPATH"); break; \
+        case SQLITE_IOERR_CONVPATH: printf("SQLITE_IOERR_CONVPATH"); break; \
+        case SQLITE_IOERR_VNODE: printf("SQLITE_IOERR_VNODE"); break; \
+        case SQLITE_IOERR_AUTH: printf("SQLITE_IOERR_AUTH"); break; \
+        case SQLITE_LOCKED_SHAREDCACHE: printf("SQLITE_LOCKED_SHAREDCACHE"); break; \
+        case SQLITE_BUSY_RECOVERY: printf("SQLITE_BUSY_RECOVERY"); break; \
+        case SQLITE_BUSY_SNAPSHOT: printf("SQLITE_BUSY_SNAPSHOT"); break; \
+        case SQLITE_CANTOPEN_NOTEMPDIR: printf("SQLITE_CANTOPEN_NOTEMPDIR"); break; \
+        case SQLITE_CANTOPEN_ISDIR: printf("SQLITE_CANTOPEN_ISDIR"); break; \
+        case SQLITE_CANTOPEN_FULLPATH: printf("SQLITE_CANTOPEN_FULLPATH"); break; \
+        case SQLITE_CANTOPEN_CONVPATH: printf("SQLITE_CANTOPEN_CONVPATH"); break; \
+        case SQLITE_CORRUPT_VTAB: printf("SQLITE_CORRUPT_VTAB"); break; \
+        case SQLITE_READONLY_RECOVERY: printf("SQLITE_READONLY_RECOVERY"); break; \
+        case SQLITE_READONLY_CANTLOCK: printf("SQLITE_READONLY_CANTLOCK"); break; \
+        case SQLITE_READONLY_ROLLBACK: printf("SQLITE_READONLY_ROLLBACK"); break; \
+        case SQLITE_READONLY_DBMOVED: printf("SQLITE_READONLY_DBMOVED"); break; \
+        case SQLITE_ABORT_ROLLBACK: printf("SQLITE_ABORT_ROLLBACK"); break; \
+        case SQLITE_CONSTRAINT_CHECK: printf("SQLITE_CONSTRAINT_CHECK"); break; \
+        case SQLITE_CONSTRAINT_COMMITHOOK: printf("SQLITE_CONSTRAINT_COMMITHOOK"); break; \
+        case SQLITE_CONSTRAINT_FOREIGNKEY: printf("SQLITE_CONSTRAINT_FOREIGNKEY"); break; \
+        case SQLITE_CONSTRAINT_FUNCTION: printf("SQLITE_CONSTRAINT_FUNCTION"); break; \
+        case SQLITE_CONSTRAINT_NOTNULL: printf("SQLITE_CONSTRAINT_NOTNULL"); break; \
+        case SQLITE_CONSTRAINT_PRIMARYKEY: printf("SQLITE_CONSTRAINT_PRIMARYKEY"); break; \
+        case SQLITE_CONSTRAINT_TRIGGER: printf("SQLITE_CONSTRAINT_TRIGGER"); break; \
+        case SQLITE_CONSTRAINT_UNIQUE: printf("SQLITE_CONSTRAINT_UNIQUE"); break; \
+        case SQLITE_CONSTRAINT_VTAB: printf("SQLITE_CONSTRAINT_VTAB"); break; \
+        case SQLITE_CONSTRAINT_ROWID: printf("SQLITE_CONSTRAINT_ROWID"); break; \
+        case SQLITE_NOTICE_RECOVER_WAL: printf("SQLITE_NOTICE_RECOVER_WAL"); break; \
+        case SQLITE_NOTICE_RECOVER_ROLLBACK: printf("SQLITE_NOTICE_RECOVER_ROLLBACK"); break; \
+        case SQLITE_WARNING_AUTOINDEX: printf("SQLITE_WARNING_AUTOINDEX"); break; \
+        case SQLITE_AUTH_USER: printf("SQLITE_AUTH_USER"); break; \
+        case SQLITE_OK_LOAD_PERMANENTLY: printf("SQLITE_OK_LOAD_PERMANENTLY"); break; \
         default: printf("Unknown(%d)", x ); break; \
     } \
     } while(0)
