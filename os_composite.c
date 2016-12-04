@@ -332,7 +332,7 @@ static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, i
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_PRINT();
         PRINT_ERR_CODE(res);
-        printf(", pOutFlags = %d\n", *pOutFlags);
+        printf(", pOutFlags = %d\n", pOutFlags ? *pOutFlags : -1);
     #endif
 
     return res;
