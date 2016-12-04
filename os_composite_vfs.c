@@ -159,11 +159,6 @@ int cDeviceCharacteristics(sqlite3_file* baseFile) {
 }
 
 int cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volatile** v) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cShmMap(file = %s, iPg = %d, pgsz = %d, i = %d, v = <>)\n", file->zName, iPg, pgsz, i);
-    #endif
-
     return SQLITE_IOERR;
 }
 
@@ -175,29 +170,14 @@ void cShmBarrier(sqlite3_file* baseFile) {
 }
 
 int cShmUnmap(sqlite3_file* baseFile, int deleteFlag) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cShmUnmap(file = %s, deleteFlag = %d)\n", file->zName, deleteFlag);
-    #endif
-
     return SQLITE_IOERR;
 }
 
 int cFetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, int iAmt, void **pp) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cFetch(file = %s, iOfst = %" PRIu64 ", iAmt = %d, pp = <>)\n", file->zName, iOfst, iAmt);
-    #endif
-
     return SQLITE_IOERR;
 }
 
 int cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cUnfetch(file = %s, iOfst = %" PRIu64 ", pp = <>)\n", file->zName, iOfst);
-    #endif
-
     return SQLITE_IOERR;
 }
 

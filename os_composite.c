@@ -267,7 +267,21 @@ static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
 }
 
 static int _cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volatile** v) {
-    return cShmMap(baseFile, iPg, pgsz, i, v);
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cShmMap(file = %s, iPg = %d, pgsz = %d, i = %d, v = <>)", file->zName, iPg, pgsz, i);
+    #endif
+
+    const int res = cShmMap(baseFile, iPg, pgsz, i, v);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 static int _cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
@@ -306,15 +320,57 @@ static void _cShmBarrier(sqlite3_file* baseFile) {
 }
 
 static int _cShmUnmap(sqlite3_file* baseFile, int deleteFlag) {
-    return cShmUnmap(baseFile, deleteFlag);
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cShmUnmap(file = %s, deleteFlag = %d)\n", file->zName, deleteFlag);
+    #endif
+
+    const int res = cShmUnmap(baseFile, deleteFlag);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 static int _cFetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, int iAmt, void **pp) {
-    return cFetch(baseFile, iOfst, iAmt, pp);
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cFetch(file = %s, iOfst = %" PRIu64 ", iAmt = %d, pp = <>)\n", file->zName, iOfst, iAmt);
+    #endif
+
+    const int res = cFetch(baseFile, iOfst, iAmt, pp);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 static int _cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
-    return cUnfetch(baseFile, iOfst, p);
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cUnfetch(file = %s, iOfst = %" PRIu64 ", pp = <>)\n", file->zName, iOfst);
+    #endif
+
+    const int res = cUnfetch(baseFile, iOfst, p);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 /* sqlite_vfs function prototypes */
