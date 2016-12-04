@@ -55,7 +55,7 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
 
 static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)vfs->pAppData;
-    struct fs_file* file = _FS_MALLOC( cVfs, struct fs_file* );
+    struct fs_file* file = _FS_MALLOC( cVfs, sizeof(struct fs_file*) );
     if( file == 0 )
         return 0;
     
