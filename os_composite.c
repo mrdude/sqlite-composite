@@ -509,7 +509,7 @@ static int _cMemSize(void* mem) {
 
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_PRINT();
-        printf("%d\n", sz);
+        printf("sz = %d\n", sz);
     #endif
 
     return sz;
