@@ -44,6 +44,7 @@ static void* _FS_MALLOC(struct composite_vfs_data* cVfs, int sz ) {
 
 /* finds the file with the given name, or 0 if it doesn't exist */
 static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
+    printf("_fs_find_file()\n");
     struct fs_file* file;
     for( file = _fs_file_list; file != 0; file = file->next ) {
         if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
@@ -54,6 +55,7 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
 }
 
 static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
+    printf("_fs_find_alloc()\n");
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)(vfs->pAppData);
     struct fs_file* file = _FS_MALLOC( cVfs, sizeof(struct fs_file*) );
     if( file == 0 )
@@ -70,11 +72,13 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
 
 /* free the file and all of its blocks */
 static void _fs_file_free(struct fs_file* file) {
+    printf("_fs_file_free()\n");
     //TODO
 }
 
 //TODO make this run in less than O(n) time
 static struct fs_block_header* _fs_find_block(struct fs_file* file, int64_t offset, int* bIndex) {
+    printf("_fs_find_block()\n");
     int _ = 0;
     if( bIndex == 0 )
         bIndex = &_;
@@ -93,6 +97,7 @@ static struct fs_block_header* _fs_find_block(struct fs_file* file, int64_t offs
 }
 
 static struct fs_block_header* _fs_append_block(struct fs_file* file) {
+    printf("_fs_append_block()\n");
     struct fs_block_header* hdr = _FS_MALLOC(file->cVfs, PAGE_SIZE);
     if( hdr == 0 )
         return 0;
@@ -114,7 +119,7 @@ static struct fs_block_header* _fs_append_block(struct fs_file* file) {
 
 /* inmem fs functions */
 static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
-    printf("fs_open()");
+    printf("fs_open()\n");
     //TODO make this atomic
     //atomic {
     struct fs_file* file = _fs_find_file(vfs, zName);
