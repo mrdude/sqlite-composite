@@ -27,6 +27,7 @@
 static int _cClose(sqlite3_file* file) {
     #if SQLITE_COS_PROFILE_VFS
         char ch[80];
+        struct cFile* file = (struct cFile*)baseFile;
         snprintf(ch, 80, "cClose(file = '%s') => ", file->zName);
     #endif
 
