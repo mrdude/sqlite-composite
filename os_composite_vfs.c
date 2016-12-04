@@ -234,9 +234,11 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
     int fd = -1;
     if( flags & SQLITE_OPEN_READWRITE ) {
         if( fileExists ) {
-            fd = open(zName, O_RDWR /*"r+b"*/);
+            fd = open(zName, O_RDWR);
         } else {
-            fd = open(zName, O_RDWR | O_CREAT /*"w+b"*/);
+            fd = open(zName,
+                O_RDWR | O_CREAT,
+                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH ); /* everyone has read-write access to this file */
         }
     } else if( flags & SQLITE_OPEN_READONLY ) {
         fd = open(zName, O_RDONLY);
