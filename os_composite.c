@@ -26,7 +26,7 @@
 /* sqlite_io function prototypes */
 static int _cClose(sqlite3_file* file) {
     #if SQLITE_COS_PROFILE_VFS
-        char[80] ch;
+        char ch[80];
         snprintf(ch, 80, "cClose(file = '%s') => ", file->zName);
     #endif
 
@@ -208,7 +208,7 @@ static int _cMemInit(void* pAppData) {
 }
 
 static void _cMemShutdown(void* pAppData) {
-    return cMemShutdown(pAppData);
+    cMemShutdown(pAppData);
 }
 
 /* API structs */
