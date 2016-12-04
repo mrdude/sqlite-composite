@@ -542,7 +542,7 @@ static int _cMemInit(void* pAppData) {
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_PRINT();
         PRINT_ERR_CODE(res);
-        printf("\n", res);
+        printf("\n");
     #endif
 
     return res;
