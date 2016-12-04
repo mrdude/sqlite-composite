@@ -31,11 +31,12 @@ static int _cClose(sqlite3_file* baseFile) {
         snprintf(ch, 80, "cClose(file = '%s') => ", file->zName);
     #endif
 
-    const int res = cClose(file);
+    const int res = cClose(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
         printf("%s", &ch);
         PRINT_ERR_CODE(res);
+        printf("\n");
     #endif
 
     return res;
