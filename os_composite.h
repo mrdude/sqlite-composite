@@ -2,6 +2,18 @@
 #ifndef SQLITE_COS_OS_COMPOSITE_H
 #define SQLITE_COS_OS_COMPOSITE_H
 
+#ifndef SQLITE_COS_PROFILE_VFS
+#define SQLITE_COS_PROFILE_VFS 0
+#endif
+
+#ifndef SQLITE_COS_PROFILE_MUTEX
+#define SQLITE_COS_PROFILE_MUTEX 0
+#endif
+
+#ifndef SQLITE_COS_PROFILE_MEMORY
+#define SQLITE_COS_PROFILE_MEMORY 0
+#endif
+
 /* cFile */
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
