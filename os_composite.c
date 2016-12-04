@@ -236,7 +236,7 @@ static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
         CTRACE_PRINT();
         printf("flags = [");
 
-        if( flags & SQLITE_IOCAP_ATOMIC ) ) printf(" IOCAP_ATOMIC ");
+        if( flags & SQLITE_IOCAP_ATOMIC ) printf(" IOCAP_ATOMIC ");
         if( flags & SQLITE_IOCAP_ATOMIC512 ) printf(" IOCAP_ATOMIC512 ");
         if( flags & SQLITE_IOCAP_ATOMIC1K ) printf(" IOCAP_ATOMIC1K ");
         if( flags & SQLITE_IOCAP_ATOMIC2K ) printf(" IOCAP_ATOMIC2K ");
