@@ -310,7 +310,7 @@ int cSleep(sqlite3_vfs* vfs, int microseconds) {
 }
 
 int cGetLastError(sqlite3_vfs* vfs, int i, char *ch) {
-    //TODO
+    return errno;
 }
 
 /* "returns a Julian Day Number for the current date and time as a floating point value"
