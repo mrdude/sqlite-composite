@@ -304,14 +304,6 @@ int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
  * @param pResOut
  */
 int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cAccess(vfs = <ptr>, zName = %s, flags = [", zName);
-    if( flags == SQLITE_ACCESS_EXISTS ) printf(" ACCESS_EXISTS ");
-    else if( flags == SQLITE_ACCESS_READWRITE ) printf(" ACCESS_READWRITE ");
-    else if( flags == SQLITE_ACCESS_READ ) printf(" ACCESS_READ ");
-    printf("], pResOut = <flags>)\n");
-    #endif
-
     if( flags == SQLITE_ACCESS_EXISTS ) {
         *pResOut = (access(zName, F_OK) != -1);
     } else if( flags == SQLITE_ACCESS_READWRITE ) {
@@ -324,10 +316,6 @@ int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
 }
 
 int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = %s)\n", zName, nOut, zOut);
-    #endif
-
     const char* full_pathname = "/tmp/";
     const size_t full_pathname_len = strlen(full_pathname);
 

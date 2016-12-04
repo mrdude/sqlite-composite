@@ -209,11 +209,41 @@ static int _cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
 }
 
 static int _cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
-    return cAccess(vfs, zName, flags, pResOut);
+    #if SQLITE_COS_PROFILE_VFS
+        char ch[80];
+        snprintf(ch, 80, "cAccess(vfs = <ptr>, zName = %s, flags = [", zName);
+        if( flags == SQLITE_ACCESS_EXISTS ) snprintf(&ch[ strlen(ch) ], 80 - strlen(ch), " ACCESS_EXISTS ");
+        if( flags == SQLITE_ACCESS_READWRITE ) snprintf(&ch[ strlen(ch) ], 80 - strlen(ch), " ACCESS_READWRITE ");
+        if( flags == SQLITE_ACCESS_READ ) snprintf(&ch[ strlen(ch) ], 80 - strlen(ch), " ACCESS_READ ");
+        snprintf(&ch[ strlen(ch) ], 80 - strlen(ch), "], pResOut = <flags>)\n");
+    #endif
+
+    const int res = cAccess(vfs, zName, flags, pResOut);
+
+    #if SQLITE_COS_PROFILE_VFS
+        printf("%s => ", &ch[0]);
+        PRINT_ERR_CODE(res);
+        printf(", pResOut = %d\n", pResOut);
+    #endif
+
+    return res;
 }
 
 static int _cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
-    return cFullPathname(vfs, zName, nOut, zOut);
+    #if SQLITE_COS_PROFILE_VFS
+        char ch[80];
+        snprintf(ch, 80, "cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = <...>)\n", zName, nOut);
+    #endif
+
+    const int res = cFullPathname(vfs, zName, nOut, zOut);
+
+    #if SQLITE_COS_PROFILE_VFS
+        printf("%s => ", &ch[0]);
+        PRINT_ERR_CODE(res);
+        printf(", zOut = %s\n", zOut);
+    #endif
+
+    return res;
 }
 
 static int _cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
