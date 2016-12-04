@@ -130,7 +130,7 @@ static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     #if SQLITE_COS_PROFILE_VFS
         printf("%s => ", &ch[0]);
         PRINT_ERR_CODE(res);
-        printf(", pSize = %d\n", *pSize);
+        printf(", pSize = %" PRIu64 "\n", *pSize);
     #endif
 
     return res;
@@ -184,7 +184,7 @@ static int _cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
     #if SQLITE_COS_PROFILE_VFS
         printf("%s => ", &ch[0]);
         PRINT_ERR_CODE(res);
-        printf(", pSize = %d\n", *pSize);
+        printf("\n");
     #endif
 
     return res;
