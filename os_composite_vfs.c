@@ -117,7 +117,7 @@ int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     /* seek to the end, then ask for the position */
     off_t pos = lseek(file->fd, 0L, SEEK_END);
 
-    if( pos != 0 ) {
+    if( pos == -1 ) {
         return SQLITE_IOERR_SEEK;
     }
 
