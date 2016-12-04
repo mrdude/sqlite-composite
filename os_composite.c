@@ -399,17 +399,17 @@ static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
 static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
     #if SQLITE_COS_PROFILE_VFS
     printf("cAccess(vfs = <ptr>, zName = %s, flags = [", zName);
-    if( flags & SQLITE_ACCESS_EXISTS ) printf(" ACCESS_EXISTS ");
-    if( flags & SQLITE_ACCESS_READWRITE ) printf(" ACCESS_READWRITE ");
-    if( flags & SQLITE_ACCESS_READ ) printf(" ACCESS_READ ");
+    if( flags == SQLITE_ACCESS_EXISTS ) printf(" ACCESS_EXISTS ");
+    else if( flags == SQLITE_ACCESS_READWRITE ) printf(" ACCESS_READWRITE ");
+    else if( flags == SQLITE_ACCESS_READ ) printf(" ACCESS_READ ");
     printf("], pResOut = <flags>)\n");
     #endif
 
-    if( flags & SQLITE_ACCESS_EXISTS ) {
+    if( flags == SQLITE_ACCESS_EXISTS ) {
         *pResOut = (access(zName, F_OK) != -1);
-    } else if( flags & SQLITE_ACCESS_READWRITE ) {
+    } else if( flags == SQLITE_ACCESS_READWRITE ) {
         *pResOut = (access(zName, R_OK | W_OK) != -1);
-    } else if( flags & SQLITE_ACCESS_READ ) {
+    } else if( flags == SQLITE_ACCESS_READ ) {
         *pResOut = (access(zName, R_OK) != -1);
     }
 
