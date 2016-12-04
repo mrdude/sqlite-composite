@@ -17,7 +17,7 @@
 int cClose(sqlite3_file* baseFile) {
     struct cFile* file = (struct cFile*)baseFile;
 
-    fclose(file->fd);
+    close(file->fd);
     file->closed = 1;
 
     //TODO delete?
@@ -65,7 +65,7 @@ int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfs
     struct cFile* file = (struct cFile*)baseFile;
 
     /* seek to the correct position */
-    if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
+    if( lseek(file->fd, iOfst, SEEK_SET) != 0 ) {
         return SQLITE_IOERR_SEEK;
     }
 
