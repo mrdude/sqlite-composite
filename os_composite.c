@@ -403,7 +403,7 @@ static int _cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
 
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_PRINT();
-        printf("bytesOfRandom = %d, zOut = <...>\n", bytesOfRandomness, zOut);
+        printf("bytesOfRandom = %d, zOut = <...>\n", bytesOfRandomness);
     #endif
 
     return bytesOfRandomness;
@@ -412,7 +412,7 @@ static int _cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
 static int _cSleep(sqlite3_vfs* vfs, int microseconds) {
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_STRING_DEF(80);
-        CTRANCE_APPEND("cSleep(vfs = <vfs>, microseconds = %d)\n", microseconds);
+        CTRACE_APPEND("cSleep(vfs = <vfs>, microseconds = %d)\n", microseconds);
     #endif
 
     const int res = cSleep(vfs, microseconds);
@@ -429,7 +429,7 @@ static int _cSleep(sqlite3_vfs* vfs, int microseconds) {
 static int _cGetLastError(sqlite3_vfs* vfs, int i, char *ch) {
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_STRING_DEF(80);
-        CTRANCE_APPEND("cGetLastError(vfs = <vfs>, i = %d, ch = %s)", i, ch);
+        CTRACE_APPEND("cGetLastError(vfs = <vfs>, i = %d, ch = %s)", i, ch);
     #endif
 
     const int res = cGetLastError(vfs, i, ch);
@@ -446,7 +446,7 @@ static int _cGetLastError(sqlite3_vfs* vfs, int i, char *ch) {
 static int _cCurrentTime(sqlite3_vfs* vfs, double* time) {
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_STRING_DEF(80);
-        CTRANCE_APPEND("cCurrentTime(vfs = <vfs>, time = <...>)");
+        CTRACE_APPEND("cCurrentTime(vfs = <vfs>, time = <...>)");
     #endif
 
     const int res = cCurrentTime(vfs, time);
@@ -454,7 +454,7 @@ static int _cCurrentTime(sqlite3_vfs* vfs, double* time) {
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_PRINT();
         PRINT_ERR_CODE(res);
-        printf(", time = %f\n", time);
+        printf(", time = %f\n", *time);
     #endif
 
     return res;
@@ -464,7 +464,7 @@ static int _cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
     return cCurrentTimeInt64(vfs, time);
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_STRING_DEF(80);
-        CTRANCE_APPEND("cCurrentTimeInt64(vfs = <vfs>, time = <...>)");
+        CTRACE_APPEND("cCurrentTimeInt64(vfs = <vfs>, time = <...>)");
     #endif
 
     const int res = cCurrentTimeInt64(vfs, time);
@@ -472,7 +472,7 @@ static int _cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_PRINT();
         PRINT_ERR_CODE(res);
-        printf(", time = %" PRIu64 "\n", time);
+        printf(", time = %" PRIu64 "\n", *time);
     #endif
 
     return res;
