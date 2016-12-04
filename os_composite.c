@@ -37,7 +37,7 @@ static int _cClose(sqlite3_file* baseFile) {
     const int res = cClose(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
+        CCTRACE_APPEND(" => ");
         APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
@@ -55,8 +55,7 @@ static int _cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOf
     const int res = cRead(baseFile, buf, iAmt, iOfst);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
-        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -73,8 +72,7 @@ static int _cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_in
     const int res = cWrite(baseFile, buf, iAmt, iOfst);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
-        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -91,8 +89,7 @@ static int _cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     const int res = cTruncate(baseFile, size);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
-        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -113,8 +110,7 @@ static int _cSync(sqlite3_file* baseFile, int flags) {
     const int res = cSync(baseFile, flags);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
-        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -131,8 +127,7 @@ static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     const int res = cFileSize(baseFile, pSize);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
-        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
         CTRACE_APPEND(", pSize = %" PRIu64, *pSize);
         CTRACE_PRINT();
     #endif
@@ -156,8 +151,7 @@ static int _cLock(sqlite3_file* baseFile, int lockType) {
     const int res = cLock(baseFile, lockType);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
-        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -180,8 +174,7 @@ static int _cUnlock(sqlite3_file* baseFile, int lockType) {
     const int res = cUnlock(baseFile, lockType);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
-        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -198,8 +191,7 @@ static int _cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
     const int res = cCheckReservedLock(baseFile, pResOut);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
-        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
         CTRACE_APPEND(", pResOut = %d\n", pResOut ? *pResOut : -1);
         CTRACE_PRINT();
     #endif
@@ -217,7 +209,7 @@ static int _cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
     const int res = cFileControl(baseFile, op, pArg);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ")
+        CTRACE_APPEND(" => ");
         APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
