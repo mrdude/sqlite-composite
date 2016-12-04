@@ -148,6 +148,7 @@ static void fs_close(struct fs_file* file) {
 /* returns the number of bytes read, or -1 if an error occurred. short reads are allowed. */
 static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     printf("fs_read()");
+    /*
     int bIndex = -1;
     struct fs_block_header* b = _fs_find_block(file, offset, &bIndex);
     if( b == 0 ) {
@@ -155,7 +156,7 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     }
 
     int bytes_read = 0;
-    /*
+
     char* data = buf;
     int i = 0;
     for( i = 0; i < len; i++ ) {
@@ -170,8 +171,9 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
         char* blkData = (char*)(b[1]);
         data[i] = blkData[i - (bIndex*FS_BLOCK_SIZE)];
     }
-    */
     return bytes_read;
+    */
+    return 0;
 }
 
 /* returns the number of bytes written, or -1 if an error occurred */
@@ -184,9 +186,8 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
         if( b == 0 ) return -1;
     }
 
-    /*
-
     int bytes_written = 0;
+    /*
     int i = 0;
     for( i = 0; i < len; i++ ) {
         if( i - (bIndex*FS_BLOCK_SIZE) >= FS_BLOCK_SIZE ) {
