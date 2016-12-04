@@ -28,7 +28,7 @@ struct fs_file {
 
 struct fs_block_header { /* represents a single file block */
     struct fs_file* file; /* pointer to this block's file */
-    struct fs_block* next; /* pointer to the next block */
+    struct fs_block_header* next; /* pointer to the next block */
     int sz; /* how much data is in the block? */
 };
 
@@ -43,7 +43,7 @@ static void* _FS_MALLOC(struct composite_vfs_data* cVfs, int sz ) {
 }
 
 /* finds the file with the given name, or 0 if it doesn't exist */
-static struct fs_file* _fs_find_file(sqlite_vfs* vfs, const char* zName) {
+static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
     for( struct fs_file* file = _fs_file_list; file != 0; file = file->next ) {
         if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
             return file;
@@ -52,7 +52,7 @@ static struct fs_file* _fs_find_file(sqlite_vfs* vfs, const char* zName) {
     return 0;
 }
 
-static struct fs_file* _fs_file_alloc(sqlite_vfs* vfs, const char *zName) {
+static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)vfs->pAppData;
     struct fs_file* file = _FS_MALLOC( cVfs, struct fs_file* );
     if( file == 0 )
@@ -99,8 +99,9 @@ static struct fs_block_header* _fs_append_block(struct fs_file* file) {
         file->firstBlock = hdr;
         hdr->next = 0;
     } else {
-        while( b->next != 0)
+        while( b->next != 0) {
             b = b->next;
+        }
         
         b->next = hdr;
         hdr->next = 0;
