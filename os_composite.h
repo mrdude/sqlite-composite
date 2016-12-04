@@ -18,7 +18,6 @@
 #define PRINT_ERR_CODE(x) do { \
     switch( x ) { \
         case SQLITE_OK: printf("SQLITE_OK"); break; \
-        case SQLITE_OK: printf("SQLITE_OK"); break; \
         case SQLITE_ERROR: printf("SQLITE_ERROR"); break; \
         case SQLITE_INTERNAL: printf("SQLITE_INTERNAL"); break; \
         case SQLITE_PERM: printf("SQLITE_PERM"); break; \
