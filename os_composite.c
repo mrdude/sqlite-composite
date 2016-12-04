@@ -119,7 +119,21 @@ static int _cSync(sqlite3_file* baseFile, int flags) {
 }
 
 static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
-    return cFileSize(baseFile, pSize);
+    #if SQLITE_COS_PROFILE_VFS
+        char ch[80];
+        struct cFile* file = (struct cFile*)baseFile;
+        snprintf(ch, 160, "cFileSize(file = %s, pSize = <>)", file->zName);
+    #endif
+
+    const int res = cFileSize(baseFile, pSize);
+
+    #if SQLITE_COS_PROFILE_VFS
+        printf("%s => ", &ch[0]);
+        PRINT_ERR_CODE(res);
+        printf(", pSize = %d\n", *pSize);
+    #endif
+
+    return res;
 }
 
 static int _cLock(sqlite3_file* baseFile, int i) {

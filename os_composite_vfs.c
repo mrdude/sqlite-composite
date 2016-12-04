@@ -35,7 +35,7 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
         return SQLITE_OK;
     }
 
-/*
+    /*
     if( feof(file->fd) || ferror(file->fd) ) {
         return SQLITE_IOERR;
     }
@@ -76,11 +76,14 @@ int cSync(sqlite3_file* baseFile, int flags) {
 int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     struct cFile* file = (struct cFile*)baseFile;
 
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cFileSize(file = %s)\n", file->zName);
-    #endif
+    /* seek to the end, then ask for the position */
+    if( fseek(file->fd, 0L, SEEK_END) != 0 ) {
+        return SQLITE_IOERR_SEEK;
+    }
+    
+    *pSize = ftell(file->fd);
 
-    return SQLITE_IOERR;
+    return SQLITE_OK;
 }
 
 /* increases the lock on a file
