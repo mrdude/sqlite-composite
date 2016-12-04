@@ -44,7 +44,8 @@ static void* _FS_MALLOC(struct composite_vfs_data* cVfs, int sz ) {
 
 /* finds the file with the given name, or 0 if it doesn't exist */
 static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
-    for( struct fs_file* file = _fs_file_list; file != 0; file = file->next ) {
+    struct fs_file* file;
+    for( file = _fs_file_list; file != 0; file = file->next ) {
         if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
             return file;
         }
@@ -79,7 +80,8 @@ static struct fs_block_header* _fs_find_block(struct fs_file* file, int64_t offs
     
     *bIndex = 0;
     int64_t index = 0;
-    for( struct fs_block_header* b = file->firstBlock; b != 0; b = b->next ) {
+    struct fs_block_header* b;
+    for( b = file->firstBlock; b != 0; b = b->next ) {
         if( index > offset ) {
             return b;
         }
