@@ -323,24 +323,30 @@ static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, in
     file->composite_io_methods = 0;
     *pOutFlags = 0;
 
+    /* does the file exist? */
+    int fileExists = 0;
+    cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &fileExists);
+
     if( flags & SQLITE_OPEN_CREATE && flags & SQLITE_OPEN_EXCLUSIVE ) {
         /* These two flags mean "that file should always be created, and that it is an error if it already exists."
          * They are always used together.
          */
-
-         int resOut = 0;
-         cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &resOut);
-         if( resOut ) {
+         if( fileExists ) {
              return SQLITE_IOERR; //the file already exists -- error!
          }
     }
 
     FILE* fd = NULL;
     if( flags & SQLITE_OPEN_READWRITE ) {
-        fd = fopen(zName, "rwb");
+        if( fileExists ) {
+            fd = fopen(zName, "r+");
+        } else {
+            fd = fopen(zName, "w+");
+        }
+
         *pOutFlags |= SQLITE_OPEN_READWRITE;
     } else if( flags & SQLITE_OPEN_READONLY ) {
-        fd = fopen(zName, "rb");
+        fd = fopen(zName, "r");
         *pOutFlags |= SQLITE_OPEN_READONLY;
     }
 
@@ -425,7 +431,7 @@ static int cSleep(sqlite3_vfs* vfs, int microseconds) {
 
 static int cGetLastError(sqlite3_vfs* vfs, int i, char *ch) {
     #if SQLITE_COS_PROFILE_VFS
-    printf("cGetLastError()\n");
+    printf("cGetLastError(i = %d, ch = %s)\n", i, ch);
     #endif
 }
 
