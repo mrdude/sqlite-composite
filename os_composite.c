@@ -136,12 +136,52 @@ static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     return res;
 }
 
-static int _cLock(sqlite3_file* baseFile, int i) {
-    return cLock(baseFile, i);
+static int _cLock(sqlite3_file* baseFile, int lockType) {
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cLock(file = %s, lockType = ", file->zName);
+        if( lockType == SQLITE_LOCK_NONE )      CTRACE_APPEND("LOCK_NONE");
+        if( lockType == SQLITE_LOCK_SHARED )    CTRACE_APPEND("LOCK_SHARED");
+        if( lockType == SQLITE_LOCK_RESERVED )  CTRACE_APPEND("LOCK_RESERVED");
+        if( lockType == SQLITE_LOCK_PENDING )   CTRACE_APPEND("LOCK_PENDING");
+        if( lockType == SQLITE_LOCK_EXCLUSIVE ) CTRACE_APPEND("LOCK_EXCLUSIVE");
+        CTRACE_APPEND(")");
+    #endif
+
+    const int res = cLock(baseFile, lockType);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
-static int _cUnlock(sqlite3_file* baseFile, int i) {
-    return cUnlock(baseFile, i);
+static int _cUnlock(sqlite3_file* baseFile, int lockType) {
+    #if SQLITE_COS_PROFILE_VFS
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cUnlock(file = %s, lockType = ", file->zName);
+        if( lockType == SQLITE_LOCK_NONE )      CTRACE_APPEND("LOCK_NONE");
+        if( lockType == SQLITE_LOCK_SHARED )    CTRACE_APPEND("LOCK_SHARED");
+        if( lockType == SQLITE_LOCK_RESERVED )  CTRACE_APPEND("LOCK_RESERVED");
+        if( lockType == SQLITE_LOCK_PENDING )   CTRACE_APPEND("LOCK_PENDING");
+        if( lockType == SQLITE_LOCK_EXCLUSIVE ) CTRACE_APPEND("LOCK_EXCLUSIVE");
+        CTRACE_APPEND(")");
+    #endif
+
+    const int res = cUnlock(baseFile, lockType);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 static int _cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
@@ -251,18 +291,18 @@ static int _cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
 
 static int _cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
     #if SQLITE_COS_PROFILE_VFS
-        char ch[80];
-        snprintf(ch, 80, "cAccess(vfs = <ptr>, zName = %s, flags = [", zName);
-        if( flags == SQLITE_ACCESS_EXISTS ) snprintf(&ch[ strlen(ch) ], 80 - strlen(ch), " ACCESS_EXISTS ");
-        if( flags == SQLITE_ACCESS_READWRITE ) snprintf(&ch[ strlen(ch) ], 80 - strlen(ch), " ACCESS_READWRITE ");
-        if( flags == SQLITE_ACCESS_READ ) snprintf(&ch[ strlen(ch) ], 80 - strlen(ch), " ACCESS_READ ");
-        snprintf(&ch[ strlen(ch) ], 80 - strlen(ch), "], pResOut = <flags>)\n");
+        CTRACE_STRING_DEF(160);
+        CTRACE_APPEND("cAccess(vfs = <ptr>, zName = %s, flags = [", zName);
+        if( flags == SQLITE_ACCESS_EXISTS ) CTRACE_APPEND(" ACCESS_EXISTS ");
+        if( flags == SQLITE_ACCESS_READWRITE ) CTRACE_APPEND(" ACCESS_READWRITE ");
+        if( flags == SQLITE_ACCESS_READ ) CTRACE_APPEND(" ACCESS_READ ");
+        CTRACE_APPEND("], pResOut = <flags>)");
     #endif
 
     const int res = cAccess(vfs, zName, flags, pResOut);
 
     #if SQLITE_COS_PROFILE_VFS
-        printf("%s => ", &ch[0]);
+        CTRACE_PRINT();
         PRINT_ERR_CODE(res);
         printf(", pResOut = %d\n", *pResOut);
     #endif

@@ -98,17 +98,6 @@ int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
  */
 int cLock(sqlite3_file* baseFile, int lockType) {
     struct cFile* file = (struct cFile*)baseFile;
-
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cLock(file = %s, lockType = ", file->zName);
-    if( lockType == SQLITE_LOCK_NONE )      printf("LOCK_NONE");
-    if( lockType == SQLITE_LOCK_SHARED )    printf("LOCK_SHARED");
-    if( lockType == SQLITE_LOCK_RESERVED )  printf("LOCK_RESERVED");
-    if( lockType == SQLITE_LOCK_PENDING )   printf("LOCK_PENDING");
-    if( lockType == SQLITE_LOCK_EXCLUSIVE ) printf("LOCK_EXCLUSIVE");
-    printf(")\n");
-    #endif
-
     return SQLITE_OK;
 }
 
@@ -117,17 +106,6 @@ int cLock(sqlite3_file* baseFile, int lockType) {
  */
 int cUnlock(sqlite3_file* baseFile, int lockType) {
     struct cFile* file = (struct cFile*)baseFile;
-
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cUnlock(file = %s, lockType = ", file->zName);
-    if( lockType == SQLITE_LOCK_NONE )      printf("LOCK_NONE");
-    if( lockType == SQLITE_LOCK_SHARED )    printf("LOCK_SHARED");
-    if( lockType == SQLITE_LOCK_RESERVED )  printf("LOCK_RESERVED");
-    if( lockType == SQLITE_LOCK_PENDING )   printf("LOCK_PENDING");
-    if( lockType == SQLITE_LOCK_EXCLUSIVE ) printf("LOCK_EXCLUSIVE");
-    printf(")\n");
-    #endif
-
     return SQLITE_OK;
 }
 
