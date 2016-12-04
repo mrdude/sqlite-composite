@@ -17,10 +17,19 @@
 int cClose(sqlite3_file* baseFile) {
     struct cFile* file = (struct cFile*)baseFile;
 
-    close(file->fd);
+    if( close(file->fd) != 0 ) {
+        return SQLITE_IOERR_CLOSE;
+    }
+
     file->closed = 1;
 
-    //TODO delete?
+    //delete this file if necessary
+    if( file->deleteOnClose ) {
+        if( remove(file->zName) != 0 ) {
+            return SQLITE_IOERR_DELETE;
+        }
+    }
+
     return SQLITE_OK;
 }
 
