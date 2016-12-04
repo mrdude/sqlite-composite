@@ -191,7 +191,26 @@ static int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfs
     printf("cRead(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
     #endif
 
-    return SQLITE_IOERR;
+    /* seek to the correct position */
+    if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
+        return SQLITE_IOERR;
+    }
+
+    /* read the bytes */
+    int bytesRead = fread(buf, 1, iAmt, file->fd);
+    if( bytesRead == iAmt ) {
+        return SQLITE_OK;
+    }
+
+    if( feof(file->fd) || ferror(file->fd) ) {
+        return SQLITE_IOERR;
+    }
+
+    /* if we do a short read, we have to fill the rest of the buffer with 0's */
+    for( int i = bytesRead; i < iAmt; i++ )
+        buf[i] = 0;
+
+    return SQLITE_IOERR_SHORT_READ;
 }
 
 static int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
@@ -378,7 +397,11 @@ static int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
  */
 static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
     #if SQLITE_COS_PROFILE_VFS
-    printf("cAccess(vfs = <ptr>, zName = %s, flags = %d, pResOut = <flags>)\n", zName, flags);
+    printf("cAccess(vfs = <ptr>, zName = %s, flags = [", zName);
+    if( flags & SQLITE_ACCESS_EXISTS ) printf(" ACCESS_EXISTS ");
+    if( flags & SQLITE_ACCESS_READWRITE ) printf(" ACCESS_READWRITE ");
+    if( flags & SQLITE_ACCESS_READ ) printf(" ACCESS_READ ");
+    printf("], pResOut = <flags>)\n");
     #endif
 
     if( flags & SQLITE_ACCESS_EXISTS ) {
