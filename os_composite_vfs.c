@@ -13,10 +13,6 @@
 int cClose(sqlite3_file* baseFile) {
     struct cFile* file = (struct cFile*)baseFile;
 
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cClose(file = '%s')\n", file->zName);
-    #endif
-
     fclose(file->fd);
     file->closed = 1;
 

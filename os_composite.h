@@ -14,6 +14,46 @@
 #define SQLITE_COS_PROFILE_MEMORY 0
 #endif
 
+#if SQLITE_COS_PROFILE_VFS || SQLITE_COS_PROFILE_MUTEX || SQLITE_COS_PROFILE_MEMORY
+#define PRINT_ERR_CODE(x) do { \
+    switch( x ) { \
+        case SQLITE_OK: printf("SQLITE_OK"); break; \
+        case SQLITE_OK: printf("SQLITE_OK"); break; \
+        case SQLITE_ERROR: printf("SQLITE_ERROR"); break; \
+        case SQLITE_INTERNAL: printf("SQLITE_INTERNAL"); break; \
+        case SQLITE_PERM: printf("SQLITE_PERM"); break; \
+        case SQLITE_ABORT: printf("SQLITE_ABORT"); break; \
+        case SQLITE_BUSY: printf("SQLITE_BUSY"); break; \
+        case SQLITE_LOCKED: printf("SQLITE_LOCKED"); break; \
+        case SQLITE_NOMEM: printf("SQLITE_NOMEM"); break; \
+        case SQLITE_READONLY: printf("SQLITE_READONLY"); break; \
+        case SQLITE_INTERRUPT: printf("SQLITE_INTERRUPT"); break; \
+        case SQLITE_IOERR: printf("SQLITE_IOERR"); break; \
+        case SQLITE_CORRUPT: printf("SQLITE_CORRUPT"); break; \
+        case SQLITE_NOTFOUND: printf("SQLITE_NOTFOUND"); break; \
+        case SQLITE_FULL: printf("SQLITE_FULL"); break; \
+        case SQLITE_CANTOPEN: printf("SQLITE_CANTOPEN"); break; \
+        case SQLITE_PROTOCOL: printf("SQLITE_PROTOCOL"); break; \
+        case SQLITE_EMPTY: printf("SQLITE_EMPTY"); break; \
+        case SQLITE_SCHEMA: printf("SQLITE_SCHEMA"); break; \
+        case SQLITE_TOOBIG: printf("SQLITE_TOOBIG"); break; \
+        case SQLITE_CONSTRAINT: printf("SQLITE_CONSTRAINT"); break; \
+        case SQLITE_MISMATCH: printf("SQLITE_MISMATCH"); break; \
+        case SQLITE_MISUSE: printf("SQLITE_MISUSE"); break; \
+        case SQLITE_NOLFS: printf("SQLITE_NOLFS"); break; \
+        case SQLITE_AUTH: printf("SQLITE_AUTH"); break; \
+        case SQLITE_FORMAT: printf("SQLITE_FORMAT"); break; \
+        case SQLITE_RANGE: printf("SQLITE_RANGE"); break; \
+        case SQLITE_NOTADB: printf("SQLITE_NOTADB"); break; \
+        case SQLITE_NOTICE: printf("SQLITE_NOTICE"); break; \
+        case SQLITE_WARNING: printf("SQLITE_WARNING"); break; \
+        case SQLITE_ROW: printf("SQLITE_ROW"); break; \
+        case SQLITE_DONE: printf("SQLITE_DONE"); break; \
+        default: printf("Unknown(%d)", x ); break; \
+    } \
+    } while(0)
+#endif
+
 /* API structs */
 extern struct sqlite3_io_methods composite_io_methods;
 extern struct composite_vfs_data composite_vfs_app_data;
