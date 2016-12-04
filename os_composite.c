@@ -392,30 +392,43 @@ static int cMutexNotheld(sqlite3_mutex *mutex) {
 
 /* Memory allocation function */
 static void *cMemMalloc(int sz) {
+    printf("cMemMalloc(sz = %d)\n", sz);
+    return malloc(sz);
 }
 
 /* Free a prior allocation */
 static void cMemFree(void* mem) {
+    printf("cMemFree(mem = <ptr>)\n");
+    free(mem);
 }
 
 /* Resize an allocation */
 static void *cMemRealloc(void* mem, int newSize) {
+    printf("cMemRealloc(mem = <ptr>, newSize = %d)\n", newSize);
+    return realloc(mem, newSize);
 }
 
 /* Return the size of an allocation */
 static int cMemSize(void* mem) {
+    printf("cMemSize(mem = <ptr>)\n");
+    return sizeof(mem);
 }
 
 /* Round up request size to allocation size */
 static int cMemRoundup(int sz) {
+    printf("cMemRoundup(sz = %d)\n", sz);
+    return sz;
 }
 
 /* Initialize the memory allocator */
 static int cMemInit(void* pAppData) {
+    printf("cMemInit(pAppData = %p)\n", pAppData);
+    return SQLITE_OK;
 }
 
 /* Deinitialize the memory allocator */
 static void cMemShutdown(void* pAppData) {
+    printf("cMemShutdown(pAppData = %p)\n", pAppData);
 }
 
 /* init the OS interface */
