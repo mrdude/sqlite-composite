@@ -37,9 +37,9 @@ static int _cClose(sqlite3_file* baseFile) {
     const int res = cClose(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -55,9 +55,9 @@ static int _cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOf
     const int res = cRead(baseFile, buf, iAmt, iOfst);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -73,9 +73,9 @@ static int _cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_in
     const int res = cWrite(baseFile, buf, iAmt, iOfst);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -91,9 +91,9 @@ static int _cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     const int res = cTruncate(baseFile, size);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -113,9 +113,9 @@ static int _cSync(sqlite3_file* baseFile, int flags) {
     const int res = cSync(baseFile, flags);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -131,9 +131,10 @@ static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     const int res = cFileSize(baseFile, pSize);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(", pSize = %" PRIu64, *pSize);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf(", pSize = %" PRIu64 "\n", *pSize);
     #endif
 
     return res;
@@ -155,9 +156,9 @@ static int _cLock(sqlite3_file* baseFile, int lockType) {
     const int res = cLock(baseFile, lockType);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -179,9 +180,9 @@ static int _cUnlock(sqlite3_file* baseFile, int lockType) {
     const int res = cUnlock(baseFile, lockType);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -197,9 +198,10 @@ static int _cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
     const int res = cCheckReservedLock(baseFile, pResOut);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(", pResOut = %d\n", pResOut ? *pResOut : -1);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf(", pResOut = %d\n", pResOut ? *pResOut : -1);
     #endif
 
     return res;
@@ -215,9 +217,9 @@ static int _cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
     const int res = cFileControl(baseFile, op, pArg);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ")
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -233,8 +235,8 @@ static int _cSectorSize(sqlite3_file* baseFile) {
     const int sectorSize = cSectorSize(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => %d", sectorSize);
         CTRACE_PRINT();
-        printf("%d\n", sectorSize);
     #endif
 
     return sectorSize;
@@ -250,21 +252,20 @@ static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
     const int flags = cDeviceCharacteristics(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => flags = [");
+        if( flags & SQLITE_IOCAP_ATOMIC ) CTRACE_APPEND(" IOCAP_ATOMIC ");
+        if( flags & SQLITE_IOCAP_ATOMIC512 ) CTRACE_APPEND(" IOCAP_ATOMIC512 ");
+        if( flags & SQLITE_IOCAP_ATOMIC1K ) CTRACE_APPEND(" IOCAP_ATOMIC1K ");
+        if( flags & SQLITE_IOCAP_ATOMIC2K ) CTRACE_APPEND(" IOCAP_ATOMIC2K ");
+        if( flags & SQLITE_IOCAP_ATOMIC4K ) CTRACE_APPEND(" IOCAP_ATOMIC4K ");
+        if( flags & SQLITE_IOCAP_ATOMIC8K ) CTRACE_APPEND(" IOCAP_ATOMIC8K ");
+        if( flags & SQLITE_IOCAP_ATOMIC16K ) CTRACE_APPEND(" IOCAP_ATOMIC16K ");
+        if( flags & SQLITE_IOCAP_ATOMIC32K ) CTRACE_APPEND(" IOCAP_ATOMIC32K ");
+        if( flags & SQLITE_IOCAP_ATOMIC64K ) CTRACE_APPEND(" IOCAP_ATOMIC64K ");
+        if( flags & SQLITE_IOCAP_SAFE_APPEND ) CTRACE_APPEND(" IOCAP_SAFE_APPEND ");
+        if( flags & SQLITE_IOCAP_SEQUENTIAL ) CTRACE_APPEND(" IOCAP_SEQUENTIAL ");
+        CTRACE_APPEND("]");
         CTRACE_PRINT();
-        printf("flags = [");
-
-        if( flags & SQLITE_IOCAP_ATOMIC ) printf(" IOCAP_ATOMIC ");
-        if( flags & SQLITE_IOCAP_ATOMIC512 ) printf(" IOCAP_ATOMIC512 ");
-        if( flags & SQLITE_IOCAP_ATOMIC1K ) printf(" IOCAP_ATOMIC1K ");
-        if( flags & SQLITE_IOCAP_ATOMIC2K ) printf(" IOCAP_ATOMIC2K ");
-        if( flags & SQLITE_IOCAP_ATOMIC4K ) printf(" IOCAP_ATOMIC4K ");
-        if( flags & SQLITE_IOCAP_ATOMIC8K ) printf(" IOCAP_ATOMIC8K ");
-        if( flags & SQLITE_IOCAP_ATOMIC16K ) printf(" IOCAP_ATOMIC16K ");
-        if( flags & SQLITE_IOCAP_ATOMIC32K ) printf(" IOCAP_ATOMIC32K ");
-        if( flags & SQLITE_IOCAP_ATOMIC64K ) printf(" IOCAP_ATOMIC64K ");
-        if( flags & SQLITE_IOCAP_SAFE_APPEND ) printf(" IOCAP_SAFE_APPEND ");
-        if( flags & SQLITE_IOCAP_SEQUENTIAL ) printf(" IOCAP_SEQUENTIAL ");
-        printf("]\n");
     #endif
 
     return flags;
@@ -280,9 +281,9 @@ static int _cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volat
     const int res = cShmMap(baseFile, iPg, pgsz, i, v);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -306,9 +307,9 @@ static int _cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
     const int res = cShmLock(baseFile, offset, n, flags);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -316,26 +317,31 @@ static int _cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
 
 static void _cShmBarrier(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cShmBarrier(file = %s)\n", file->zName);
+        struct cFile* file = (struct cFile*)baseFile;
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cShmBarrier(file = %s)", file->zName);
     #endif
 
     cShmBarrier(baseFile);
+
+    #if SQLITE_COS_PROFILE_VFS
+        CTRACE_PRINT();
+    #endif
 }
 
 static int _cShmUnmap(sqlite3_file* baseFile, int deleteFlag) {
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cShmUnmap(file = %s, deleteFlag = %d)\n", file->zName, deleteFlag);
+        CTRACE_APPEND("cShmUnmap(file = %s, deleteFlag = %d)", file->zName, deleteFlag);
     #endif
 
     const int res = cShmUnmap(baseFile, deleteFlag);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -351,9 +357,9 @@ static int _cFetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, int iAmt, void *
     const int res = cFetch(baseFile, iOfst, iAmt, pp);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -369,9 +375,9 @@ static int _cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
     const int res = cUnfetch(baseFile, iOfst, p);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -403,9 +409,10 @@ static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, i
     const int res = cOpen(vfs, zName, baseFile, flags, pOutFlags);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(", pOutFlags = %d\n", pOutFlags ? *pOutFlags : -1);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf(", pOutFlags = %d\n", pOutFlags ? *pOutFlags : -1);
     #endif
 
     return res;
@@ -420,9 +427,9 @@ static int _cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
     const int res = cDelete(vfs, zName, syncDir);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -441,9 +448,10 @@ static int _cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut
     const int res = cAccess(vfs, zName, flags, pResOut);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(", pResOut = %d\n", *pResOut);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf(", pResOut = %d\n", *pResOut);
     #endif
 
     return res;
@@ -458,9 +466,10 @@ static int _cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *z
     const int res = cFullPathname(vfs, zName, nOut, zOut);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(", zOut = %s\n", zOut);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf(", zOut = %s\n", zOut);
     #endif
 
     return res;
@@ -475,8 +484,9 @@ static int _cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
     const int bytesOfRandomness = cRandomness(vfs, nByte, zOut);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        CTRACE_APPEND("bytesOfRandom = %d, zOut = <...>\n", bytesOfRandomness);
         CTRACE_PRINT();
-        printf("bytesOfRandom = %d, zOut = <...>\n", bytesOfRandomness);
     #endif
 
     return bytesOfRandomness;
@@ -491,9 +501,9 @@ static int _cSleep(sqlite3_vfs* vfs, int microseconds) {
     const int res = cSleep(vfs, microseconds);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -508,9 +518,9 @@ static int _cGetLastError(sqlite3_vfs* vfs, int i, char *ch) {
     const int res = cGetLastError(vfs, i, ch);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -525,9 +535,10 @@ static int _cCurrentTime(sqlite3_vfs* vfs, double* time) {
     const int res = cCurrentTime(vfs, time);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(", time = %f", *time);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf(", time = %f\n", *time);
     #endif
 
     return res;
@@ -543,9 +554,10 @@ static int _cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
     const int res = cCurrentTimeInt64(vfs, time);
 
     #if SQLITE_COS_PROFILE_VFS
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(", time = %" PRIu64 "\n", *time);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf(", time = %" PRIu64 "\n", *time);
     #endif
 
     return res;
@@ -561,9 +573,9 @@ static int _cMutexInit(void) {
     const int res = cMutexInit();
 
     #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -578,9 +590,9 @@ static int _cMutexEnd(void) {
     const int res = cMutexEnd();
 
     #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -612,8 +624,8 @@ static sqlite3_mutex* _cMutexAlloc(int mutexType) {
     sqlite3_mutex* mut = cMutexAlloc(mutexType);
 
     #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_APPEND(" => mutex = %p", mutex);
         CTRACE_PRINT();
-        printf("mutex = %p\n", mutex);
     #endif
 
     return mut;
@@ -621,18 +633,28 @@ static sqlite3_mutex* _cMutexAlloc(int mutexType) {
 
 static void _cMutexFree(sqlite3_mutex *mutex) {
     #if SQLITE_COS_PROFILE_MUTEX
-        printf("cMutexFree(mutex)\n");
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMutexFree(mutex = %p)", mutex);
     #endif
 
     cMutexFree(mutex);
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+    #endif
 }
 
 static void _cMutexEnter(sqlite3_mutex *mutex) {
     #if SQLITE_COS_PROFILE_MUTEX
-        printf("cMutexEnter(mutex)\n");
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMutexEnter(mutex = %p)", mutex);
     #endif
 
     cMutexEnter(mutex);
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+    #endif
 }
 
 static int _cMutexTry(sqlite3_mutex *mutex) {
@@ -644,10 +666,9 @@ static int _cMutexTry(sqlite3_mutex *mutex) {
     const int res = cMutexTry(mutex);
 
     #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        printf(" => ");
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -655,23 +676,28 @@ static int _cMutexTry(sqlite3_mutex *mutex) {
 
 static void _cMutexLeave(sqlite3_mutex *mutex) {
     #if SQLITE_COS_PROFILE_MUTEX
-        printf("cMutexLeave(mutex)\n");
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMutexLeave(mutex = %p)", mutex);
     #endif
 
     cMutexLeave(mutex);
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+    #endif
 }
 
 static int _cMutexHeld(sqlite3_mutex *mutex) {
     #if SQLITE_COS_PROFILE_MUTEX
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cMutexHeld(mutex)");
+        CTRACE_APPEND("cMutexHeld(mutex = %p)", mutex);
     #endif
 
     const int res = cMutexHeld(mutex);
 
     #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_APPEND(" => %s", res ? "TRUE" : "FALSE");
         CTRACE_PRINT();
-        printf("%s\n", res ? "TRUE" : "FALSE");
     #endif
 
     return res;
@@ -680,16 +706,14 @@ static int _cMutexHeld(sqlite3_mutex *mutex) {
 static int _cMutexNotheld(sqlite3_mutex *mutex) {
     #if SQLITE_COS_PROFILE_MUTEX
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cMutexNotheld(mutex)");
+        CTRACE_APPEND("cMutexNotheld(mutex = %p)", mutex);
     #endif
-
-    return cMutexNotheld(mutex);
 
     const int res = cMutexNotheld(mutex);
 
     #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_APPEND(" => %s", res ? "TRUE" : "FALSE");
         CTRACE_PRINT();
-        printf("%s\n", res ? "TRUE" : "FALSE");
     #endif
 
     return res;
@@ -705,8 +729,8 @@ static void* _cMemMalloc(int sz) {
     void* mem = cMemMalloc(sz);
 
     #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_APPEND(" => mem = %p", mem);
         CTRACE_PRINT();
-        printf("mem = %p\n", mem);
     #endif
 
     return mem;
@@ -734,8 +758,8 @@ static void* _cMemRealloc(void* mem, int newSize) {
     void* newPtr = cMemRealloc(mem, newSize);
 
     #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT(" => newPtr = %p\n", newPtr);
         CTRACE_PRINT();
-        printf("newPtr = %p\n", newPtr);
     #endif
 
     return newPtr;
@@ -750,8 +774,8 @@ static int _cMemSize(void* mem) {
     const int sz = cMemSize(mem);
 
     #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_APPEND("=> sz = %d\n", sz);
         CTRACE_PRINT();
-        printf("sz = %d\n", sz);
     #endif
 
     return sz;
@@ -766,8 +790,8 @@ static int _cMemRoundup(int sz) {
     const int newSz = cMemRoundup(sz);
 
     #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_APPEND("newSz = %d", newSz);
         CTRACE_PRINT();
-        printf("newSz = %d\n", newSz);
     #endif
 
     return sz;
@@ -782,9 +806,9 @@ static int _cMemInit(void* pAppData) {
     const int res = cMemInit(pAppData);
 
     #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
-        PRINT_ERR_CODE(res);
-        printf("\n");
     #endif
 
     return res;
@@ -800,7 +824,6 @@ static void _cMemShutdown(void* pAppData) {
 
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_PRINT();
-        printf("\n");
     #endif
 }
 

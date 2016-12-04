@@ -257,7 +257,6 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
 }
 
 int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
-
     /* make sure the file exists */
     int exists = 0;
     cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &exists);
