@@ -37,7 +37,7 @@ static int _cClose(sqlite3_file* baseFile) {
     const int res = cClose(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
-        CCTRACE_APPEND(" => ");
+        CTRACE_APPEND(" => ");
         APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
