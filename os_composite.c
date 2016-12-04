@@ -265,13 +265,13 @@ static int cLock(sqlite3_file* baseFile, int lockType) {
     struct cFile* file = (struct cFile*)baseFile;
 
     #if SQLITE_COS_PROFILE_VFS
-    printf("cLock(file = %s, lockType = [", file->zName);
-    if( lockType & SQLITE_LOCK_NONE )      printf(" LOCK_NONE ");
-    if( lockType & SQLITE_LOCK_SHARED )    printf(" LOCK_SHARED ");
-    if( lockType & SQLITE_LOCK_RESERVED )  printf(" LOCK_RESERVED ");
-    if( lockType & SQLITE_LOCK_PENDING )   printf(" LOCK_PENDING ");
-    if( lockType & SQLITE_LOCK_EXCLUSIVE ) printf(" LOCK_EXCLUSIVE ");
-    printf("])\n");
+    printf("cLock(file = %s, lockType = ", file->zName);
+    if( lockType == SQLITE_LOCK_NONE )      printf("LOCK_NONE");
+    if( lockType == SQLITE_LOCK_SHARED )    printf("LOCK_SHARED");
+    if( lockType == SQLITE_LOCK_RESERVED )  printf("LOCK_RESERVED");
+    if( lockType == SQLITE_LOCK_PENDING )   printf("LOCK_PENDING");
+    if( lockType == SQLITE_LOCK_EXCLUSIVE ) printf("LOCK_EXCLUSIVE");
+    printf(")\n");
     #endif
 
     return SQLITE_OK;
@@ -284,13 +284,13 @@ static int cUnlock(sqlite3_file* baseFile, int lockType) {
     struct cFile* file = (struct cFile*)baseFile;
 
     #if SQLITE_COS_PROFILE_VFS
-    printf("cUnlock(file = %s, lockType = [", file->zName);
-    if( lockType & SQLITE_LOCK_NONE )      printf(" LOCK_NONE ");
-    if( lockType & SQLITE_LOCK_SHARED )    printf(" LOCK_SHARED ");
-    if( lockType & SQLITE_LOCK_RESERVED )  printf(" LOCK_RESERVED ");
-    if( lockType & SQLITE_LOCK_PENDING )   printf(" LOCK_PENDING ");
-    if( lockType & SQLITE_LOCK_EXCLUSIVE ) printf(" LOCK_EXCLUSIVE ");
-    printf("])\n");
+    printf("cUnlock(file = %s, lockType = ", file->zName);
+    if( lockType == SQLITE_LOCK_NONE )      printf("LOCK_NONE");
+    if( lockType == SQLITE_LOCK_SHARED )    printf("LOCK_SHARED");
+    if( lockType == SQLITE_LOCK_RESERVED )  printf("LOCK_RESERVED");
+    if( lockType == SQLITE_LOCK_PENDING )   printf("LOCK_PENDING");
+    if( lockType == SQLITE_LOCK_EXCLUSIVE ) printf("LOCK_EXCLUSIVE");
+    printf(")\n");
     #endif
 
     return SQLITE_OK;
@@ -298,16 +298,128 @@ static int cUnlock(sqlite3_file* baseFile, int lockType) {
 
 /* returns true if any connection has a RESERVED, PENDING, or EXCLUSIVE lock on this file
  */
-static int cCheckReservedLock(sqlite3_file* file, int *pResOut) {}
-static int cFileControl(sqlite3_file* file, int op, void *pArg) {}
-static int cSectorSize(sqlite3_file* file) {}
-static int cDeviceCharacteristics(sqlite3_file* file) {}
-static int cShmMap(sqlite3_file* file, int iPg, int pgsz, int i, void volatile** v) {}
-static int cShmLock(sqlite3_file* file, int offset, int n, int flags) {}
-static void cShmBarrier(sqlite3_file* file) {}
-static int cShmUnmap(sqlite3_file* file, int deleteFlag) {}
-static int cFetch(sqlite3_file* file, sqlite3_int64 iOfst, int iAmt, void **pp) {}
-static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
+static int cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
+    struct cFile* file = (struct cFile*)baseFile;
+
+    #if SQLITE_COS_PROFILE_VFS
+    printf("cCheckReservedLock(file = %s, lockType = ", file->zName);
+    if( lockType == SQLITE_LOCK_NONE )      printf("LOCK_NONE");
+    if( lockType == SQLITE_LOCK_SHARED )    printf("LOCK_SHARED");
+    if( lockType == SQLITE_LOCK_RESERVED )  printf("LOCK_RESERVED");
+    if( lockType == SQLITE_LOCK_PENDING )   printf("LOCK_PENDING");
+    if( lockType == SQLITE_LOCK_EXCLUSIVE ) printf("LOCK_EXCLUSIVE");
+    printf(")\n");
+    #endif
+
+    *pResOut = 0;
+
+    return SQLITE_OK;
+}
+
+/* "VFS implementations should return [SQLITE_NOTFOUND] for file control opcodes that they do not recognize."
+ */
+static int cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cFileControl(file = %s, op = %d, pArg = <>)\n", file->zName, op);
+    #endif
+
+    return SQLITE_NOTFOUND;
+}
+
+/* "The xSectorSize() method returns the sector size of the device that underlies the file."
+ */
+static int cSectorSize(sqlite3_file* baseFile) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cSectorSize(file = %s)\n", file->zName, op);
+    #endif
+
+    return 512; //TODO
+}
+
+/* "The xDeviceCharacteristics() method returns a bit vector describing behaviors of the underlying device"
+ */
+static int cDeviceCharacteristics(sqlite3_file* baseFile) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cDeviceCharacteristics(file = %s)\n", file->zName, op);
+    #endif
+
+    int flags = 0;
+    flags |= SQLITE_IOCAP_ATOMIC; /* "The SQLITE_IOCAP_ATOMIC property means that all writes of any size are atomic." */
+    //flags |= SQLITE_IOCAP_ATOMIC512; /* "The SQLITE_IOCAP_ATOMICnnn values mean that writes of blocks that are nnn bytes in size and are aligned to an address which is an integer multiple of nnn are atomic." */
+    //flags |= SQLITE_IOCAP_ATOMIC1K;
+    //flags |= SQLITE_IOCAP_ATOMIC2K;
+    //flags |= SQLITE_IOCAP_ATOMIC4K;
+    //flags |= SQLITE_IOCAP_ATOMIC8K;
+    //flags |= SQLITE_IOCAP_ATOMIC16K;
+    //flags |= SQLITE_IOCAP_ATOMIC32K;
+    //flags |= SQLITE_IOCAP_ATOMIC64K;
+    //flags |= SQLITE_IOCAP_SAFE_APPEND; /* "The SQLITE_IOCAP_SAFE_APPEND value means that when data is appended to a file, the data is appended first then the size of the file is extended, never the other way around." */
+    flags |= SQLITE_IOCAP_SEQUENTIAL; /* The SQLITE_IOCAP_SEQUENTIAL property means that information is written to disk in the same order as calls to xWrite(). */
+    return flags;
+}
+
+static int cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volatile** v) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cShmMap(file = %s, iPg = %d, pgsz = %d, i = %d, v = <>)\n", file->zName, iPg, pgsz, i);
+    #endif
+
+    return SQLITE_IOERR;
+}
+
+static int cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cShmLock(file = %s, offset = %d, n = %d, flags = [", file->zName, offset, n);
+
+    /* these are the only valid flag combinations */
+    if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_SHARED ) printf(" SHM_LOCK | SHM_SHARED ");
+    if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_EXCLUSIVE ) printf(" SHM_LOCK | SHM_EXCLUSIVE ");
+    if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_SHARED ) printf(" SHM_UNLOCK | SHM_SHARED ");
+    if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_EXCLUSIVE ) printf(" SHM_UNLOCK | SHM_EXCLUSIVE ");
+
+    printf("])\n");
+    #endif
+
+    return SQLITE_IOERR;
+}
+
+static void cShmBarrier(sqlite3_file* baseFile) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cShmBarrier(file = %s)\n", file->zName);
+    #endif
+}
+
+static int cShmUnmap(sqlite3_file* baseFile, int deleteFlag) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cShmUnmap(file = %s, deleteFlag = %d)\n", file->zName, deleteFlag);
+    #endif
+
+    return SQLITE_IOERR;
+}
+
+static int cFetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, int iAmt, void **pp) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cFetch(file = %s, iOfst = %" PRIu64 ", iAmt = %d, pp = <>)\n", file->zName, iOfst, iAmt);
+    #endif
+
+    return SQLITE_IOERR;
+}
+
+static int cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cUnfetch(file = %s, iOfst = %" PRIu64 ", pp = <>)\n", file->zName, iOfst);
+    #endif
+
+    return SQLITE_IOERR;
+}
 
 /** sqlite3_vfs methods */
 
