@@ -208,7 +208,8 @@ int cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
 int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = 0;
-    *pOutFlags = 0;
+
+    if( pOutFlags ) *pOutFlags = 0;
 
     /* does the file exist? */
     int fileExists = 0;
@@ -231,10 +232,10 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
             fd = fopen(zName, "w+b");
         }
 
-        *pOutFlags |= SQLITE_OPEN_READWRITE;
+        if( pOutFlags ) *pOutFlags |= SQLITE_OPEN_READWRITE;
     } else if( flags & SQLITE_OPEN_READONLY ) {
         fd = fopen(zName, "rb");
-        *pOutFlags |= SQLITE_OPEN_READONLY;
+        if( pOutFlags ) *pOutFlags |= SQLITE_OPEN_READONLY;
     }
 
     if( fd == NULL ) {
