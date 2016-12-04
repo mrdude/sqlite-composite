@@ -122,7 +122,7 @@ static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     #if SQLITE_COS_PROFILE_VFS
         char ch[80];
         struct cFile* file = (struct cFile*)baseFile;
-        snprintf(ch, 160, "cFileSize(file = %s, pSize = <>)", file->zName);
+        snprintf(ch, 80, "cFileSize(file = %s, pSize = <>)", file->zName);
     #endif
 
     const int res = cFileSize(baseFile, pSize);
@@ -165,11 +165,38 @@ static int _cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volat
 }
 
 static int _cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
-    return cShmLock(baseFile, offset, n, flags);
+    #if SQLITE_COS_PROFILE_VFS
+        char ch[80];
+        struct cFile* file = (struct cFile*)baseFile;
+        snprintf(ch, 160, "cShmLock(file = %s, offset = %d, n = %d, flags = [", file->zName, offset, n);
+
+        /* these are the only valid flag combinations */
+        if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_SHARED ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SHM_LOCK | SHM_SHARED ");
+        if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_EXCLUSIVE ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SHM_LOCK | SHM_EXCLUSIVE ");
+        if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_SHARED ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SHM_UNLOCK | SHM_SHARED ");
+        if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_EXCLUSIVE ) snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), " SHM_UNLOCK | SHM_EXCLUSIVE ");
+
+        snprintf(&ch[ strlen(ch) ], 160 - strlen(ch), "])");
+    #endif
+
+    const int res = cShmLock(baseFile, offset, n, flags);
+
+    #if SQLITE_COS_PROFILE_VFS
+        printf("%s => ", &ch[0]);
+        PRINT_ERR_CODE(res);
+        printf(", pSize = %d\n", *pSize);
+    #endif
+
+    return res;
 }
 
 static void _cShmBarrier(sqlite3_file* baseFile) {
-    return cShmBarrier(baseFile);
+    #if SQLITE_COS_PROFILE_VFS
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cShmBarrier(file = %s)\n", file->zName);
+    #endif
+
+    cShmBarrier(baseFile);
 }
 
 static int _cShmUnmap(sqlite3_file* baseFile, int deleteFlag) {
@@ -282,39 +309,148 @@ static int _cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
 
 /* sqlite_mutex function prototypes */
 static int _cMutexInit(void) {
-    return cMutexInit();
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMutexInit()");
+    #endif
+
+    const int res = cMutexInit();
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+        printf(" => ");
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 static int _cMutexEnd(void) {
-    return cMutexEnd();
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMutexEnd()");
+    #endif
+
+    const int res = cMutexEnd();
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+        printf(" => ");
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 static sqlite3_mutex* _cMutexAlloc(int mutexType) {
-    return cMutexAlloc(mutexType);
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_STRING_DEF(160);
+        CTRACE_APPEND("cMutexAlloc(mutexType = ");
+        switch( mutexType ) {
+            case SQLITE_MUTEX_FAST: CTRACE_APPEND(" MUTEX_FAST "); break;
+            case SQLITE_MUTEX_RECURSIVE: CTRACE_APPEND(" MUTEX_RECURSIVE "); break;
+            case SQLITE_MUTEX_STATIC_MASTER: CTRACE_APPEND(" MUTEX_STATIC_MASTER "); break;
+            case SQLITE_MUTEX_STATIC_MEM: CTRACE_APPEND(" MUTEX_STATIC_MEM "); break;
+            case SQLITE_MUTEX_STATIC_OPEN: CTRACE_APPEND(" MUTEX_STATIC_OPEN "); break;
+            case SQLITE_MUTEX_STATIC_PRNG: CTRACE_APPEND(" MUTEX_STATIC_PRNG "); break;
+            case SQLITE_MUTEX_STATIC_LRU: CTRACE_APPEND(" MUTEX_STATIC_LRU "); break;
+            case SQLITE_MUTEX_STATIC_PMEM: CTRACE_APPEND(" MUTEX_STATIC_PMEM "); break;
+            case SQLITE_MUTEX_STATIC_APP1: CTRACE_APPEND(" MUTEX_STATIC_APP1 "); break;
+            case SQLITE_MUTEX_STATIC_APP2: CTRACE_APPEND(" MUTEX_STATIC_APP2 "); break;
+            case SQLITE_MUTEX_STATIC_APP3: CTRACE_APPEND(" MUTEX_STATIC_APP3 "); break;
+            case SQLITE_MUTEX_STATIC_VFS1: CTRACE_APPEND(" MUTEX_STATIC_VFS1 "); break;
+            case SQLITE_MUTEX_STATIC_VFS2: CTRACE_APPEND(" MUTEX_STATIC_VFS2 "); break;
+            case SQLITE_MUTEX_STATIC_VFS3: CTRACE_APPEND(" MUTEX_STATIC_VFS3 "); break; 
+        }
+        CTRACE_APPEND(")");
+    #endif
+
+    sqlite3_mutex* mut = cMutexAlloc(mutexType);
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+        printf(" => mutex = %p\n", mutex);
+    #endif
+
+    return mut;
 }
 
 static void _cMutexFree(sqlite3_mutex *mutex) {
-    return cMutexFree(mutex);
+    #if SQLITE_COS_PROFILE_MUTEX
+        printf("cMutexFree(mutex)\n");
+    #endif
+
+    cMutexFree(mutex);
 }
 
 static void _cMutexEnter(sqlite3_mutex *mutex) {
-    return cMutexEnter(mutex);
+    #if SQLITE_COS_PROFILE_MUTEX
+    printf("cMutexEnter(mutex)\n");
+    #endif
+
+    cMutexEnter(mutex);
 }
 
 static int _cMutexTry(sqlite3_mutex *mutex) {
-    return cMutexTry(mutex);
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMutexTry(mutex)");
+    #endif
+
+    const int res = cMutexTry(mutex);
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+        printf(" => ");
+        PRINT_ERR_CODE(res);
+        printf("\n");
+    #endif
+
+    return res;
 }
 
 static void _cMutexLeave(sqlite3_mutex *mutex) {
+    #if SQLITE_COS_PROFILE_MUTEX
+        printf("cMutexLeave(mutex)\n");
+    #endif
+
     cMutexLeave(mutex);
 }
 
 static int _cMutexHeld(sqlite3_mutex *mutex) {
-    return cMutexHeld(mutex);
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMutexHeld(mutex)");
+    #endif
+
+    const int res = cMutexHeld(mutex);
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+        printf(" => %s\n", res ? "TRUE" : "FALSE");
+    #endif
+
+    return res;
 }
 
 static int _cMutexNotheld(sqlite3_mutex *mutex) {
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_STRING_DEF(80);
+        CTRACE_APPEND("cMutexNotheld(mutex)");
+    #endif
+
     return cMutexNotheld(mutex);
+
+    const int res = cMutexNotheld(mutex);
+
+    #if SQLITE_COS_PROFILE_MUTEX
+        CTRACE_PRINT();
+        printf(" => %s\n", res ? "TRUE" : "FALSE");
+    #endif
+
+    return res;
 }
 
 /* sqlite_mem function prototypes */

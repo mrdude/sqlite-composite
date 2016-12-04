@@ -200,27 +200,10 @@ int cShmMap(sqlite3_file* baseFile, int iPg, int pgsz, int i, void volatile** v)
 }
 
 int cShmLock(sqlite3_file* baseFile, int offset, int n, int flags) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cShmLock(file = %s, offset = %d, n = %d, flags = [", file->zName, offset, n);
-
-    /* these are the only valid flag combinations */
-    if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_SHARED ) printf(" SHM_LOCK | SHM_SHARED ");
-    if( flags == SQLITE_SHM_LOCK | SQLITE_SHM_EXCLUSIVE ) printf(" SHM_LOCK | SHM_EXCLUSIVE ");
-    if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_SHARED ) printf(" SHM_UNLOCK | SHM_SHARED ");
-    if( flags == SQLITE_SHM_UNLOCK | SQLITE_SHM_EXCLUSIVE ) printf(" SHM_UNLOCK | SHM_EXCLUSIVE ");
-
-    printf("])\n");
-    #endif
-
-    return SQLITE_IOERR;
+    return SQLITE_OK;
 }
 
 void cShmBarrier(sqlite3_file* baseFile) {
-    #if SQLITE_COS_PROFILE_VFS
-    struct cFile* file = (struct cFile*)baseFile;
-    printf("cShmBarrier(file = %s)\n", file->zName);
-    #endif
 }
 
 int cShmUnmap(sqlite3_file* baseFile, int deleteFlag) {
