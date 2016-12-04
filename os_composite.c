@@ -113,25 +113,25 @@ static int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfs
     return SQLITE_IOERR;
 }
 
-static int cWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst) {
+static int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cWrite(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
     return SQLITE_IOERR;
 }
 
-static int cTruncate(sqlite3_file* file, sqlite3_int64 size) {
+static int cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cTruncate(file = %s, size = %" PRIu64 ")\n", file->zName, iOfst);
     return SQLITE_IOERR;
 }
 
-static int cSync(sqlite3_file* file, int flags) {
+static int cSync(sqlite3_file* baseFile, int flags) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cTruncate(file = %s, flags = [???])\n", file->zName);
     return SQLITE_IOERR;
 }
 
-static int cFileSize(sqlite3_file* file, sqlite3_int64 *pSize) {
+static int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cFileSize(file = %s)\n", file->zName);
     return SQLITE_IOERR;
@@ -140,7 +140,7 @@ static int cFileSize(sqlite3_file* file, sqlite3_int64 *pSize) {
 /* increases the lock on a file
  * @param lockType one of SQLITE_LOCK_*
  */
-static int cLock(sqlite3_file* file, int lockType) {
+static int cLock(sqlite3_file* baseFile, int lockType) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cLock(file = %s, lockType = [", file->zName);
     if( lockType & SQLITE_LOCK_NONE )      printf(" LOCK_NONE ");
@@ -155,7 +155,8 @@ static int cLock(sqlite3_file* file, int lockType) {
 /* decreases the lock on a file
  * @param lockType one of SQLITE_LOCK_*
  */
-static int cUnlock(sqlite3_file* file, int i) {
+static int cUnlock(sqlite3_file* baseFile, int i) {
+    struct cFile* file = (struct cFile*)baseFile;
     printf("cUnlock(file = %s, lockType = [", file->zName);
     if( lockType & SQLITE_LOCK_NONE )      printf(" LOCK_NONE ");
     if( lockType & SQLITE_LOCK_SHARED )    printf(" LOCK_SHARED ");
