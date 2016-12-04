@@ -217,7 +217,11 @@ static int cSync(sqlite3_file* baseFile, int flags) {
     struct cFile* file = (struct cFile*)baseFile;
     
     #if SQLITE_COS_PROFILE_VFS
-    printf("cTruncate(file = %s, flags = [???])\n", file->zName);
+    printf("cSync(file = %s, flags = [", file->zName);
+    if( flags & SQLITE_SYNC_NORMAL ) printf(" SYNC_NORMAL ");
+    if( flags & SQLITE_SYNC_FULL ) printf(" SYNC_FULL ");
+    if( flags & SQLITE_SYNC_DATAONLY ) printf(" SYNC_DATAONLY ");
+    printf("])\n");
     #endif
 
     return SQLITE_IOERR;
@@ -386,7 +390,15 @@ static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zO
     printf("cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = %s)\n", zName, nOut, zOut);
     #endif
 
-    zOut = "/tmp/defaultCFullPathname";
+    static const char* full_pathname = "/tmp/";
+    static const int full_pathname_len = strlen(full_pathname);
+
+    int i = 0;
+    for( ; i < full_pathname_len; i++ ) zOut[i] = full_pathname[i];
+    for( ; i < full_pathname_len + strlen(zName); i++ ) zOut[i] = zName[i - full_pathname_len];
+    zOut[i] = 0;
+
+    //assert( i < nOut );
     return SQLITE_OK;
 }
 
