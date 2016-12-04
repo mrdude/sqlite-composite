@@ -15,7 +15,14 @@
 #endif
 
 #if SQLITE_COS_PROFILE_VFS || SQLITE_COS_PROFILE_MUTEX || SQLITE_COS_PROFILE_MEMORY
-#define CTRACE_STRING_DEF(x) const int LEN = x ; char _ch[ LEN ]; while(0)
+#define CTRACE_STRING_DEF(x) const int LEN = x ; \
+    char _ch[ LEN ]; \
+    do { \
+        int i = 0; \
+        for( i = 0; i < LEN; i++ ) \
+            _ch[i] = 0; \
+    } while(0)
+
 #define CTRACE_APPEND(...) do { snprintf(&_ch[ strlen(_ch) ], LEN - strlen(_ch), __VA_ARGS__ ); } while(0)
 #define CTRACE_PRINT(...) do { printf("%s => ", &_ch[0]); } while(0)
 

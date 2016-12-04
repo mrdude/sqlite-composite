@@ -598,7 +598,7 @@ static int _cMutexHeld(sqlite3_mutex *mutex) {
 
     #if SQLITE_COS_PROFILE_MUTEX
         CTRACE_PRINT();
-        printf(" => %s\n", res ? "TRUE" : "FALSE");
+        printf("%s\n", res ? "TRUE" : "FALSE");
     #endif
 
     return res;
