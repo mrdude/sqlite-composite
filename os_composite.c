@@ -107,21 +107,64 @@ static int cClose(sqlite3_file* baseFile) {
     printf("cClose(file = '%s')\n", file->zName);
 }
 
-static int cRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst) {}
-static int cWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst) {}
-static int cTruncate(sqlite3_file* file, sqlite3_int64 size) {}
-static int cSync(sqlite3_file* file, int flags) {}
-static int cFileSize(sqlite3_file* file, sqlite3_int64 *pSize) {}
+static int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cRead(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
+    return SQLITE_IO_ERROR;
+}
+
+static int cWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst) {
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cWrite(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
+    return SQLITE_IO_ERROR;
+}
+
+static int cTruncate(sqlite3_file* file, sqlite3_int64 size) {
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cTruncate(file = %s, size = %" PRIu64 ")\n", file->zName, iOfst);
+    return SQLITE_IO_ERROR;
+}
+
+static int cSync(sqlite3_file* file, int flags) {
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cTruncate(file = %s, flags = [???])\n", file->zName);
+    return SQLITE_IO_ERROR;
+}
+
+static int cFileSize(sqlite3_file* file, sqlite3_int64 *pSize) {
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cFileSize(file = %s)\n", file->zName);
+    return SQLITE_IO_ERROR;
+}
 
 /* increases the lock on a file
  * @param lockType one of SQLITE_LOCK_*
  */
-static int cLock(sqlite3_file* file, int lockType) {}
+static int cLock(sqlite3_file* file, int lockType) {
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cLock(file = %s, lockType = [", file->zName);
+    if( lockType & SQLITE_LOCK_NONE )      printf(" LOCK_NONE ");
+    if( lockType & SQLITE_LOCK_SHARED )    printf(" LOCK_SHARED ");
+    if( lockType & SQLITE_LOCK_RESERVED )  printf(" LOCK_RESERVED ");
+    if( lockType & SQLITE_LOCK_PENDING )   printf(" LOCK_PENDING ");
+    if( lockType & SQLITE_LOCK_EXCLUSIVE ) printf(" LOCK_EXCLUSIVE ");
+    printf("])\n");
+    return SQLITE_IO_ERROR;
+}
 
 /* decreases the lock on a file
  * @param lockType one of SQLITE_LOCK_*
  */
-static int cUnlock(sqlite3_file* file, int i) {}
+static int cUnlock(sqlite3_file* file, int i) {
+    printf("cUnlock(file = %s, lockType = [", file->zName);
+    if( lockType & SQLITE_LOCK_NONE )      printf(" LOCK_NONE ");
+    if( lockType & SQLITE_LOCK_SHARED )    printf(" LOCK_SHARED ");
+    if( lockType & SQLITE_LOCK_RESERVED )  printf(" LOCK_RESERVED ");
+    if( lockType & SQLITE_LOCK_PENDING )   printf(" LOCK_PENDING ");
+    if( lockType & SQLITE_LOCK_EXCLUSIVE ) printf(" LOCK_EXCLUSIVE ");
+    printf("])\n");
+    return SQLITE_IO_ERROR;
+}
 
 /* returns true if any connection has a RESERVED, PENDING, or EXCLUSIVE lock on this file
  */
@@ -146,7 +189,7 @@ static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
  * @param pOutFlags the flags that were actually set
  */
 static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
-    printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = [", zName);
+    printf("cOpen(vfs = <ptr>, zName = '%s', file = <not initialized>, flags = [", zName);
     if( flags & SQLITE_OPEN_MAIN_DB )        printf(" OPEN_MAIN_DB ");
     if( flags & SQLITE_OPEN_MAIN_JOURNAL )   printf(" OPEN_MAIN_JOURNAL ");
     if( flags & SQLITE_OPEN_TEMP_DB )        printf(" OPEN_TEMP_DB ");
