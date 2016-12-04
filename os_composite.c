@@ -518,7 +518,7 @@ static int _cMemSize(void* mem) {
 static int _cMemRoundup(int sz) {
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cMemRoundup(sz = %d)\n", sz);
+        CTRACE_APPEND("cMemRoundup(sz = %d)", sz);
     #endif
 
     const int newSz = cMemRoundup(sz);
