@@ -36,13 +36,13 @@
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
     const char* zName;
-    FILE fd;
+    FILE* fd;
     int closed;
     int deleteOnClose;
 };
 
 struct composite_vfs_data {
-    FILE random_fd;
+    FILE* random_fd;
 };
 
 /* sqlite_io function prototypes */
@@ -119,7 +119,7 @@ static struct sqlite3_io_methods composite_io_methods = {
     .xUnfetch = cUnfetch
 };
 
-static composite_vfs_data composite_vfs_app_data;
+static struct composite_vfs_data composite_vfs_app_data;
 
 static sqlite3_vfs composite_vfs = {
     .iVersion = 3,
@@ -330,7 +330,7 @@ static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, in
          }
     }
 
-    FILE fd = NULL;
+    FILE* fd = NULL;
     if( flags & SQLITE_OPEN_READWRITE ) {
         fd = fopen(zName, "rwb");
         *pOutFlags |= SQLITE_OPEN_READWRITE;
