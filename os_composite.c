@@ -223,7 +223,7 @@ static int _cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut
     #if SQLITE_COS_PROFILE_VFS
         printf("%s => ", &ch[0]);
         PRINT_ERR_CODE(res);
-        printf(", pResOut = %d\n", pResOut);
+        printf(", pResOut = %d\n", *pResOut);
     #endif
 
     return res;
