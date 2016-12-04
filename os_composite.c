@@ -20,6 +20,7 @@
 /* cFile */
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
+    const char* zName;
 };
 
 /* function prototypes */
@@ -101,14 +102,29 @@ static sqlite3_vfs composite_vfs = {
 };
 
 /* sqlite3_io_methods */
-static int cClose(sqlite3_file* file) {}
+static int cClose(sqlite3_file* baseFile) {
+    struct cFile* file = (struct cFile*)baseFile;
+    printf("cClose(file = '%s')\n", file->zName);
+}
+
 static int cRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst) {}
 static int cWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst) {}
 static int cTruncate(sqlite3_file* file, sqlite3_int64 size) {}
 static int cSync(sqlite3_file* file, int flags) {}
 static int cFileSize(sqlite3_file* file, sqlite3_int64 *pSize) {}
-static int cLock(sqlite3_file* file, int i) {}
+
+/* increases the lock on a file
+ * @param lockType one of SQLITE_LOCK_*
+ */
+static int cLock(sqlite3_file* file, int lockType) {}
+
+/* decreases the lock on a file
+ * @param lockType one of SQLITE_LOCK_*
+ */
 static int cUnlock(sqlite3_file* file, int i) {}
+
+/* returns true if any connection has a RESERVED, PENDING, or EXCLUSIVE lock on this file
+ */
 static int cCheckReservedLock(sqlite3_file* file, int *pResOut) {}
 static int cFileControl(sqlite3_file* file, int op, void *pArg) {}
 static int cSectorSize(sqlite3_file* file) {}
@@ -126,12 +142,31 @@ static int cUnfetch(sqlite3_file* file, sqlite3_int64 iOfst, void *p) {}
  * @param vfs
  * @param zName the name of the file to open
  * @param baseFile the struct cFile to fill in
- * @param flags a set of flags from SQLITE_OPEN_*
+ * @param flags the set of requested OPEN flags; a set of flags from SQLITE_OPEN_*
+ * @param pOutFlags the flags that were actually set
  */
 static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
-    printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = <flags>)\n", zName);
+    printf("cOpen(vfs = <ptr>, zName = %s, file = <file>, flags = [", zName);
+    if( flags & SQLITE_OPEN_MAIN_DB )        printf(" OPEN_MAIN_DB ");
+    if( flags & SQLITE_OPEN_MAIN_JOURNAL )   printf(" OPEN_MAIN_JOURNAL ");
+    if( flags & SQLITE_OPEN_TEMP_DB )        printf(" OPEN_TEMP_DB ");
+    if( flags & SQLITE_OPEN_TEMP_JOURNAL )   printf(" OPEN_TEMP_JOURNAL ");
+    if( flags & SQLITE_OPEN_TRANSIENT_DB )   printf(" OPEN_TRANSIENT_DB ");
+    if( flags & SQLITE_OPEN_SUBJOURNAL )     printf(" OPEN_SUBJOURNAL ");
+    if( flags & SQLITE_OPEN_MASTER_JOURNAL ) printf(" OPEN_MASTER_JOURNAL ");
+    if( flags & SQLITE_OPEN_WAL )            printf(" OPEN_WAL ");
+    //
+    if( flags & SQLITE_OPEN_READWRITE )      printf(" OPEN_READWRITE ");
+    if( flags & SQLITE_OPEN_CREATE )         printf(" OPEN_CREATE ");
+    if( flags & SQLITE_OPEN_READONLY )       printf(" OPEN_READONLY ");
+    //
+    if( flags & SQLITE_OPEN_DELETEONCLOSE )  printf(" OPEN_DELETEONCLOSE ");
+    if( flags & SQLITE_OPEN_EXCLUSIVE )      printf(" OPEN_EXCLUSIVE ");
+    printf("])\n");
+
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = &composite_io_methods;
+    file->zName = zName;
     return SQLITE_OK;
 }
 
@@ -153,11 +188,8 @@ static int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut)
 
 static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
     printf("cFullPathname(vfs = <ptr>, zName = %s, nOut = %d, zOut = %s)\n", zName, nOut, zOut);
-    zOut = zName;
-    int count = 0;
-    for( count = 0; zOut[count] != '\0'; count++ ) {}
-
-    return count;
+    zOut = "/tmp/defaultCFullPathname";
+    return SQLITE_OK;
 }
 
 /* attempts to return nByte bytes of randomness.
