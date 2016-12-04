@@ -134,7 +134,7 @@ struct cFile {
 };
 
 struct composite_vfs_data {
-    FILE* random_fd;
+    int random_fd;
 };
 
 /* sqlite_io function prototypes */

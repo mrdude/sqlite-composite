@@ -6,7 +6,7 @@
 #include "os_composite.h"
 
 char* _get_region(void* mem_allocation) {
-    return ((char*)mem) - sizeof(int);
+    return ((char*)mem_allocation) - sizeof(int);
 }
 
 void* _get_memory(char* region_start) {

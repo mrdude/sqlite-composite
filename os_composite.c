@@ -884,7 +884,7 @@ int sqlite3_os_init(void){
   sqlite3_vfs_register(&composite_vfs, 1);
 
   struct composite_vfs_data *data = &composite_vfs_app_data;
-  data->random_fd = fopen("/dev/random", "rb");
+  data->random_fd = open("/dev/random", O_RDONLY);
 
   return SQLITE_OK;
 }
@@ -892,7 +892,7 @@ int sqlite3_os_init(void){
 /* shutdown the OS interface */
 int sqlite3_os_end(void) {
   struct composite_vfs_data *data = &composite_vfs_app_data;
-  fclose(data->random_fd);
+  close(data->random_fd);
   return SQLITE_OK; 
 }
 
