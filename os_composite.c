@@ -194,7 +194,7 @@ static void _cMemFree(void* mem) {
 }
 
 static void* _cMemRealloc(void* mem, int newSize) {
-    return cMemRelloc(mem, newSize);
+    return cMemRealloc(mem, newSize);
 }
 
 static int _cMemSize(void* mem) {
