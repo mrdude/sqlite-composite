@@ -212,7 +212,7 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
     int fileExists = 0;
     cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &fileExists);
 
-    if( flags & SQLITE_OPEN_CREATE && flags & SQLITE_OPEN_EXCLUSIVE ) {
+    if( (flags & SQLITE_OPEN_CREATE) && (flags & SQLITE_OPEN_EXCLUSIVE) ) {
         /* These two flags mean "that file should always be created, and that it is an error if it already exists."
          * They are always used together.
          */
