@@ -24,7 +24,7 @@
 #include "os_composite.h"
 
 /* API structs */
-static struct sqlite3_io_methods composite_io_methods = {
+struct sqlite3_io_methods composite_io_methods = {
     .iVersion = 3,
     .xClose = cClose,
     .xRead = cRead,
@@ -46,7 +46,7 @@ static struct sqlite3_io_methods composite_io_methods = {
     .xUnfetch = cUnfetch
 };
 
-static struct composite_vfs_data composite_vfs_app_data;
+struct composite_vfs_data composite_vfs_app_data;
 
 static sqlite3_vfs composite_vfs = {
     .iVersion = 3,

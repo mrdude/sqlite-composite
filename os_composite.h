@@ -14,6 +14,10 @@
 #define SQLITE_COS_PROFILE_MEMORY 0
 #endif
 
+/* API structs */
+extern struct sqlite3_io_methods composite_io_methods;
+extern struct composite_vfs_data composite_vfs_app_data;
+
 /* cFile */
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
