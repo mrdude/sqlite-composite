@@ -39,7 +39,7 @@ static struct fs_file* _fs_file_list = 0;
 
 /* private inmem fs functions */
 static void* _FS_MALLOC(struct composite_vfs_data* cVfs, int sz ) {
-    return cVfs->mem->xMalloc( cVfs->mem->xRoundup( sz ) );
+    return malloc(sz);
 }
 
 /* finds the file with the given name, or 0 if it doesn't exist */
