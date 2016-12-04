@@ -22,10 +22,6 @@ int cClose(sqlite3_file* baseFile) {
 int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
 
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cRead(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
-    #endif
-
     /* seek to the correct position */
     if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
         return SQLITE_IOERR;
@@ -51,21 +47,11 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
 
 int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
-
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cWrite(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
-    #endif
-
     return SQLITE_IOERR;
 }
 
 int cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     struct cFile* file = (struct cFile*)baseFile;
-    
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cTruncate(file = %s, size = %" PRIu64 ")\n", file->zName, size);
-    #endif
-
     return SQLITE_IOERR;
 }
 
@@ -260,26 +246,6 @@ int cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
  * @param pOutFlags the flags that were actually set
  */
 int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags, int *pOutFlags) {
-    #if SQLITE_COS_PROFILE_VFS
-    printf("cOpen(vfs = <ptr>, zName = '%s', file = <not initialized>, flags = [", zName);
-    if( flags & SQLITE_OPEN_MAIN_DB )        printf(" OPEN_MAIN_DB ");
-    if( flags & SQLITE_OPEN_MAIN_JOURNAL )   printf(" OPEN_MAIN_JOURNAL ");
-    if( flags & SQLITE_OPEN_TEMP_DB )        printf(" OPEN_TEMP_DB ");
-    if( flags & SQLITE_OPEN_TEMP_JOURNAL )   printf(" OPEN_TEMP_JOURNAL ");
-    if( flags & SQLITE_OPEN_TRANSIENT_DB )   printf(" OPEN_TRANSIENT_DB ");
-    if( flags & SQLITE_OPEN_SUBJOURNAL )     printf(" OPEN_SUBJOURNAL ");
-    if( flags & SQLITE_OPEN_MASTER_JOURNAL ) printf(" OPEN_MASTER_JOURNAL ");
-    if( flags & SQLITE_OPEN_WAL )            printf(" OPEN_WAL ");
-    //
-    if( flags & SQLITE_OPEN_READWRITE )      printf(" OPEN_READWRITE ");
-    if( flags & SQLITE_OPEN_CREATE )         printf(" OPEN_CREATE ");
-    if( flags & SQLITE_OPEN_READONLY )       printf(" OPEN_READONLY ");
-    //
-    if( flags & SQLITE_OPEN_DELETEONCLOSE )  printf(" OPEN_DELETEONCLOSE ");
-    if( flags & SQLITE_OPEN_EXCLUSIVE )      printf(" OPEN_EXCLUSIVE ");
-    printf("])\n");
-    #endif
-
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = 0;
     *pOutFlags = 0;
