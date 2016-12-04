@@ -325,7 +325,7 @@ static int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, in
 
          int resOut = 0;
          cAccess(vfs, zName, SQLITE_ACCESS_EXISTS, &resOut)
-         if( pResOut ) {
+         if( resOut ) {
              return SQLITE_IOERR; //the file already exists -- error!
          }
     }
@@ -606,7 +606,7 @@ int sqlite3_os_init(void){
   sqlite3_config(SQLITE_CONFIG_MALLOC, &composite_mem_methods);
   sqlite3_vfs_register(&composite_vfs, 1);
 
-  composite_vfs_data *data = &composite_vfs_app_data;
+  struct composite_vfs_data *data = &composite_vfs_app_data;
   data->random_fd = fopen("/dev/random", "rb");
 
   return SQLITE_OK;
@@ -614,7 +614,7 @@ int sqlite3_os_init(void){
 
 /* shutdown the OS interface */
 int sqlite3_os_end(void) {
-  composite_vfs_data *data = &composite_vfs_app_data;
+  struct composite_vfs_data *data = &composite_vfs_app_data;
   fclose(data->random_fd);
   return SQLITE_OK; 
 }
