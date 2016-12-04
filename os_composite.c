@@ -31,7 +31,7 @@ static int _cClose(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cClose(file = '%s') => ", file->zName);
+        CTRACE_APPEND("cClose(file = '%s')", file->zName);
     #endif
 
     const int res = cClose(baseFile);
