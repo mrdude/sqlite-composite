@@ -110,31 +110,31 @@ static int cClose(sqlite3_file* baseFile) {
 static int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cRead(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
-    return SQLITE_IO_ERROR;
+    return SQLITE_IOERR;
 }
 
 static int cWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cWrite(file = %s, buf = <>, iAmt = %d, iOfst = %" PRIu64 ")\n", file->zName, iAmt, iOfst);
-    return SQLITE_IO_ERROR;
+    return SQLITE_IOERR;
 }
 
 static int cTruncate(sqlite3_file* file, sqlite3_int64 size) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cTruncate(file = %s, size = %" PRIu64 ")\n", file->zName, iOfst);
-    return SQLITE_IO_ERROR;
+    return SQLITE_IOERR;
 }
 
 static int cSync(sqlite3_file* file, int flags) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cTruncate(file = %s, flags = [???])\n", file->zName);
-    return SQLITE_IO_ERROR;
+    return SQLITE_IOERR;
 }
 
 static int cFileSize(sqlite3_file* file, sqlite3_int64 *pSize) {
     struct cFile* file = (struct cFile*)baseFile;
     printf("cFileSize(file = %s)\n", file->zName);
-    return SQLITE_IO_ERROR;
+    return SQLITE_IOERR;
 }
 
 /* increases the lock on a file
@@ -149,7 +149,7 @@ static int cLock(sqlite3_file* file, int lockType) {
     if( lockType & SQLITE_LOCK_PENDING )   printf(" LOCK_PENDING ");
     if( lockType & SQLITE_LOCK_EXCLUSIVE ) printf(" LOCK_EXCLUSIVE ");
     printf("])\n");
-    return SQLITE_IO_ERROR;
+    return SQLITE_IOERR;
 }
 
 /* decreases the lock on a file
@@ -163,7 +163,7 @@ static int cUnlock(sqlite3_file* file, int i) {
     if( lockType & SQLITE_LOCK_PENDING )   printf(" LOCK_PENDING ");
     if( lockType & SQLITE_LOCK_EXCLUSIVE ) printf(" LOCK_EXCLUSIVE ");
     printf("])\n");
-    return SQLITE_IO_ERROR;
+    return SQLITE_IOERR;
 }
 
 /* returns true if any connection has a RESERVED, PENDING, or EXCLUSIVE lock on this file
