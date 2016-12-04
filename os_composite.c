@@ -37,6 +37,10 @@ struct cFile {
     const char* zName;
 };
 
+struct composite_vfs_data {
+    FILE random_fd;
+};
+
 /* sqlite_io function prototypes */
 static int cClose(sqlite3_file* file);
 static int cRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst);
@@ -111,13 +115,15 @@ static struct sqlite3_io_methods composite_io_methods = {
     .xUnfetch = cUnfetch
 };
 
+static composite_vfs_data composite_vfs_app_data;
+
 static sqlite3_vfs composite_vfs = {
     .iVersion = 3,
     .szOsFile = sizeof(struct cFile),
     .mxPathname = 255, /* what is the actual MAX_PATH? */
     .pNext = 0,
     .zName = "composite",
-    .pAppData = 0,
+    .pAppData = &composite_vfs_app_data,
     .xOpen = cOpen,
     .xDelete = cDelete,
     .xAccess = cAccess,
@@ -345,7 +351,8 @@ static int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
     printf("cRandomness(vfs = <ptr>, nByte = %d, zOut = <ptr>)\n", nByte);
     #endif
 
-    return 0;
+    struct composite_vfs_data *data = (struct composite_vfs_data*)vfs->pAppData;
+    return fread(zOut, 1, nByte, data->random_fd);
 }
 
 /* sleep for at least the given number of microseconds
@@ -551,11 +558,17 @@ int sqlite3_os_init(void){
   #endif
   sqlite3_config(SQLITE_CONFIG_MALLOC, &composite_mem_methods);
   sqlite3_vfs_register(&composite_vfs, 1);
+
+  composite_vfs_data *data = &composite_vfs_app_data;
+  data->random_fd = fopen("/dev/random", "rb");
+
   return SQLITE_OK;
 }
 
 /* shutdown the OS interface */
-int sqlite3_os_end(void) { 
+int sqlite3_os_end(void) {
+  composite_vfs_data *data = &composite_vfs_app_data;
+  fclose(data->random_fd);
   return SQLITE_OK; 
 }
 
