@@ -274,7 +274,7 @@ static int cLock(sqlite3_file* baseFile, int lockType) {
     printf("])\n");
     #endif
 
-    return SQLITE_IOERR;
+    return SQLITE_OK;
 }
 
 /* decreases the lock on a file
@@ -293,7 +293,7 @@ static int cUnlock(sqlite3_file* baseFile, int lockType) {
     printf("])\n");
     #endif
 
-    return SQLITE_IOERR;
+    return SQLITE_OK;
 }
 
 /* returns true if any connection has a RESERVED, PENDING, or EXCLUSIVE lock on this file
