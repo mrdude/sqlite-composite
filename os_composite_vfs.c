@@ -266,14 +266,14 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
     FILE* fd = NULL;
     if( flags & SQLITE_OPEN_READWRITE ) {
         if( fileExists ) {
-            fd = fopen(zName, "r+");
+            fd = fopen(zName, "r+b");
         } else {
-            fd = fopen(zName, "w+");
+            fd = fopen(zName, "w+b");
         }
 
         *pOutFlags |= SQLITE_OPEN_READWRITE;
     } else if( flags & SQLITE_OPEN_READONLY ) {
-        fd = fopen(zName, "r");
+        fd = fopen(zName, "rb");
         *pOutFlags |= SQLITE_OPEN_READONLY;
     }
 
