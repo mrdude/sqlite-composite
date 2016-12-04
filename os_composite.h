@@ -128,7 +128,7 @@ extern struct composite_vfs_data composite_vfs_app_data;
 struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
     const char* zName;
-    FILE* fd;
+    int fd;
     int closed;
     int deleteOnClose;
 };

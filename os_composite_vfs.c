@@ -6,6 +6,10 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #include "os_composite.h"
 
@@ -23,44 +27,50 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
 
     /* seek to the correct position */
-    if( ftell(file->fd) != iOfst ) {
-        if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
-            return SQLITE_IOERR_SEEK;
-        }
+    if( lseek(file->fd, iOfst, SEEK_SET) != 0 ) {
+        return SQLITE_IOERR_SEEK;
     }
 
     /* read the bytes */
-    int bytesRead = fread(buf, 1, iAmt, file->fd);
-    if( bytesRead == iAmt ) {
-        return SQLITE_OK;
+    int bytesRead = read(file->fd, buf, iAmt);
+
+    /* was there an error? */
+    if( bytesRead == -1 ) {
+        if( errno == EOVERFLOW ) {
+            /* if we do a short read, we have to fill the rest of the buffer with 0's */
+            int i;
+            for( i = bytesRead; i < iAmt; i++ )
+                ((char*)buf)[i] = 0;
+
+            return SQLITE_IOERR_SHORT_READ;
+        } else {
+            return SQLITE_IOERR_READ;
+        }
     }
 
-    /*
-    if( feof(file->fd) || ferror(file->fd) ) {
-        return SQLITE_IOERR;
+    if( bytesRead < iAmt ) {
+        /* if we do a short read, we have to fill the rest of the buffer with 0's */
+        int i;
+        for( i = bytesRead; i < iAmt; i++ )
+            ((char*)buf)[i] = 0;
+
+        return SQLITE_IOERR_SHORT_READ;
     }
-    */
 
-    /* if we do a short read, we have to fill the rest of the buffer with 0's */
-    int i;
-    for( i = bytesRead; i < iAmt; i++ )
-        ((char*)buf)[i] = 0;
-
-    return SQLITE_IOERR_SHORT_READ;
+    //assert( bytesRead == iAmt);
+    return SQLITE_OK;
 }
 
 int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfst) {
     struct cFile* file = (struct cFile*)baseFile;
 
     /* seek to the correct position */
-    if( ftell(file->fd) != iOfst ) {
-        if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
-            return SQLITE_IOERR_SEEK;
-        }
+    if( fseek(file->fd, iOfst, SEEK_SET) != 0 ) {
+        return SQLITE_IOERR_SEEK;
     }
 
     /* write the bytes */
-    int bytesWritten = fwrite(buf, 1, iAmt, file->fd);
+    int bytesWritten = write(file->fd, buf, iAmt);
     if( bytesWritten == iAmt ) {
         return SQLITE_OK;
     }
@@ -81,7 +91,7 @@ int cSync(sqlite3_file* baseFile, int flags) {
     if( flags & SQLITE_SYNC_FULL || flags & SQLITE_SYNC_NORMAL ) {
         res = fsync( file->fd );
     } else {
-        res = fdatasync( file-fd );
+        res = fdatasync( file->fd );
     }
 
     if( res != 0 ) {
@@ -209,18 +219,18 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
          }
     }
 
-    FILE* fd = NULL;
+    int fd = -1;
     if( flags & SQLITE_OPEN_READWRITE ) {
         if( fileExists ) {
-            fd = fopen(zName, "r+b");
+            fd = open(zName, O_RDWR /*"r+b"*/);
         } else {
-            fd = fopen(zName, "w+b");
+            fd = open(zName, O_RDWR | O_CREAT /*"w+b"*/);
         }
     } else if( flags & SQLITE_OPEN_READONLY ) {
-        fd = fopen(zName, "rb");
+        fd = open(zName, O_RDONLY);
     }
 
-    if( fd == NULL ) {
+    if( fd == -1 ) {
         return SQLITE_IOERR;
     }
     
