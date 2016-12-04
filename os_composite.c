@@ -324,7 +324,7 @@ static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, i
         //
         if( flags & SQLITE_OPEN_DELETEONCLOSE )  CTRACE_APPEND(" OPEN_DELETEONCLOSE ");
         if( flags & SQLITE_OPEN_EXCLUSIVE )      CTRACE_APPEND(" OPEN_EXCLUSIVE ");
-        CTRACE_APPEND("])");
+        CTRACE_APPEND("], pOutFlags = <...>)");
     #endif
 
     const int res = cOpen(vfs, zName, baseFile, flags, pOutFlags);
@@ -332,7 +332,7 @@ static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, i
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_PRINT();
         PRINT_ERR_CODE(res);
-        printf("\n");
+        printf(", pOutFlags = %d\n", *pOutFlags);
     #endif
 
     return res;
