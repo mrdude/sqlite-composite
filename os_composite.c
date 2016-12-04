@@ -558,7 +558,7 @@ static void _cMemShutdown(void* pAppData) {
 
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_PRINT();
-        printf("\n", res);
+        printf("\n");
     #endif
 }
 
