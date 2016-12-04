@@ -391,7 +391,7 @@ static int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zO
     #endif
 
     static const char* full_pathname = "/tmp/";
-    static size_t full_pathname_len = strlen(full_pathname);
+    const size_t full_pathname_len = strlen(full_pathname);
 
     int i = 0;
     for( ; i < full_pathname_len; i++ ) zOut[i] = full_pathname[i];
