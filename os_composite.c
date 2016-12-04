@@ -508,7 +508,7 @@ struct sqlite3_io_methods composite_io_methods = {
 struct composite_vfs_data composite_vfs_app_data;
 
 static sqlite3_vfs composite_vfs = {
-    .iVersion = 3,
+    .iVersion = 2,
     .szOsFile = sizeof(struct cFile),
     .mxPathname = 255, /* what is the actual MAX_PATH? */
     .pNext = 0,
@@ -527,6 +527,7 @@ static sqlite3_vfs composite_vfs = {
     .xCurrentTime = _cCurrentTime,
     .xGetLastError = _cGetLastError,
     .xCurrentTimeInt64 = _cCurrentTimeInt64,
+    /* everything above is required in versions 1-2 */
     .xSetSystemCall = 0,
     .xGetSystemCall = 0,
     .xNextSystemCall = 0
