@@ -37,6 +37,27 @@ static void _FS_FREE(void* mem) {
     composite_mem_methods.xFree(mem);
 }
 
+static char* _fs_copystring(const char* str, int n) {
+    /* get the length of the string */
+    int len;
+    for( len = 0; str[len] == '\0' && len < n; len++ ) {}
+
+    /* malloc() some memory for our copy */
+    char* new_str = _FS_MALLOC(len+1);
+    if( new_str == 0 ) {
+        return 0;
+    }
+
+    /* perform the copy */
+    int i = 0;
+    for( i = 0; i < len; i++ ) {
+        new_str[i] = str[i];
+    }
+    new_str[len] = 0;
+
+    return new_str;
+}
+
 /* adds the given file to _fs_file_list */
 static void _fs_file_link(struct fs_file* file) {
     if( _fs_file_list == 0 ) {
@@ -89,12 +110,21 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
         return 0;
     
     char* buf = _FS_MALLOC( INITIAL_BUF_DATA_SIZE );
-    if( buf == 0 )
+    if( buf == 0 ) {
+        _FS_FREE(file);
         return 0;
+    }
+
+    char* zNameCopy = _fs_copystring(zName);
+    if( zNameCopy == 0 ) {
+        _FS_FREE(file);
+        _FS_FREE(buf);
+        return 0;
+    }
     
     file->cVfs = cVfs;
     file->next = 0;
-    file->zName = zName;
+    file->zName = zNameCopy;
     file->data.buf = buf;
     file->data.len = 0;
     file->ref = 0;
@@ -107,6 +137,7 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
 
 /* free the file and all of its blocks */
 static void _fs_file_free(struct fs_file* file) {
+    _FS_FREE( file->zName );
     _FS_FREE( file->data.buf );
     _FS_FREE( file );
 }
