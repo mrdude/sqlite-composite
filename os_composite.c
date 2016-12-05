@@ -244,14 +244,15 @@ static int _cSectorSize(sqlite3_file* baseFile) {
 static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
-        CTRACE_STRING_DEF(256);
+        CTRACE_STRING_DEF(160);
         CTRACE_APPEND("cDeviceCharacteristics(file = %s)", file->zName);
     #endif
 
     const int flags = cDeviceCharacteristics(baseFile);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => flags = [");
+        CTRACE_APPEND(" => flags = [...]");
+        /*
         if( flags & SQLITE_IOCAP_ATOMIC ) CTRACE_APPEND(" IOCAP_ATOMIC ");
         if( flags & SQLITE_IOCAP_ATOMIC512 ) CTRACE_APPEND(" IOCAP_ATOMIC512 ");
         if( flags & SQLITE_IOCAP_ATOMIC1K ) CTRACE_APPEND(" IOCAP_ATOMIC1K ");
@@ -264,6 +265,7 @@ static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
         if( flags & SQLITE_IOCAP_SAFE_APPEND ) CTRACE_APPEND(" IOCAP_SAFE_APPEND ");
         if( flags & SQLITE_IOCAP_SEQUENTIAL ) CTRACE_APPEND(" IOCAP_SEQUENTIAL ");
         CTRACE_APPEND("]");
+        */
         CTRACE_PRINT();
     #endif
 
