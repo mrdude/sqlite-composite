@@ -38,7 +38,7 @@ struct fs_file {
     int ref; /* the number of open cFile's the file has */
 };
 
-static struct fs_file* _fs_file_list = 0;
+static struct fs_file* _fs_file_list;
 
 /* private inmem fs functions */
 static void* _FS_MALLOC(int sz) {
@@ -121,6 +121,12 @@ static int _fs_data_ensure_capacity(struct fs_file* file, int64_t sz) {
 }
 
 /* inmem fs functions */
+static void fs_init() {
+}
+
+static void fs_deinit() {
+}
+
 static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
     printf("fs_open(%s)\n", zName);
     //TODO make this atomic
@@ -353,6 +359,18 @@ int cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
 }
 
 /** sqlite3_vfs methods */
+void cVfsInit() {
+    _fs_file_list = 0;
+}
+
+void cVfsDeinit() {
+    /* free all files from memory */
+    struct fs_file* file = _fs_file_list;
+    _fs_file_list = 0;
+    for( ; file != 0; file = file->next ) {
+        _fs_file_free(file);
+    }
+}
 
 /* opens a file
  * @param vfs
