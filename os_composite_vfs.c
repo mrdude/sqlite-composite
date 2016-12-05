@@ -22,16 +22,7 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
 
     /* was there an error? */
     if( bytesRead == -1 ) {
-        if( errno == EOVERFLOW ) {
-            /* if we do a short read, we have to fill the rest of the buffer with 0's */
-            int i;
-            for( i = bytesRead; i < iAmt; i++ )
-                ((char*)buf)[i] = 0;
-
-            return SQLITE_IOERR_SHORT_READ;
-        } else {
-            return SQLITE_IOERR_READ;
-        }
+        return SQLITE_IOERR_READ;
     }
 
     if( bytesRead < iAmt ) {
