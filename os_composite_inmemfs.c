@@ -112,7 +112,6 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     }
     
     file->cVfs = cVfs;
-    file->prev = 0;
     file->next = 0;
     file->zName = zNameCopy;
     file->data.buf = buf;
