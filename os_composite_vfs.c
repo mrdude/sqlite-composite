@@ -144,7 +144,7 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
 
     /* copy the bytes into the buffer */
     if( bytes_read > 0 ) {
-        strncpy( (char*)buf, (const char*)file->data.buf[offset], (size_t)bytes_read);
+        strncpy( (char*)buf, (const char*)(&file->data.buf[offset]), (size_t)bytes_read);
     }
 
     return bytes_read;
@@ -167,7 +167,7 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
     }
 
     /* perform the write */
-    strncpy( file->data.buf[offset], (const char*)buf, (size_t)len );
+    strncpy( (char*)(&file->data.buf[offset]), (const char*)buf, (size_t)len );
 
     /* adjust file->data.len */
     file->data.len = end_offset;
