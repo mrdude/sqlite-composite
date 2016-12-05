@@ -9,7 +9,7 @@
 
 #include "os_composite.h"
 
-#define INITIAL_BUF_DATA_SIZE (PAGE_SIZE*2)
+#define INITIAL_BUF_DATA_SIZE (FS_SECTOR_SIZE*2)
 
 /* the maximum possible size of a file; the largest value that can be represented with a signed 64-bit int
  * on 32-bit systems, the actual minimum will be much lower.
