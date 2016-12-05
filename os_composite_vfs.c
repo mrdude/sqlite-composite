@@ -60,7 +60,7 @@ static void _FS_FREE(void* mem) {
 
 /* finds the file with the given name, or 0 if it doesn't exist */
 static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
-    printf("_fs_find_file()\n");
+    printf("_fs_find_file(%s)\n", zName);
     struct fs_file* file;
     for( file = _fs_file_list; file != 0; file = file->next ) {
         if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
@@ -71,7 +71,7 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
 }
 
 static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
-    printf("_fs_file_alloc()\n");
+    printf("_fs_file_alloc(%s)\n", zName);
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)(vfs->pAppData);
     struct fs_file* file = _FS_MALLOC( sizeof(struct fs_file) );
     if( file == 0 )
@@ -92,7 +92,7 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
 
 /* free the file and all of its blocks */
 static void _fs_file_free(struct fs_file* file) {
-    printf("_fs_file_free()\n");
+    printf("_fs_file_free(%s)\n", file->zName);
     _FS_FREE( file->data.buf );
     _FS_FREE( file );
 }
@@ -101,7 +101,7 @@ static void _fs_file_free(struct fs_file* file) {
  * returns 1 on success, 0 on failure
  */
 static int _fs_data_ensure_capacity(struct fs_file* file, int64_t sz) {
-    printf("_fs_data_ensure_capacity(sz=%" PRIu64 ")\n", sz);
+    printf("_fs_data_ensure_capacity(%s, sz=%" PRIu64 ")\n", file->zName, sz);
     int old_size = _FS_MEMSIZE(file->data.buf);
     if( old_size < sz ) {
         int new_size = old_size * 2;
@@ -122,7 +122,7 @@ static int _fs_data_ensure_capacity(struct fs_file* file, int64_t sz) {
 
 /* inmem fs functions */
 static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
-    printf("fs_open()\n");
+    printf("fs_open(%s)\n", zName);
     //TODO make this atomic
     //atomic {
     struct fs_file* file = _fs_find_file(vfs, zName);
@@ -139,7 +139,7 @@ static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
 }
 
 static void fs_close(struct fs_file* file) {
-    printf("fs_close()\n");
+    printf("fs_close(%s)\n", file->zName);
     //TODO make this threadsafe
     file->ref--;
     if( file->ref == 0 ) {
