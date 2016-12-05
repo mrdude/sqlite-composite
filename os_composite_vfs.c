@@ -244,7 +244,15 @@ int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
 int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
     //TODO how to get this from composite?
     struct composite_vfs_data *data = (struct composite_vfs_data*)vfs->pAppData;
-    return read(data->random_fd, zOut, nByte);
+    
+    int bytes_read = read(data->random_fd, zOut, nByte);
+
+    /* zero out the rest of the bytes */
+    int i;
+    for( i = bytes_read; i < nByte; i++ ) zOut[i] = 0;
+
+    /* return the number of bytes read */
+    return bytes_read;
 }
 
 /* sleep for at least the given number of microseconds
