@@ -139,7 +139,7 @@ static struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
 }
 
 static void fs_close(struct fs_file* file) {
-    printf("fs_close()");
+    printf("fs_close()\n");
     //TODO make this threadsafe
     file->ref--;
     if( file->ref == 0 ) {
@@ -162,13 +162,13 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     int64_t end_offset = offset + (int64_t)len;
     if( end_offset > file->data.len ) end_offset = file->data.len;
     int bytes_read = (int)(end_offset - offset);
-    printf("\t=> bytes_read = %d\n", bytes_read);
 
     /* copy the bytes into the buffer */
     if( bytes_read > 0 ) {
         strncpy( (char*)buf, (const char*)(&file->data.buf[offset]), (size_t)bytes_read);
     }
 
+    printf("\t=> bytes_read = %d\n", bytes_read);
     return bytes_read;
 }
 
@@ -179,12 +179,14 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
 
     /* perform sanity checks on offset and len */
     if( offset < 0 || len < 0 ) {
+        printf("\t=> failed sanity check\n");
         return -1;
     }
 
     /* ensure that our buffer is large enough to perform the write */
     int64_t end_offset = offset + (int64_t)len;
     if( _fs_data_ensure_capacity(file, end_offset) == 0 ) {
+        printf("\t=> not enough memory to perform the write\n");
         return -1; /* we don't have enough memory to perform the write */
     }
 
@@ -194,6 +196,7 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
     /* adjust file->data.len */
     file->data.len = end_offset;
 
+    printf("\t=> wrote %d bytes\n", len);
     return len;
 }
 
