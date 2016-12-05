@@ -115,7 +115,7 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
         return 0;
     }
 
-    char* zNameCopy = _fs_copystring(zName);
+    char* zNameCopy = _fs_copystring(zName, MAX_PATHNAME);
     if( zNameCopy == 0 ) {
         _FS_FREE(file);
         _FS_FREE(buf);
@@ -137,7 +137,7 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
 
 /* free the file and all of its blocks */
 static void _fs_file_free(struct fs_file* file) {
-    _FS_FREE( file->zName );
+    _FS_FREE( (char*)file->zName );
     _FS_FREE( file->data.buf );
     _FS_FREE( file );
 }
