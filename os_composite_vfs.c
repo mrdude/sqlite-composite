@@ -141,6 +141,7 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     /* determine the number of bytes to read */
     int64_t end_offset = MIN(int64_t, offset + len, 1L<<31);
     int bytes_read = (int)(end_offset - offset);
+    printf("\t=> bytes_read = %d\n", bytes_read);
 
     /* copy the bytes into the buffer */
     if( bytes_read > 0 ) {
@@ -210,9 +211,10 @@ int cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOfst) {
 
     if( bytesRead < iAmt ) {
         /* if we do a short read, we have to fill the rest of the buffer with 0's */
+        char* data = buf;
         int i;
         for( i = bytesRead; i < iAmt; i++ )
-            ((char*)buf)[i] = 0;
+            data[i] = 0;
 
         return SQLITE_IOERR_SHORT_READ;
     }

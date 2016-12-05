@@ -6,15 +6,15 @@
 #include "os_composite.h"
 
 char* _get_region(void* mem_allocation) {
-    return ((char*)mem_allocation) - sizeof(int);
+    return ((char*)mem_allocation) - sizeof(size_t);
 }
 
 void* _get_memory(char* region_start) {
-    return (void*)(region_start + sizeof(int));
+    return (void*)(region_start + sizeof(size_t));
 }
 
-char* _malloc_region(int sz) {
-    char* region_start = malloc(sz + sizeof(int));
+char* _malloc_region(size_t sz) {
+    char* region_start = malloc(sz + sizeof(size_t));
     *((int*)region_start) = sz;
     return region_start;
 }
@@ -23,9 +23,9 @@ void _free_region(char* region) {
     free(region);
 }
 
-int _get_memory_size(void* mem_allocation) {
+size_t _get_memory_size(void* mem_allocation) {
     char* region_start = _get_region(mem_allocation);
-    int sz = *((int*)region_start);
+    size_t sz = *((size_t*)region_start);
     return sz;
 }
 

@@ -244,7 +244,7 @@ static int _cSectorSize(sqlite3_file* baseFile) {
 static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
-        CTRACE_STRING_DEF(160);
+        CTRACE_STRING_DEF(256);
         CTRACE_APPEND("cDeviceCharacteristics(file = %s)", file->zName);
     #endif
 
