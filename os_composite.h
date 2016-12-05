@@ -132,7 +132,6 @@ struct cFile {
     struct sqlite3_io_methods* composite_io_methods;
     const char* zName;
     void* fd;
-    int closed;
     int deleteOnClose;
 };
 

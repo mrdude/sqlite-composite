@@ -209,8 +209,6 @@ int cClose(sqlite3_file* baseFile) {
     fs_close((struct fs_file*)file->fd);
     file->fd = 0;
 
-    file->closed = 1;
-
     return SQLITE_OK;
 }
 
@@ -408,13 +406,12 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
     file->composite_io_methods = &composite_io_methods;
     file->zName = zName;
     file->fd = fd;
-    file->closed = 0;
     file->deleteOnClose = (flags & SQLITE_OPEN_DELETEONCLOSE);
     return SQLITE_OK;
 }
 
 int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
-    /* files are simply deleted when no one has them open */
+    //TODO search the _fs_file_list and remove the file
     return SQLITE_OK;
 }
 
