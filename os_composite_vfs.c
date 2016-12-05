@@ -139,7 +139,8 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     }
     
     /* determine the number of bytes to read */
-    int64_t end_offset = MIN(int64_t, offset + len, 1L<<31);
+    int64_t end_offset = offset + (int64_t)len;
+    if( end_offset > file->data.len ) end_offset = file->data.len;
     int bytes_read = (int)(end_offset - offset);
     printf("\t=> bytes_read = %d\n", bytes_read);
 
