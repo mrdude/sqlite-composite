@@ -124,7 +124,7 @@ int cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
 /* "The xSectorSize() method returns the sector size of the device that underlies the file."
  */
 int cSectorSize(sqlite3_file* baseFile) {
-    return PAGE_SIZE;
+    return FS_SECTOR_SIZE;
 }
 
 /* "The xDeviceCharacteristics() method returns a bit vector describing behaviors of the underlying device"

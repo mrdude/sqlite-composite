@@ -120,6 +120,8 @@
     } while(0)
 #endif
 
+/* in-mem FS variables */
+#define FS_SECTOR_SIZE 4096 /* sqlite will attempt to before filesystem I/O in blocks of this size */
 #define MAX_PATHNAME 512
 
 /* API structs */

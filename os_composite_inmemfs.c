@@ -3,9 +3,12 @@
 #include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
+/* TODO: when I port this to composite, I won't have access to these headers. */
+#include <string.h> /* for strncpy() */
+#include <stdio.h> /* for printf() */
+
 #include "os_composite.h"
 
-#define PAGE_SIZE 4096 /* assume a 4096 byte page-size */
 #define INITIAL_BUF_DATA_SIZE (PAGE_SIZE*2)
 
 /* the maximum possible size of a file; the largest value that can be represented with a signed 64-bit int
