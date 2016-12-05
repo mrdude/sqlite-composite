@@ -16,10 +16,18 @@
 #define PAGE_SIZE 4096 /* assume a 4096 byte page-size */
 #define INITIAL_BUF_DATA_SIZE (PAGE_SIZE*2)
 
+/* the maximum possible size of a file; the largest value that can be represented with a signed 64-bit int
+ * on 32-bit systems, the actual minimum will be much lower.
+ */
+#define MAX_FILE_LEN ( (int64_t)(1L<<(sizeof(int64_t)-1)) )
+
+#define MIN(type, a, b) ( ((type)(a)) < ((type)(b)) ? (type)(a) : (type)(b) )
+#define MIN3(type, a, b, c) ( MIN(type, a, b) < ((type)(c)) ? MIN(type, a, b) : ((type)(c)) )
+
 /* inmem fs structs */
 struct fs_data {
     char* buf; /* a pointer to the buffer containing the file's data */
-    int off, len; /* the portion of this buffer that points to valid file data */
+    int64_t len; /* the portion of this buffer contains valid data */
 };
 
 struct fs_file {
@@ -34,16 +42,17 @@ struct fs_file {
 static struct fs_file* _fs_file_list = 0;
 
 /* private inmem fs functions */
-static void* _FS_MALLOC(struct composite_vfs_data* cVfs, int sz ) {
-    return malloc(sz);
+static void* _FS_MALLOC(int sz) {
+    sz = composite_mem_methods.xRoundup(sz);
+    return composite_mem_methods.xMalloc(sz);
 }
 
 static void* _FS_REALLOC(void* mem, int newSize) {
-    return realloc(mem, newSize);
+    return composite_mem_methods.xRealloc(mem, newSize);
 }
 
 static void _FS_FREE(void* mem) {
-    free(mem);
+    composite_mem_methods.xFree(mem);
 }
 
 /* finds the file with the given name, or 0 if it doesn't exist */
@@ -61,11 +70,11 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
 static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     printf("_fs_file_alloc()\n");
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)(vfs->pAppData);
-    struct fs_file* file = _FS_MALLOC( cVfs, sizeof(struct fs_file) );
+    struct fs_file* file = _FS_MALLOC( sizeof(struct fs_file) );
     if( file == 0 )
         return 0;
     
-    char* buf = _FS_MALLOC( cVfs, INITIAL_BUF_DATA_SIZE );
+    char* buf = _FS_MALLOC( INITIAL_BUF_DATA_SIZE );
     if( buf == 0 )
         return 0;
     
@@ -73,7 +82,6 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     file->next = 0;
     file->zName = zName;
     file->data.buf = buf;
-    file->data.off = 0;
     file->data.len = 0;
     file->ref = 0;
     return file;
@@ -84,6 +92,13 @@ static void _fs_file_free(struct fs_file* file) {
     printf("_fs_file_free()\n");
     _FS_FREE( file->data.buf );
     _FS_FREE( file );
+}
+
+/* makes sure that there is sz bytes of space in file's data buffer
+ * returns 1 on success, 0 on failure
+ */
+static int _fs_data_ensure_capacity(struct fs_file* file, int64_t sz) {
+    //TODO
 }
 
 /* inmem fs functions */
@@ -117,67 +132,48 @@ static void fs_close(struct fs_file* file) {
 /* returns the number of bytes read, or -1 if an error occurred. short reads are allowed. */
 static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     printf("fs_read()");
-    /*
-    int bIndex = -1;
-    struct fs_block_header* b = _fs_find_block(file, offset, &bIndex);
-    if( b == 0 ) {
-        return 0;
+    //TODO check locks
+
+    /* perform sanity checks on offset and len */
+    if( offset < 0 || len < 0 ) {
+        return -1;
+    }
+    
+    /* determine the number of bytes to read */
+    int64_t end_offset = MIN3(int64_t, offset + len, file->data.offset + file->data.len, 1L<<31);
+    int bytes_read = (int)(end_offset - offset);
+
+    /* copy the bytes into the buffer */
+    if( bytes_read > 0 ) {
+        memmove(buf, file->data.buf[offset], (size_t)bytes_read);
     }
 
-    int bytes_read = 0;
-
-    char* data = buf;
-    int i = 0;
-    for( i = 0; i < len; i++ ) {
-        if( offset > (bIndex*FS_BLOCK_SIZE) ) {
-            b = b->next;
-            bIndex++;
-        }
-
-        if( b == 0 )
-            return bytes_read;
-        
-        char* blkData = (char*)(b[1]);
-        data[i] = blkData[i - (bIndex*FS_BLOCK_SIZE)];
-    }
     return bytes_read;
-    */
-    return 0;
 }
 
-/* returns the number of bytes written, or -1 if an error occurred */
+/* returns the number of bytes written, or -1 if an error occurred. partial writes are not allowed. */
 static int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf) {
     printf("fs_write()");
-    /*
-    int bIndex = -1;
-    struct fs_block_header* b = _fs_find_block(file, offset, &bIndex);
-    if( b == 0 ) {
-        b = _fs_append_block(file);
-        if( b == 0 ) return -1;
+    //TODO check locks -- this should occur atomically
+
+    /* perform sanity checks on offset and len */
+    if( offset < 0 || len < 0 ) {
+        return -1;
     }
 
-    int bytes_written = 0;
-    
-    int i = 0;
-    for( i = 0; i < len; i++ ) {
-        if( i - (bIndex*FS_BLOCK_SIZE) >= FS_BLOCK_SIZE ) {
-            b = b->next;
-            if( b == 0 ) {
-                b = _fs_append_block(file);
-                if( b == 0 ) return -1;
-            }
-        }
-
-        char charToWrite = ((char*)buf)[i];
-        char* blkData = (char*)(b[1]);
-        blkData[i - (bIndex*FS_BLOCK_SIZE)] = charToWrite;
-        bytes_written++;
+    /* ensure that our buffer is large enough to perform the write */
+    int64_t end_offset = offset + (int64_t)len;
+    if( _fs_data_ensure_capacity(file, end_offset) == 0 ) {
+        return -1; /* we don't have enough memory to perform the write */
     }
-    
 
-    return bytes_written;
-    */
-    return 0;
+    /* perform the write */
+    memmove( file->buf[offset], buf, (size_t)len );
+
+    /* adjust file->data.len */
+    file->data.len = end_offset;
+    
+    return len;
 }
 
 /* sqlite3_io_methods */
@@ -298,16 +294,16 @@ int cSectorSize(sqlite3_file* baseFile) {
  */
 int cDeviceCharacteristics(sqlite3_file* baseFile) {
     int flags = 0;
-    //flags |= SQLITE_IOCAP_ATOMIC; /* "The SQLITE_IOCAP_ATOMIC property means that all writes of any size are atomic." */
-    //flags |= SQLITE_IOCAP_ATOMIC512; /* "The SQLITE_IOCAP_ATOMICnnn values mean that writes of blocks that are nnn bytes in size and are aligned to an address which is an integer multiple of nnn are atomic." */
-    //flags |= SQLITE_IOCAP_ATOMIC1K;
-    //flags |= SQLITE_IOCAP_ATOMIC2K;
-    //flags |= SQLITE_IOCAP_ATOMIC4K;
-    //flags |= SQLITE_IOCAP_ATOMIC8K;
-    //flags |= SQLITE_IOCAP_ATOMIC16K;
-    //flags |= SQLITE_IOCAP_ATOMIC32K;
-    //flags |= SQLITE_IOCAP_ATOMIC64K;
-    //flags |= SQLITE_IOCAP_SAFE_APPEND; /* "The SQLITE_IOCAP_SAFE_APPEND value means that when data is appended to a file, the data is appended first then the size of the file is extended, never the other way around." */
+    flags |= SQLITE_IOCAP_ATOMIC; /* "The SQLITE_IOCAP_ATOMIC property means that all writes of any size are atomic." */
+    flags |= SQLITE_IOCAP_ATOMIC512; /* "The SQLITE_IOCAP_ATOMICnnn values mean that writes of blocks that are nnn bytes in size and are aligned to an address which is an integer multiple of nnn are atomic." */
+    flags |= SQLITE_IOCAP_ATOMIC1K;
+    flags |= SQLITE_IOCAP_ATOMIC2K;
+    flags |= SQLITE_IOCAP_ATOMIC4K;
+    flags |= SQLITE_IOCAP_ATOMIC8K;
+    flags |= SQLITE_IOCAP_ATOMIC16K;
+    flags |= SQLITE_IOCAP_ATOMIC32K;
+    flags |= SQLITE_IOCAP_ATOMIC64K;
+    flags |= SQLITE_IOCAP_SAFE_APPEND; /* "The SQLITE_IOCAP_SAFE_APPEND value means that when data is appended to a file, the data is appended first then the size of the file is extended, never the other way around." */
     flags |= SQLITE_IOCAP_SEQUENTIAL; /* The SQLITE_IOCAP_SEQUENTIAL property means that information is written to disk in the same order as calls to xWrite(). */
     return flags;
 }

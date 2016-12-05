@@ -905,7 +905,7 @@ static const sqlite3_mutex_methods composite_mutex_methods = {
     .xMutexNotheld = _cMutexNotheld
 };
 
-static const sqlite3_mem_methods composite_mem_methods = {
+const sqlite3_mem_methods composite_mem_methods = {
     .xMalloc = _cMemMalloc,
     .xFree = _cMemFree,
     .xRealloc = _cMemRealloc,
@@ -925,9 +925,6 @@ int sqlite3_os_init(void){
 
   struct composite_vfs_data *data = &composite_vfs_app_data;
   data->random_fd = open("/dev/random", O_RDONLY);
-
-  data->mem = &composite_mem_methods;
-
   sqlite3_vfs_register(&composite_vfs, 1);
 
   return SQLITE_OK;

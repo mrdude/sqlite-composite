@@ -125,6 +125,7 @@
 /* API structs */
 extern struct sqlite3_io_methods composite_io_methods;
 extern struct composite_vfs_data composite_vfs_app_data;
+extern const sqlite3_mem_methods composite_mem_methods;
 
 /* cFile */
 struct cFile {
@@ -136,7 +137,6 @@ struct cFile {
 };
 
 struct composite_vfs_data {
-    const sqlite3_mem_methods* mem;
     int random_fd;
 };
 
