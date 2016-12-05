@@ -10,10 +10,6 @@ int cClose(sqlite3_file* baseFile) {
     fs_close((struct fs_file*)file->fd);
     file->fd = 0;
 
-    if( file->deleteOnClose ) {
-        cDelete(baseFile); /* attempt to delete the file */
-    }
-
     return SQLITE_OK;
 }
 
@@ -201,7 +197,10 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
     file->composite_io_methods = &composite_io_methods;
     file->zName = zName;
     file->fd = fd;
-    file->deleteOnClose = (flags & SQLITE_OPEN_DELETEONCLOSE);
+    if( flags & SQLITE_OPEN_DELETEONCLOSE ) {
+        fs_delete(vfs, zName); /* the file will be deleted when it's reference count hits 0 */
+    }
+
     return SQLITE_OK;
 }
 
