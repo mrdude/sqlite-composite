@@ -72,13 +72,14 @@ int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfs
 
 int cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     struct cFile* file = (struct cFile*)baseFile;
-    //TODO this is a NOP
+    struct fs_file* fd = (struct fs_file*)file->fd;
+    fs_truncate(fd, size);
     return SQLITE_OK;
 }
 
 int cSync(sqlite3_file* baseFile, int flags) {
     struct cFile* file = (struct cFile*)baseFile;
-    //TODO this is a NOP
+    /* this is a NOP -- writes to the in-memory filesystem are atomic */
     return SQLITE_OK;
 }
 
@@ -169,16 +170,11 @@ int cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
 
 /** sqlite3_vfs methods */
 void cVfsInit() {
-    _fs_file_list = 0;
+    fs_init();
 }
 
 void cVfsDeinit() {
-    /* free all files from memory */
-    struct fs_file* file = _fs_file_list;
-    _fs_file_list = 0;
-    for( ; file != 0; file = file->next ) {
-        _fs_file_free(file);
-    }
+    fs_deinit();
 }
 
 /* opens a file
@@ -234,8 +230,7 @@ int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
  */
 int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
     /* all files can be accessed by everyone as long as it exists */
-    struct fs_file* file = _fs_find_file(vfs, zName);
-    *pResOut = (file != 0);
+    *pResOut = fs_exists(vfs, zName);
     return SQLITE_OK;
 }
 

@@ -99,9 +99,16 @@ static int _fs_data_ensure_capacity(struct fs_file* file, int64_t sz) {
 
 /* inmem fs functions */
 void fs_init() {
+    _fs_file_list = 0;
 }
 
 void fs_deinit() {
+    /* free all files from memory */
+    struct fs_file* file = _fs_file_list;
+    _fs_file_list = 0;
+    for( ; file != 0; file = file->next ) {
+        _fs_file_free(file);
+    }
 }
 
 struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
@@ -177,6 +184,16 @@ int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf) {
 
     printf("\t=> wrote %d bytes\n", len);
     return len;
+}
+
+int fs_truncate(struct fs_file* file, int64_t size) {
+    //TODO this is currently a NOP
+}
+
+/* returns 1 if the given file exists, 0 if it doesn't */
+int fs_exists(sqlite3_vfs* vfs, const char *zName) {
+    struct fs_file* file = _fs_find_file(vfs, zName);
+    return (file != 0);
 }
 
 #endif //SQLITE_OS_OTHER

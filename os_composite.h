@@ -161,6 +161,8 @@ struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName);
 void fs_close(struct fs_file* file);
 int fs_read(struct fs_file* file, int64_t offset, int len, void* buf);
 int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf);
+int fs_truncate(struct fs_file* file, int64_t size);
+int fs_exists(sqlite3_vfs* vfs, const char *zName);
 
 /* sqlite_io function prototypes */
 int cClose(sqlite3_file* file);
@@ -192,6 +194,8 @@ int cSleep(sqlite3_vfs* vfs, int microseconds);
 int cGetLastError(sqlite3_vfs* vfs, int i, char *ch);
 int cCurrentTime(sqlite3_vfs* vfs, double* time);
 int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time);
+void cVfsInit();
+void cVfsDeinit();
 
 /* sqlite_mutex function prototypes */
 int cMutexInit(void);
