@@ -142,10 +142,6 @@ static void fs_close(struct fs_file* file) {
     printf("fs_close(%s)\n", file->zName);
     //TODO make this threadsafe
     file->ref--;
-    if( file->ref == 0 ) {
-        _fs_file_free(file);
-        file = 0;
-    }
 }
 
 /* returns the number of bytes read, or -1 if an error occurred. short reads are allowed. */
