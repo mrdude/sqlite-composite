@@ -55,7 +55,8 @@ static int _cRead(sqlite3_file* baseFile, void* buf, int iAmt, sqlite3_int64 iOf
     const int res = cRead(baseFile, buf, iAmt, iOfst);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -72,7 +73,8 @@ static int _cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_in
     const int res = cWrite(baseFile, buf, iAmt, iOfst);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -89,7 +91,8 @@ static int _cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     const int res = cTruncate(baseFile, size);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -110,7 +113,8 @@ static int _cSync(sqlite3_file* baseFile, int flags) {
     const int res = cSync(baseFile, flags);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -127,7 +131,8 @@ static int _cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     const int res = cFileSize(baseFile, pSize);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_APPEND(", pSize = %" PRIu64, *pSize);
         CTRACE_PRINT();
     #endif
@@ -174,7 +179,8 @@ static int _cUnlock(sqlite3_file* baseFile, int lockType) {
     const int res = cUnlock(baseFile, lockType);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
         CTRACE_PRINT();
     #endif
 
@@ -191,8 +197,9 @@ static int _cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
     const int res = cCheckReservedLock(baseFile, pResOut);
 
     #if SQLITE_COS_PROFILE_VFS
-        CTRACE_APPEND(" => ");        APPEND_ERR_CODE(res);
-        CTRACE_APPEND(", pResOut = %d\n", pResOut ? *pResOut : -1);
+        CTRACE_APPEND(" => ");
+        APPEND_ERR_CODE(res);
+        CTRACE_APPEND(", pResOut = %d", pResOut ? *pResOut : -1);
         CTRACE_PRINT();
     #endif
 
@@ -237,7 +244,7 @@ static int _cSectorSize(sqlite3_file* baseFile) {
 static int _cDeviceCharacteristics(sqlite3_file* baseFile) {
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
-        CTRACE_STRING_DEF(80);
+        CTRACE_STRING_DEF(160);
         CTRACE_APPEND("cDeviceCharacteristics(file = %s)", file->zName);
     #endif
 
@@ -343,7 +350,7 @@ static int _cFetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, int iAmt, void *
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cFetch(file = %s, iOfst = %" PRIu64 ", iAmt = %d, pp = <>)\n", file->zName, iOfst, iAmt);
+        CTRACE_APPEND("cFetch(file = %s, iOfst = %" PRIu64 ", iAmt = %d, pp = <>)", file->zName, iOfst, iAmt);
     #endif
 
     const int res = cFetch(baseFile, iOfst, iAmt, pp);
@@ -361,7 +368,7 @@ static int _cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cUnfetch(file = %s, iOfst = %" PRIu64 ", pp = <>)\n", file->zName, iOfst);
+        CTRACE_APPEND("cUnfetch(file = %s, iOfst = %" PRIu64 ", pp = <>)", file->zName, iOfst);
     #endif
 
     const int res = cUnfetch(baseFile, iOfst, p);
@@ -403,7 +410,23 @@ static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, i
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_APPEND(" => ");
         APPEND_ERR_CODE(res);
-        CTRACE_APPEND(", pOutFlags = %d\n", pOutFlags ? *pOutFlags : -1);
+        CTRACE_APPEND(", pOutFlags = [");
+        if( *pOutFlags & SQLITE_OPEN_MAIN_DB )        CTRACE_APPEND(" OPEN_MAIN_DB ");
+        if( *pOutFlags & SQLITE_OPEN_MAIN_JOURNAL )   CTRACE_APPEND(" OPEN_MAIN_JOURNAL ");
+        if( *pOutFlags & SQLITE_OPEN_TEMP_DB )        CTRACE_APPEND(" OPEN_TEMP_DB ");
+        if( *pOutFlags & SQLITE_OPEN_TEMP_JOURNAL )   CTRACE_APPEND(" OPEN_TEMP_JOURNAL ");
+        if( *pOutFlags & SQLITE_OPEN_TRANSIENT_DB )   CTRACE_APPEND(" OPEN_TRANSIENT_DB ");
+        if( *pOutFlags & SQLITE_OPEN_SUBJOURNAL )     CTRACE_APPEND(" OPEN_SUBJOURNAL ");
+        if( *pOutFlags & SQLITE_OPEN_MASTER_JOURNAL ) CTRACE_APPEND(" OPEN_MASTER_JOURNAL ");
+        if( *pOutFlags & SQLITE_OPEN_WAL )            CTRACE_APPEND(" OPEN_WAL ");
+        //
+        if( *pOutFlags & SQLITE_OPEN_READWRITE )      CTRACE_APPEND(" OPEN_READWRITE ");
+        if( *pOutFlags & SQLITE_OPEN_CREATE )         CTRACE_APPEND(" OPEN_CREATE ");
+        if( *pOutFlags & SQLITE_OPEN_READONLY )       CTRACE_APPEND(" OPEN_READONLY ");
+        //
+        if( *pOutFlags & SQLITE_OPEN_DELETEONCLOSE )  CTRACE_APPEND(" OPEN_DELETEONCLOSE ");
+        if( *pOutFlags & SQLITE_OPEN_EXCLUSIVE )      CTRACE_APPEND(" OPEN_EXCLUSIVE ");
+        CTRACE_APPEND("]");
         CTRACE_PRINT();
     #endif
 
