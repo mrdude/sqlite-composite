@@ -420,8 +420,11 @@ int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
             break;
 
         total_bytes_written += bytes_read;
+        if( total_bytes_written >= nByte ) {
+            break;
+        }
     }
-    
+
     return total_bytes_written;
 }
 
