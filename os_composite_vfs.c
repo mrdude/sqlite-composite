@@ -411,8 +411,9 @@ int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
  * @param pResOut
  */
 int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
-    /* all files can be accessed by everyone */
-    //TODO restrict access based on Composite caps
+    /* all files can be accessed by everyone as long as it exists */
+    struct fs_file* file = _fs_find_file(vfs, zName);
+    *pResOut = (file != 0);
     return SQLITE_OK;
 }
 
