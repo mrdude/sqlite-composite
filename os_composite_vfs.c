@@ -54,8 +54,11 @@ int cWrite(sqlite3_file* baseFile, const void* buf, int iAmt, sqlite3_int64 iOfs
 int cTruncate(sqlite3_file* baseFile, sqlite3_int64 size) {
     struct cFile* file = (struct cFile*)baseFile;
     struct fs_file* fd = (struct fs_file*)file->fd;
-    fs_truncate(fd, size);
-    return SQLITE_OK;
+    if( fs_truncate(fd, size) ) {
+        return SQLITE_OK;
+    } else {
+        return SQLITE_IOERR_TRUNCATE;
+    }
 }
 
 int cSync(sqlite3_file* baseFile, int flags) {
@@ -233,6 +236,7 @@ int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
  * @return the actual number of bytes of randomness generated
  */
 int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
+    //TODO how to get this from composite?
     struct composite_vfs_data *data = (struct composite_vfs_data*)vfs->pAppData;
     return read(data->random_fd, zOut, nByte);
 }
@@ -240,6 +244,7 @@ int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
 /* sleep for at least the given number of microseconds
  */
 int cSleep(sqlite3_vfs* vfs, int microseconds) {
+    //TODO
     return SQLITE_OK;
 }
 

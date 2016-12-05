@@ -176,8 +176,12 @@ int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* bu
     return len;
 }
 
+/* returns 1 on success, 0 on failure */
 int fs_truncate(struct fs_file* file, sqlite3_int64 size) {
-    //TODO this is currently a NOP
+    if( size < file->data.len ) {
+        file->data.len = size; //TODO reclaim this memory
+    }
+    return 1;
 }
 
 /* returns 1 if the given file exists, 0 if it doesn't */
