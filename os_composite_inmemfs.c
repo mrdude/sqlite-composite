@@ -37,7 +37,41 @@ static void _FS_FREE(void* mem) {
     composite_mem_methods.xFree(mem);
 }
 
-/* finds the file with the given name, or 0 if it doesn't exist */
+/* adds the given file to _fs_file_list */
+static void _fs_file_link(struct fs_file* file) {
+    if( _fs_file_list == 0 ) {
+        file->next = 0;
+        _fs_file_list = file;
+    } else {
+        file->next = _fs_file_list;
+        _fs_file_list = file;
+    }
+}
+
+/* removes the given file from _fs_file_list */
+static void _fs_file_unlink(struct fs_file* file) {
+    struct fs_file* prev = 0;
+    struct fs_file* next = _fs_file_list;
+
+    while( next != 0 ) {
+        if( next == file ) {
+            if( prev ) {
+                prev->next = next->next;
+            }
+            break;
+        }
+
+        prev = next;
+        next = next->next;
+    }
+
+    if( next != 0 ) {
+        if( next == file ) {
+        }
+    }
+}
+
+/* searches _fs_file_list for the file with the given name, or 0 if it doesn't exist */
 static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
     struct fs_file* file;
     for( file = _fs_file_list; file != 0; file = file->next ) {
@@ -69,38 +103,6 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     _fs_file_link(file);
 
     return file;
-}
-
-static void _fs_file_link(struct fs_file* file) {
-    if( _fs_file_list == 0 ) {
-        file->next = 0;
-        _fs_file_list = file;
-    } else {
-        file->next = _fs_file_list;
-        _fs_file_list = file;
-    }
-}
-
-static void _fs_file_unlink(struct fs_file* file) {
-    struct fs_file* prev = 0;
-    struct fs_file* next = _fs_file_list;
-
-    while( next != 0 ) {
-        if( next == file ) {
-            if( prev ) {
-                prev->next = next->next;
-            }
-            break;
-        }
-
-        prev = next;
-        next = next->next;
-    }
-
-    if( next != 0 ) {
-        if( next == file ) {
-        }
-    }
 }
 
 /* free the file and all of its blocks */
