@@ -17,6 +17,11 @@
 #define INITIAL_BUF_DATA_SIZE (PAGE_SIZE*2)
 
 /* inmem fs structs */
+struct fs_data {
+    char* buf; /* a pointer to the buffer containing the file's data */
+    int off, len; /* the portion of this buffer that points to valid file data */
+};
+
 struct fs_file {
     struct composite_vfs_data* cVfs;
     struct fs_file* next; /* the next file in the list */
@@ -24,11 +29,6 @@ struct fs_file {
     const char* zName; /* the name of the file */
     struct fs_data data;
     int ref; /* the number of open cFile's the file has */
-};
-
-struct fs_data {
-    char* buf; /* a pointer to the buffer containing the file's data */
-    int off, len; /* the portion of this buffer that points to valid file data */
 };
 
 static struct fs_file* _fs_file_list = 0;
@@ -72,7 +72,6 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     file->cVfs = cVfs;
     file->next = 0;
     file->zName = zName;
-    file->sz = 0;
     file->data.buf = buf;
     file->data.off = 0;
     file->data.len = 0;
@@ -255,7 +254,7 @@ int cFileSize(sqlite3_file* baseFile, sqlite3_int64 *pSize) {
     struct cFile* file = (struct cFile*)baseFile;
     struct fs_file* fd = (struct fs_file*)file->fd;
 
-    *pSize = fd->sz;
+    *pSize = fd->data.len;
     return SQLITE_OK;
 }
 
