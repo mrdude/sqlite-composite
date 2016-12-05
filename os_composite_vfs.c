@@ -412,10 +412,17 @@ int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
  */
 int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
     struct composite_vfs_data *data = (struct composite_vfs_data*)vfs->pAppData;
-    int bytes_read = read(data->random_fd, zOut, nByte);
-    if( bytes_read < 0 )
-        bytes_read = 0;
-    return bytes_read;
+
+    int total_bytes_written = 0;
+    while(1) {
+        int bytes_read = read(data->random_fd, &zOut[total_bytes_written], nByte - total_bytes_written);
+        if( bytes_read < 0 )
+            break;
+
+        total_bytes_written += bytes_read;
+    }
+    
+    return total_bytes_written;
 }
 
 /* sleep for at least the given number of microseconds
