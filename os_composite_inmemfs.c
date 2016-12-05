@@ -63,8 +63,8 @@ static void _fs_file_link(struct fs_file* file) {
     struct fs_file* next = _fs_file_list->next;
     struct fs_file* prev = next->prev;
 
-    prev->next = file;
-    next->prev = file;
+    if( prev ) prev->next = file;
+    if( next ) next->prev = file;
 
     file->prev = prev;
     file->next = next;
@@ -75,8 +75,8 @@ static void _fs_file_unlink(struct fs_file* file) {
     struct fs_file* prev = file->prev;
     struct fs_file* next = file->next;
 
-    prev->next = next;
-    next->prev = prev;
+    if( prev ) prev->next = next;
+    if( next ) next->prev = prev;
 
     file->prev = 0;
     file->next = 0;
@@ -158,8 +158,8 @@ static int _fs_data_ensure_capacity(struct fs_file* file, sqlite3_int64 sz) {
 /* inmem fs functions */
 void fs_init() {
     _fs_file_list = _FS_MALLOC( sizeof(struct fs_file) );
-    _fs_file_list->next = _fs_file_list;
-    _fs_file_list->prev = _fs_file_list;
+    _fs_file_list->next = 0;
+    _fs_file_list->prev = 0;
 }
 
 void fs_deinit() {
