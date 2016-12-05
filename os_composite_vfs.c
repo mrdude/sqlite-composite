@@ -14,6 +14,7 @@
 #include "os_composite.h"
 
 #define PAGE_SIZE 4096 /* assume a 4096 byte page-size */
+#define INITIAL_BUF_DATA_SIZE (PAGE_SIZE*2)
 
 /* inmem fs structs */
 struct fs_file {
@@ -21,25 +22,28 @@ struct fs_file {
     struct fs_file* next; /* the next file in the list */
 
     const char* zName; /* the name of the file */
-    int sz; /* the size of the file in bytes */
-    struct fs_block_header* firstBlock; /* the first block in this file */
+    struct fs_data data;
     int ref; /* the number of open cFile's the file has */
 };
 
-struct fs_block_header { /* represents a single file block */
-    struct fs_file* file; /* pointer to this block's file */
-    struct fs_block_header* next; /* pointer to the next block */
-    int sz; /* how much data is in the block? */
+struct fs_data {
+    char* buf; /* a pointer to the buffer containing the file's data */
+    int off, len; /* the portion of this buffer that points to valid file data */
 };
-
-/* the amount of max data a single fs_block can hold */
-#define FS_BLOCK_SIZE (PAGE_SIZE - sizeof(struct fs_block_header))
 
 static struct fs_file* _fs_file_list = 0;
 
 /* private inmem fs functions */
 static void* _FS_MALLOC(struct composite_vfs_data* cVfs, int sz ) {
     return malloc(sz);
+}
+
+static void* _FS_REALLOC(void* mem, int newSize) {
+    return realloc(mem, newSize);
+}
+
+static void _FS_FREE(void* mem) {
+    free(mem);
 }
 
 /* finds the file with the given name, or 0 if it doesn't exist */
@@ -61,11 +65,17 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     if( file == 0 )
         return 0;
     
+    char* buf = _FS_MALLOC( cVfs, INITIAL_BUF_DATA_SIZE );
+    if( buf == 0 )
+        return 0;
+    
     file->cVfs = cVfs;
     file->next = 0;
     file->zName = zName;
     file->sz = 0;
-    file->firstBlock = 0;
+    file->data.buf = buf;
+    file->data.off = 0;
+    file->data.len = 0;
     file->ref = 0;
     return file;
 }
@@ -73,48 +83,8 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
 /* free the file and all of its blocks */
 static void _fs_file_free(struct fs_file* file) {
     printf("_fs_file_free()\n");
-    //TODO
-}
-
-//TODO make this run in less than O(n) time
-static struct fs_block_header* _fs_find_block(struct fs_file* file, int64_t offset, int* bIndex) {
-    printf("_fs_find_block()\n");
-    int _ = 0;
-    if( bIndex == 0 )
-        bIndex = &_;
-    
-    *bIndex = 0;
-    int64_t index = 0;
-    struct fs_block_header* b;
-    for( b = file->firstBlock; b != 0; b = b->next ) {
-        if( index > offset ) {
-            return b;
-        }
-        index += FS_BLOCK_SIZE;
-        (*bIndex)++;
-    }
-    return 0;
-}
-
-static struct fs_block_header* _fs_append_block(struct fs_file* file) {
-    printf("_fs_append_block()\n");
-    struct fs_block_header* hdr = _FS_MALLOC(file->cVfs, PAGE_SIZE);
-    if( hdr == 0 )
-        return 0;
-
-    struct fs_block_header* b = file->firstBlock;
-    if( b == 0 ) {
-        file->firstBlock = hdr;
-        hdr->next = 0;
-    } else {
-        while( b->next != 0) {
-            b = b->next;
-        }
-        
-        b->next = hdr;
-        hdr->next = 0;
-    }
-    return hdr;
+    _FS_FREE( file->data.buf );
+    _FS_FREE( file );
 }
 
 /* inmem fs functions */
@@ -179,6 +149,7 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
 /* returns the number of bytes written, or -1 if an error occurred */
 static int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf) {
     printf("fs_write()");
+    /*
     int bIndex = -1;
     struct fs_block_header* b = _fs_find_block(file, offset, &bIndex);
     if( b == 0 ) {
@@ -187,7 +158,7 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
     }
 
     int bytes_written = 0;
-    /*
+    
     int i = 0;
     for( i = 0; i < len; i++ ) {
         if( i - (bIndex*FS_BLOCK_SIZE) >= FS_BLOCK_SIZE ) {
@@ -203,9 +174,11 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
         blkData[i - (bIndex*FS_BLOCK_SIZE)] = charToWrite;
         bytes_written++;
     }
-    */
+    
 
     return bytes_written;
+    */
+    return 0;
 }
 
 /* sqlite3_io_methods */
@@ -319,7 +292,7 @@ int cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
 /* "The xSectorSize() method returns the sector size of the device that underlies the file."
  */
 int cSectorSize(sqlite3_file* baseFile) {
-    return FS_BLOCK_SIZE;
+    return PAGE_SIZE;
 }
 
 /* "The xDeviceCharacteristics() method returns a bit vector describing behaviors of the underlying device"

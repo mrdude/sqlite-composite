@@ -895,7 +895,7 @@ static const sqlite3_mem_methods composite_mem_methods = {
 
 /* init the OS interface */
 int sqlite3_os_init(void){
-  #if SQLITE_THREADSAFE >= 1
+  #if SQLITE_THREADSAFE
     sqlite3_config(SQLITE_CONFIG_MUTEX, &composite_mutex_methods);
   #endif
   sqlite3_config(SQLITE_CONFIG_MALLOC, &composite_mem_methods);
@@ -904,7 +904,7 @@ int sqlite3_os_init(void){
   data->random_fd = open("/dev/random", O_RDONLY);
 
   data->mem = &composite_mem_methods;
-  
+
   sqlite3_vfs_register(&composite_vfs, 1);
 
   return SQLITE_OK;
