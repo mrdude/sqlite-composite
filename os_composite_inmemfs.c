@@ -80,7 +80,7 @@ static void _fs_file_free(struct fs_file* file) {
 /* makes sure that there is sz bytes of space in file's data buffer
  * returns 1 on success, 0 on failure
  */
-static int _fs_data_ensure_capacity(struct fs_file* file, int64_t sz) {
+static int _fs_data_ensure_capacity(struct fs_file* file, sqlite3_int64 sz) {
     printf("_fs_data_ensure_capacity(%s, sz=%" PRIu64 ")\n", file->zName, sz);
     int old_size = _FS_MEMSIZE(file->data.buf);
     if( old_size < sz ) {
@@ -138,7 +138,7 @@ void fs_close(struct fs_file* file) {
 }
 
 /* returns the number of bytes read, or -1 if an error occurred. short reads are allowed. */
-int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
+int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf) {
     printf("fs_read()");
     //TODO check locks
 
@@ -148,7 +148,7 @@ int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     }
     
     /* determine the number of bytes to read */
-    int64_t end_offset = offset + (int64_t)len;
+    sqlite3_int64 end_offset = offset + (sqlite3_int64)len;
     if( end_offset > file->data.len ) end_offset = file->data.len;
     int bytes_read = (int)(end_offset - offset);
 
@@ -162,7 +162,7 @@ int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
 }
 
 /* returns the number of bytes written, or -1 if an error occurred. partial writes are not allowed. */
-int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf) {
+int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* buf) {
     printf("fs_write()");
     //TODO check locks -- this should occur atomically
 
@@ -173,7 +173,7 @@ int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf) {
     }
 
     /* ensure that our buffer is large enough to perform the write */
-    int64_t end_offset = offset + (int64_t)len;
+    sqlite3_int64 end_offset = offset + (sqlite3_int64)len;
     if( _fs_data_ensure_capacity(file, end_offset) == 0 ) {
         printf("\t=> not enough memory to perform the write\n");
         return -1; /* we don't have enough memory to perform the write */
@@ -189,7 +189,7 @@ int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf) {
     return len;
 }
 
-int fs_truncate(struct fs_file* file, int64_t size) {
+int fs_truncate(struct fs_file* file, sqlite3_int64 size) {
     //TODO this is currently a NOP
 }
 

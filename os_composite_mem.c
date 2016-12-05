@@ -1,7 +1,7 @@
 #include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
-#include <stdlib.h>
+#include <stdlib.h> /* for malloc() and friends */
 
 #include "os_composite.h"
 

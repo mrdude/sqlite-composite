@@ -1,12 +1,6 @@
 #include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
-#include <string.h>
-#include <stdio.h>
-#include <inttypes.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 #include "os_composite.h"
 
 int cMutexInit() {

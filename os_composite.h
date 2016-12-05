@@ -144,7 +144,7 @@ struct composite_vfs_data {
 /* inmem fs structs */
 struct fs_data {
     char* buf; /* a pointer to the buffer containing the file's data */
-    int64_t len; /* the portion of this buffer contains valid data */
+    sqlite3_int64 len; /* the portion of this buffer contains valid data */
 };
 
 struct fs_file {
@@ -161,9 +161,9 @@ void fs_init();
 void fs_deinit();
 struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName);
 void fs_close(struct fs_file* file);
-int fs_read(struct fs_file* file, int64_t offset, int len, void* buf);
-int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf);
-int fs_truncate(struct fs_file* file, int64_t size);
+int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf);
+int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* buf);
+int fs_truncate(struct fs_file* file, sqlite3_int64 size);
 int fs_exists(sqlite3_vfs* vfs, const char *zName);
 
 /* sqlite_io function prototypes */
