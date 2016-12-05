@@ -16,7 +16,7 @@ int cMutexEnd() {
  * @return a pointer to a mutex, or NULL if it couldn't be created
  */
 sqlite3_mutex* cMutexAlloc(int mutexType) {
-    return NULL;
+    return 0;
 }
 
 void cMutexFree(sqlite3_mutex *mutex) {
