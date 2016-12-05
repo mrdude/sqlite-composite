@@ -202,8 +202,11 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
 }
 
 int cDelete(sqlite3_vfs* vfs, const char *zName, int syncDir) {
-    //TODO search the _fs_file_list and remove the file
-    return SQLITE_OK;
+    if( fs_delete(vfs, zName) ) {
+        return SQLITE_OK;
+    } else {
+        return SQLITE_IOERR_DELETE;
+    }
 }
 
 /*

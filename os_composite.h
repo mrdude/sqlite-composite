@@ -154,6 +154,7 @@ struct fs_file {
     const char* zName; /* the name of the file */
     struct fs_data data;
     int ref; /* the number of open cFile's the file has */
+    int deleteOnClose; /* if 1, then this file should be deleted once it's reference count reaches 0 */
 };
 
 /* methods for the in-memory FS used by composite */
@@ -165,6 +166,7 @@ int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf);
 int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* buf);
 int fs_truncate(struct fs_file* file, sqlite3_int64 size);
 int fs_exists(sqlite3_vfs* vfs, const char *zName);
+int fs_delete(sqlite3_vfs* vfs, const char *zName);
 
 /* sqlite_io function prototypes */
 int cClose(sqlite3_file* file);

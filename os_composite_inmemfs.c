@@ -4,7 +4,7 @@
 #if SQLITE_OS_OTHER
 
 /* TODO: when I port this to composite, I won't have access to these headers. */
-#include <string.h> /* for strncpy() */
+#include <string.h> /* for strncpy() and strncmp() */
 
 #include "os_composite.h"
 
@@ -64,11 +64,46 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     file->data.buf = buf;
     file->data.len = 0;
     file->ref = 0;
+
+    _fs_file_link(file);
+
     return file;
 }
 
+static void _fs_file_link(struct fs_file* file) {
+    if( _fs_file_list == 0 ) {
+        file->next = 0;
+        _fs_file_list = file;
+    } else {
+        file->next = _fs_file_list;
+        _fs_file_list = file;
+    }
+}
+
+static void _fs_file_unlink(struct fs_file* file) {
+    struct fs_file* prev = 0;
+    struct fs_file* next = _fs_file_list;
+
+    while( next != 0 ) {
+        if( next == file ) {
+            if( prev ) {
+                prev->next = next->next;
+            }
+            break;
+        }
+
+        prev = next;
+        next = next->next;
+    }
+
+    if( next != 0 ) {
+        if( next == file ) {
+        }
+    }
+}
+
 /* free the file and all of its blocks */
-static void _fs_file_free(struct fs_file* file) {;
+static void _fs_file_free(struct fs_file* file) {
     _FS_FREE( file->data.buf );
     _FS_FREE( file );
 }
@@ -128,6 +163,10 @@ struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
 void fs_close(struct fs_file* file) {
     //TODO make this threadsafe
     file->ref--;
+    if( file->ref == 0 && file->deleteOnClose ) { /* have we been waiting to delete this file? */
+        _fs_file_unlink(file); //unlink the file from the list of files
+        _fs_file_free(file); //free the memory the file used
+    }
 }
 
 /* returns the number of bytes read, or -1 if an error occurred. short reads are allowed. */
@@ -188,6 +227,21 @@ int fs_truncate(struct fs_file* file, sqlite3_int64 size) {
 int fs_exists(sqlite3_vfs* vfs, const char *zName) {
     struct fs_file* file = _fs_find_file(vfs, zName);
     return (file != 0);
+}
+
+/* returns 1 on success, 0 on failure */
+int fs_delete(sqlite3_vfs* vfs, const char *zName) {
+    struct fs_file* file = _fs_find_file(vfs, zName);
+    if( file == 0 ) { /* the file doesn't exist */
+        return 1;
+    }
+
+    if( file->ref == 0 ) { /* no one has this file open currently */
+        _fs_file_free(file);
+        TODO remove the file from the _fs_list
+    } else { /* the file is open somewhere */
+        file->deleteOnClose = 1; /* when this file is closed, it will be deleted */
+    }
 }
 
 #endif //SQLITE_OS_OTHER
