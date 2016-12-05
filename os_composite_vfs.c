@@ -414,7 +414,8 @@ int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
     struct composite_vfs_data *data = (struct composite_vfs_data*)vfs->pAppData;
 
     int total_bytes_written = 0;
-    while(1) {
+    int i;
+    for(i = 0; i < 5; i++ ) {
         int bytes_read = read(data->random_fd, &zOut[total_bytes_written], nByte - total_bytes_written);
         if( bytes_read < 0 )
             break;
