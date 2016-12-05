@@ -48,7 +48,7 @@ void cMemFree(void* mem) {
 /* Resize an allocation */
 void* cMemRealloc(void* mem, int newSize) {
     char* old_region = _get_region(mem);
-    int old_sz = _get_memory_size(mem);
+    size_t old_sz = _get_memory_size(mem);
 
     char* new_region = _malloc_region(newSize);
     if( new_region == 0 ) return 0;
@@ -64,7 +64,7 @@ void* cMemRealloc(void* mem, int newSize) {
 
 /* Return the size of an allocation */
 int cMemSize(void* mem) {
-    return _get_memory_size(mem);
+    return (int)_get_memory_size(mem);
 }
 
 /* Round up request size to allocation size */

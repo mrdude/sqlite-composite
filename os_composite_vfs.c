@@ -153,14 +153,6 @@ int cUnfetch(sqlite3_file* baseFile, sqlite3_int64 iOfst, void *p) {
 }
 
 /** sqlite3_vfs methods */
-void cVfsInit() {
-    fs_init();
-}
-
-void cVfsDeinit() {
-    fs_deinit();
-}
-
 /* opens a file
  * @param vfs
  * @param zName the name of the file to open
@@ -288,6 +280,14 @@ int cCurrentTime(sqlite3_vfs* vfs, double* time) {
  */
 int cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
     //TODO
+}
+
+void cVfsInit() {
+    fs_init();
+}
+
+void cVfsDeinit() {
+    fs_deinit();
 }
 
 #endif // SQLITE_OS_OTHER

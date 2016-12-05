@@ -17,7 +17,7 @@
 
 #define MIN(type, a, b) ( ((type)(a)) < ((type)(b)) ? (type)(a) : (type)(b) )
 
-static struct fs_file* _fs_file_list;
+static struct fs_file* _fs_file_list = 0;
 
 /* private inmem fs functions */
 static void* _FS_MALLOC(int sz) {
@@ -60,36 +60,26 @@ static char* _fs_copystring(const char* str, int n) {
 
 /* adds the given file to _fs_file_list */
 static void _fs_file_link(struct fs_file* file) {
-    if( _fs_file_list == 0 ) {
-        file->next = 0;
-        _fs_file_list = file;
-    } else {
-        file->next = _fs_file_list;
-        _fs_file_list = file;
-    }
+    struct fs_file* next = _fs_file_list->next;
+    struct fs_file* prev = next->prev;
+
+    prev->next = file;
+    next->prev = file;
+
+    file->prev = prev;
+    file->next = next;
 }
 
 /* removes the given file from _fs_file_list */
 static void _fs_file_unlink(struct fs_file* file) {
-    struct fs_file* prev = 0;
-    struct fs_file* next = _fs_file_list;
+    struct fs_file* prev = file->prev;
+    struct fs_file* next = file->next;
 
-    while( next != 0 ) {
-        if( next == file ) {
-            if( prev ) {
-                prev->next = next->next;
-            }
-            break;
-        }
+    prev->next = next;
+    next->prev = prev;
 
-        prev = next;
-        next = next->next;
-    }
-
-    if( next != 0 ) {
-        if( next == file ) {
-        }
-    }
+    file->prev = 0;
+    file->next = 0;
 }
 
 /* searches _fs_file_list for the file with the given name, or 0 if it doesn't exist */
@@ -123,6 +113,7 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     }
     
     file->cVfs = cVfs;
+    file->prev = 0;
     file->next = 0;
     file->zName = zNameCopy;
     file->data.buf = buf;
@@ -166,16 +157,21 @@ static int _fs_data_ensure_capacity(struct fs_file* file, sqlite3_int64 sz) {
 
 /* inmem fs functions */
 void fs_init() {
-    _fs_file_list = 0;
+    _fs_file_list = _FS_MALLOC( sizeof(struct fs_file) );
+    _fs_file_list->next = _fs_file_list;
+    _fs_file_list->prev = _fs_file_list;
 }
 
 void fs_deinit() {
     /* free all files from memory */
-    struct fs_file* file = _fs_file_list;
-    _fs_file_list = 0;
+    struct fs_file* file = _fs_file_list->next;
     for( ; file != 0; file = file->next ) {
         _fs_file_free(file);
     }
+
+    /* clear the file list */
+    _FS_FREE(_fs_file_list);
+    _fs_file_list = 0;
 }
 
 struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
