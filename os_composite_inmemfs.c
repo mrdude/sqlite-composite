@@ -5,7 +5,6 @@
 
 /* TODO: when I port this to composite, I won't have access to these headers. */
 #include <string.h> /* for strncpy() */
-#include <stdio.h> /* for printf() */
 
 #include "os_composite.h"
 
@@ -40,7 +39,6 @@ static void _FS_FREE(void* mem) {
 
 /* finds the file with the given name, or 0 if it doesn't exist */
 static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
-    printf("_fs_find_file(%s)\n", zName);
     struct fs_file* file;
     for( file = _fs_file_list; file != 0; file = file->next ) {
         if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
@@ -51,7 +49,6 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
 }
 
 static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
-    printf("_fs_file_alloc(%s)\n", zName);
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)(vfs->pAppData);
     struct fs_file* file = _FS_MALLOC( sizeof(struct fs_file) );
     if( file == 0 )
@@ -71,8 +68,7 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
 }
 
 /* free the file and all of its blocks */
-static void _fs_file_free(struct fs_file* file) {
-    printf("_fs_file_free(%s)\n", file->zName);
+static void _fs_file_free(struct fs_file* file) {;
     _FS_FREE( file->data.buf );
     _FS_FREE( file );
 }
@@ -81,7 +77,6 @@ static void _fs_file_free(struct fs_file* file) {
  * returns 1 on success, 0 on failure
  */
 static int _fs_data_ensure_capacity(struct fs_file* file, sqlite3_int64 sz) {
-    printf("_fs_data_ensure_capacity(%s, sz=%" PRIu64 ")\n", file->zName, sz);
     int old_size = _FS_MEMSIZE(file->data.buf);
     if( old_size < sz ) {
         int new_size = old_size * 2;
@@ -115,7 +110,6 @@ void fs_deinit() {
 }
 
 struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
-    printf("fs_open(%s)\n", zName);
     //TODO make this atomic
     //atomic {
     struct fs_file* file = _fs_find_file(vfs, zName);
@@ -132,14 +126,12 @@ struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
 }
 
 void fs_close(struct fs_file* file) {
-    printf("fs_close(%s)\n", file->zName);
     //TODO make this threadsafe
     file->ref--;
 }
 
 /* returns the number of bytes read, or -1 if an error occurred. short reads are allowed. */
 int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf) {
-    printf("fs_read()");
     //TODO check locks
 
     /* perform sanity checks on offset and len */
@@ -157,25 +149,21 @@ int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf) {
         strncpy( (char*)buf, (const char*)(&file->data.buf[offset]), (size_t)bytes_read);
     }
 
-    printf("\t=> bytes_read = %d\n", bytes_read);
     return bytes_read;
 }
 
 /* returns the number of bytes written, or -1 if an error occurred. partial writes are not allowed. */
 int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* buf) {
-    printf("fs_write()");
     //TODO check locks -- this should occur atomically
 
     /* perform sanity checks on offset and len */
     if( offset < 0 || len < 0 ) {
-        printf("\t=> failed sanity check\n");
         return -1;
     }
 
     /* ensure that our buffer is large enough to perform the write */
     sqlite3_int64 end_offset = offset + (sqlite3_int64)len;
     if( _fs_data_ensure_capacity(file, end_offset) == 0 ) {
-        printf("\t=> not enough memory to perform the write\n");
         return -1; /* we don't have enough memory to perform the write */
     }
 
@@ -185,7 +173,6 @@ int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* bu
     /* adjust file->data.len */
     file->data.len = end_offset;
 
-    printf("\t=> wrote %d bytes\n", len);
     return len;
 }
 
