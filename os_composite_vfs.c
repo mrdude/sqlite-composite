@@ -243,6 +243,18 @@ int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
  */
 int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
     //TODO how to get this from composite?
+    /* this SQLite documentation says cRandomness() supposed to return the actual
+     * number of bytes of randomness generated, but after testing this in valgrind I
+     * think that SQLite assumes that it always gets nByte's worth of randomness.
+     *
+     * Before I tried read()-ing from /dev/random until I had enough randomness, but
+     * that just made the program hang.
+     *
+     * Right now I deal with this by getting as much randomness as possible, then
+     * filling the rest of the buffer with 0s.
+     *
+     * If cRandomness() doesn't require secure-random, I can just swap this with my own PRNG.
+     */
     struct composite_vfs_data *data = (struct composite_vfs_data*)vfs->pAppData;
     
     int bytes_read = read(data->random_fd, zOut, nByte);
