@@ -47,7 +47,7 @@ static void* _FS_MALLOC(int sz) {
 }
 
 static int _FS_MEMSIZE(void* mem) {
-    return composite_mem_methods.xMemSize(mem);
+    return composite_mem_methods.xSize(mem);
 }
 
 static void* _FS_REALLOC(void* mem, int newSize) {
