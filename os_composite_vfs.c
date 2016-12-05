@@ -22,7 +22,6 @@
 #define MAX_FILE_LEN ( (int64_t)(1L<<(sizeof(int64_t)-1)) )
 
 #define MIN(type, a, b) ( ((type)(a)) < ((type)(b)) ? (type)(a) : (type)(b) )
-#define MIN3(type, a, b, c) ( MIN(type, a, b) < ((type)(c)) ? MIN(type, a, b) : ((type)(c)) )
 
 /* inmem fs structs */
 struct fs_data {
@@ -140,7 +139,7 @@ static int fs_read(struct fs_file* file, int64_t offset, int len, void* buf) {
     }
     
     /* determine the number of bytes to read */
-    int64_t end_offset = MIN3(int64_t, offset + len, file->data.offset + file->data.len, 1L<<31);
+    int64_t end_offset = MIN(int64_t, offset + len, 1L<<31);
     int bytes_read = (int)(end_offset - offset);
 
     /* copy the bytes into the buffer */
@@ -168,11 +167,11 @@ static int fs_write(struct fs_file* file, int64_t offset, int len, const void* b
     }
 
     /* perform the write */
-    memmove( file->buf[offset], buf, (size_t)len );
+    memmove( (const void*)file->data.buf[offset], buf, (size_t)len );
 
     /* adjust file->data.len */
     file->data.len = end_offset;
-    
+
     return len;
 }
 
