@@ -60,26 +60,25 @@ static char* _fs_copystring(const char* str, int n) {
 
 /* adds the given file to _fs_file_list */
 static void _fs_file_link(struct fs_file* file) {
-    struct fs_file* next = _fs_file_list->next;
-    struct fs_file* prev = next->prev;
-
-    if( prev ) prev->next = file;
-    if( next ) next->prev = file;
-
-    file->prev = prev;
-    file->next = next;
+    file->next = _fs_file_list;
+    _fs_file_list = file;
 }
 
 /* removes the given file from _fs_file_list */
 static void _fs_file_unlink(struct fs_file* file) {
-    struct fs_file* prev = file->prev;
-    struct fs_file* next = file->next;
+    struct fs_file* prev = 0;
+    struct fs_file* next = _fs_file_list;
 
-    if( prev ) prev->next = next;
-    if( next ) next->prev = prev;
+    while( next != 0 ) {
+        if( next == file ) {
+            prev->next = next->next;
+            file->next = 0;
+            break;
+        }
 
-    file->prev = 0;
-    file->next = 0;
+        prev = next;
+        next = next->next;
+    }
 }
 
 /* searches _fs_file_list for the file with the given name, or 0 if it doesn't exist */
@@ -157,20 +156,17 @@ static int _fs_data_ensure_capacity(struct fs_file* file, sqlite3_int64 sz) {
 
 /* inmem fs functions */
 void fs_init() {
-    _fs_file_list = _FS_MALLOC( sizeof(struct fs_file) );
-    _fs_file_list->next = 0;
-    _fs_file_list->prev = 0;
+    _fs_file_list = 0;
 }
 
 void fs_deinit() {
     /* free all files from memory */
-    struct fs_file* file = _fs_file_list->next;
+    struct fs_file* file = _fs_file_list;
     for( ; file != 0; file = file->next ) {
         _fs_file_free(file);
     }
 
     /* clear the file list */
-    _FS_FREE(_fs_file_list);
     _fs_file_list = 0;
 }
 

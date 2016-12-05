@@ -148,7 +148,7 @@ struct fs_data {
 
 struct fs_file {
     struct composite_vfs_data* cVfs;
-    struct fs_file *prev, *next; /* the previous and next file in the list */
+    struct fs_file* next; /* the next file in the list */
 
     const char* zName; /* the name of the file */
     struct fs_data data;
