@@ -411,21 +411,26 @@ static int _cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, i
         CTRACE_APPEND(" => ");
         APPEND_ERR_CODE(res);
         CTRACE_APPEND(", pOutFlags = [");
-        if( *pOutFlags & SQLITE_OPEN_MAIN_DB )        CTRACE_APPEND(" OPEN_MAIN_DB ");
-        if( *pOutFlags & SQLITE_OPEN_MAIN_JOURNAL )   CTRACE_APPEND(" OPEN_MAIN_JOURNAL ");
-        if( *pOutFlags & SQLITE_OPEN_TEMP_DB )        CTRACE_APPEND(" OPEN_TEMP_DB ");
-        if( *pOutFlags & SQLITE_OPEN_TEMP_JOURNAL )   CTRACE_APPEND(" OPEN_TEMP_JOURNAL ");
-        if( *pOutFlags & SQLITE_OPEN_TRANSIENT_DB )   CTRACE_APPEND(" OPEN_TRANSIENT_DB ");
-        if( *pOutFlags & SQLITE_OPEN_SUBJOURNAL )     CTRACE_APPEND(" OPEN_SUBJOURNAL ");
-        if( *pOutFlags & SQLITE_OPEN_MASTER_JOURNAL ) CTRACE_APPEND(" OPEN_MASTER_JOURNAL ");
-        if( *pOutFlags & SQLITE_OPEN_WAL )            CTRACE_APPEND(" OPEN_WAL ");
-        //
-        if( *pOutFlags & SQLITE_OPEN_READWRITE )      CTRACE_APPEND(" OPEN_READWRITE ");
-        if( *pOutFlags & SQLITE_OPEN_CREATE )         CTRACE_APPEND(" OPEN_CREATE ");
-        if( *pOutFlags & SQLITE_OPEN_READONLY )       CTRACE_APPEND(" OPEN_READONLY ");
-        //
-        if( *pOutFlags & SQLITE_OPEN_DELETEONCLOSE )  CTRACE_APPEND(" OPEN_DELETEONCLOSE ");
-        if( *pOutFlags & SQLITE_OPEN_EXCLUSIVE )      CTRACE_APPEND(" OPEN_EXCLUSIVE ");
+
+        if( pOutFlags ) {
+            if( *pOutFlags & SQLITE_OPEN_MAIN_DB )        CTRACE_APPEND(" OPEN_MAIN_DB ");
+            if( *pOutFlags & SQLITE_OPEN_MAIN_JOURNAL )   CTRACE_APPEND(" OPEN_MAIN_JOURNAL ");
+            if( *pOutFlags & SQLITE_OPEN_TEMP_DB )        CTRACE_APPEND(" OPEN_TEMP_DB ");
+            if( *pOutFlags & SQLITE_OPEN_TEMP_JOURNAL )   CTRACE_APPEND(" OPEN_TEMP_JOURNAL ");
+            if( *pOutFlags & SQLITE_OPEN_TRANSIENT_DB )   CTRACE_APPEND(" OPEN_TRANSIENT_DB ");
+            if( *pOutFlags & SQLITE_OPEN_SUBJOURNAL )     CTRACE_APPEND(" OPEN_SUBJOURNAL ");
+            if( *pOutFlags & SQLITE_OPEN_MASTER_JOURNAL ) CTRACE_APPEND(" OPEN_MASTER_JOURNAL ");
+            if( *pOutFlags & SQLITE_OPEN_WAL )            CTRACE_APPEND(" OPEN_WAL ");
+            //
+            if( *pOutFlags & SQLITE_OPEN_READWRITE )      CTRACE_APPEND(" OPEN_READWRITE ");
+            if( *pOutFlags & SQLITE_OPEN_CREATE )         CTRACE_APPEND(" OPEN_CREATE ");
+            if( *pOutFlags & SQLITE_OPEN_READONLY )       CTRACE_APPEND(" OPEN_READONLY ");
+            //
+            if( *pOutFlags & SQLITE_OPEN_DELETEONCLOSE )  CTRACE_APPEND(" OPEN_DELETEONCLOSE ");
+            if( *pOutFlags & SQLITE_OPEN_EXCLUSIVE )      CTRACE_APPEND(" OPEN_EXCLUSIVE ");
+        } else {
+            CTRACE_APPEND(" ??? ");
+        }
         CTRACE_APPEND("]");
         CTRACE_PRINT();
     #endif
@@ -465,7 +470,7 @@ static int _cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut
     #if SQLITE_COS_PROFILE_VFS
         CTRACE_APPEND(" => ");
         APPEND_ERR_CODE(res);
-        CTRACE_APPEND(", pResOut = %d", *pResOut);
+        CTRACE_APPEND(", pResOut = %d", pResOut ? *pResOut : -1);
         CTRACE_PRINT();
     #endif
 
