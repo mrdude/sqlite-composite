@@ -139,6 +139,29 @@ struct composite_vfs_data {
     int random_fd;
 };
 
+/* inmem fs structs */
+struct fs_data {
+    char* buf; /* a pointer to the buffer containing the file's data */
+    int64_t len; /* the portion of this buffer contains valid data */
+};
+
+struct fs_file {
+    struct composite_vfs_data* cVfs;
+    struct fs_file* next; /* the next file in the list */
+
+    const char* zName; /* the name of the file */
+    struct fs_data data;
+    int ref; /* the number of open cFile's the file has */
+};
+
+/* methods for the in-memory FS used by composite */
+void fs_init();
+void fs_deinit();
+struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName);
+void fs_close(struct fs_file* file);
+int fs_read(struct fs_file* file, int64_t offset, int len, void* buf);
+int fs_write(struct fs_file* file, int64_t offset, int len, const void* buf);
+
 /* sqlite_io function prototypes */
 int cClose(sqlite3_file* file);
 int cRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst);
