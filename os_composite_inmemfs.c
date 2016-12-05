@@ -64,6 +64,7 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
     file->data.buf = buf;
     file->data.len = 0;
     file->ref = 0;
+    file->deleteOnClose = 0;
 
     _fs_file_link(file);
 
@@ -237,8 +238,8 @@ int fs_delete(sqlite3_vfs* vfs, const char *zName) {
     }
 
     if( file->ref == 0 ) { /* no one has this file open currently */
+        _fs_file_unlink(file);
         _fs_file_free(file);
-        TODO remove the file from the _fs_list
     } else { /* the file is open somewhere */
         file->deleteOnClose = 1; /* when this file is closed, it will be deleted */
     }

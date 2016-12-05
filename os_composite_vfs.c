@@ -10,6 +10,10 @@ int cClose(sqlite3_file* baseFile) {
     fs_close((struct fs_file*)file->fd);
     file->fd = 0;
 
+    if( file->deleteOnClose ) {
+        cDelete(baseFile); /* attempt to delete the file */
+    }
+
     return SQLITE_OK;
 }
 
