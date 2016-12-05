@@ -46,6 +46,10 @@ static void* _FS_MALLOC(int sz) {
     return composite_mem_methods.xMalloc(sz);
 }
 
+static int _FS_MEMSIZE(void* mem) {
+    return composite_mem_methods.xMemSize(mem);
+}
+
 static void* _FS_REALLOC(void* mem, int newSize) {
     return composite_mem_methods.xRealloc(mem, newSize);
 }
@@ -97,7 +101,23 @@ static void _fs_file_free(struct fs_file* file) {
  * returns 1 on success, 0 on failure
  */
 static int _fs_data_ensure_capacity(struct fs_file* file, int64_t sz) {
-    //TODO
+    printf("_fs_data_ensure_capacity(sz=%" PRIu64 ")\n", sz);
+    int old_size = _FS_MEMSIZE(file->data.buf);
+    if( old_size < sz ) {
+        int new_size = old_size * 2;
+        if( new_size < sz ) {
+            new_size = sz;
+        }
+
+        void* new_buf = _FS_REALLOC(file->data.buf, new_size);
+        if( new_buf == 0 ) {
+            return 0;
+        } else {
+            file->data.buf = new_buf;
+        }
+    }
+
+    return 1;
 }
 
 /* inmem fs functions */
