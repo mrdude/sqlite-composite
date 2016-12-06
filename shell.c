@@ -112,7 +112,7 @@ int execute_statement(sqlite3 *db, const char* zSql) {
 
   /* create the list of rows */
   struct rs_row* row_list = malloc( sizeof(struct rs_row) );
-  row->next = 0;
+  row_list->next = 0;
 
   struct rs_row* end_of_row = row_list;
 
