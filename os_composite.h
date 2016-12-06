@@ -2,6 +2,8 @@
 #ifndef SQLITE_COS_OS_COMPOSITE_H
 #define SQLITE_COS_OS_COMPOSITE_H
 
+#include "sqlite3.h"
+
 #ifndef SQLITE_COS_PROFILE_VFS
 #define SQLITE_COS_PROFILE_VFS 0
 #endif

@@ -1,6 +1,5 @@
 /* Contains code for an in-memory filesystem implementation */
 
-#include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
 /* returns 1 if the given strings are equal, 0 if not */

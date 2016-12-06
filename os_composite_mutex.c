@@ -1,4 +1,4 @@
-#include "sqlite3.h"
+
 #if SQLITE_OS_OTHER && SQLITE_THREADSAFE
 
 #include "os_composite.h"

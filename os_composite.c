@@ -12,7 +12,6 @@
 **
 ** This file contains the VFS implementation for Composite.
 */
-#include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
 #include "os_composite.h"
