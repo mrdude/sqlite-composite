@@ -43,6 +43,7 @@ static char* _fs_copystring(const char* str, int n) {
     /* get the length of the string */
     int len;
     for( len = 0; str[len] == '\0' && len < n; len++ ) {}
+    printf("_fs_copystring(str = %s) | len = %d\n", str, len);
 
     /* malloc() some memory for our copy */
     char* new_str = _FS_MALLOC(len+1);
@@ -88,13 +89,16 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
     struct fs_file* file;
     for( file = _fs_file_list; file != 0; file = file->next ) {
         if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
+            printf("\t_fs_file_alloc(zName = %s) => file = %p\n", zName, file);
             return file;
         }
     }
+    printf("\t_fs_file_alloc(zName = %s) => file = 0\n", zName);
     return 0;
 }
 
 static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
+    printf("\t_fs_file_alloc(zName = %s)\n", zName);
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)(vfs->pAppData);
     struct fs_file* file = _FS_MALLOC( sizeof(struct fs_file) );
     if( file == 0 )
