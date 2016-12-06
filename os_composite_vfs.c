@@ -248,7 +248,7 @@ int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
 }
 
 /* xorshift* */
-static uint64_t get_random(sqlite3_uint64 *state) {
+static sqlite3_uint64 get_random(sqlite3_uint64 *state) {
     const sqlite3_uint64 magic = 2685821657736338717L;
     *state ^= *state >> 12;
     *state ^= *state << 25;
