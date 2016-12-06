@@ -69,12 +69,12 @@ static void _fs_file_link(struct fs_file* file) {
 
 /* removes the given file from _fs_file_list */
 static void _fs_file_unlink(struct fs_file* file) {
-    struct fs_file* prev = 0;
+    struct fs_file* prev = _fs_file_list;
     struct fs_file* next = _fs_file_list->next;
 
     while( next != 0 ) {
         if( next == file ) {
-            if( prev ) prev->next = next->next;
+            prev->next = next->next;
             file->next = 0;
             break;
         }
