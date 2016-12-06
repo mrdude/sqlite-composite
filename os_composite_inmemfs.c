@@ -302,6 +302,8 @@ int fs_delete(sqlite3_vfs* vfs, const char *zName) {
     } else { /* the file is open somewhere */
         file->deleteOnClose = 1; /* when this file is closed, it will be deleted */
     }
+    
+    return 1;
 }
 
 #endif //SQLITE_OS_OTHER
