@@ -63,14 +63,14 @@ static char* _fs_copystring(const char* str, int n) {
 
 /* adds the given file to _fs_file_list */
 static void _fs_file_link(struct fs_file* file) {
-    file->next = _fs_file_list;
-    _fs_file_list = file;
+    file->next = _fs_file_list->next;
+    _fs_file_list->next = file;
 }
 
 /* removes the given file from _fs_file_list */
 static void _fs_file_unlink(struct fs_file* file) {
     struct fs_file* prev = 0;
-    struct fs_file* next = _fs_file_list;
+    struct fs_file* next = _fs_file_list->next;
 
     while( next != 0 ) {
         if( next == file ) {
@@ -164,12 +164,12 @@ static int _fs_data_ensure_capacity(struct fs_file* file, sqlite3_int64 sz) {
 
 /* inmem fs functions */
 void fs_init() {
-    _fs_file_list = 0;
+    _fs_file_list = _FS_MALLOC( sizeof(struct fs_file) );
 }
 
 void fs_deinit() {
     /* free all files from memory */
-    struct fs_file* file = _fs_file_list;
+    struct fs_file* file = _fs_file_list->next;
     for( ; file != 0; file = file->next ) {
         void* next = file->next;
         _fs_file_free(file);
@@ -177,6 +177,7 @@ void fs_deinit() {
     }
 
     /* clear the file list */
+    _FS_FREE( _fs_file_list );
     _fs_file_list = 0;
 }
 
