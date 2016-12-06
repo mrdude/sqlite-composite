@@ -181,8 +181,6 @@ int cOpen(sqlite3_vfs* vfs, const char *zName, sqlite3_file* baseFile, int flags
     struct cFile* file = (struct cFile*)baseFile;
     file->composite_io_methods = 0;
 
-    flags |= SQLITE_OPEN_DELETEONCLOSE; /* all files are delete on close */
-
     if( pOutFlags ) *pOutFlags = flags;
 
     /* does the file exist? */
