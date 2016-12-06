@@ -15,15 +15,6 @@
 #include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
-#include <string.h>
-#include <stdio.h>
-#include <inttypes.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
 #include "os_composite.h"
 
 /* sqlite_io function prototypes */

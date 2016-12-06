@@ -15,6 +15,16 @@
 #endif
 
 #if SQLITE_COS_PROFILE_VFS || SQLITE_COS_PROFILE_MUTEX || SQLITE_COS_PROFILE_MEMORY
+
+#include <string.h>
+#include <stdio.h>
+#include <inttypes.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #define CTRACE_STRING_DEF(x) const int LEN = x ; \
     char _ch[ LEN+1 ]; \
     do { \
