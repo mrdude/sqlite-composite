@@ -20,6 +20,7 @@ int execute_statement(sqlite3 *db, const char* zSql) {
     printf("\n");
 
     nCol++;
+    int i;
     for( i = 0; i < (nRow * nCol); i++ ) {
       printf("|| %s ||", zResult[i]);
       if( i % nCol == 0 ) {
