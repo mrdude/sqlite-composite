@@ -80,7 +80,7 @@ int run_example_statements(sqlite3 *db) {
     "CREATE TABLE scores (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, score INTEGER NOT NULL, FOREIGN KEY(user_id) REFERENCES users(id));",
     "INSERT INTO scores (user_id, score) VALUES (1, 34), (2, 9001), (2, 9002), (3, 10), (3, 5);",
     "SELECT scores.id, users.name, scores.score FROM users, scores WHERE scores.user_id == users.id;",
-    "SELECT users.name, scores.score FROM users JOIN users ON users.id == scores.user_id ORDER BY scores.score DESC LIMIT 3;"
+    "SELECT users.name, scores.score FROM scores JOIN users ON users.id == scores.user_id ORDER BY scores.score DESC LIMIT 3;"
   };
 
   const int statement_count = 8;
