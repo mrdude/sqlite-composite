@@ -72,7 +72,7 @@ static void print_row(struct rs_row* row) {
   int i;
   for( i = 0; i < row->col_count; i++ ) {
     if( i > 0 ) printf("| ");
-    printf("%s", row->col_data[i]);
+    printf("%-" row->col_len[i] "s", row->col_data[i]);
     if( i < row->col_count ) printf(" |");
   }
 }
