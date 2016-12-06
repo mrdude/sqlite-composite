@@ -842,7 +842,7 @@ static void _cMemShutdown(void* pAppData) {
 
 /* API structs */
 struct sqlite3_io_methods composite_io_methods = {
-    .iVersion = 3,
+    .iVersion = 1,
     .xClose = _cClose,
     .xRead = _cRead,
     .xWrite = _cWrite,
@@ -855,10 +855,12 @@ struct sqlite3_io_methods composite_io_methods = {
     .xFileControl = _cFileControl,
     .xSectorSize = _cSectorSize,
     .xDeviceCharacteristics = _cDeviceCharacteristics,
+    /* everything above is required for version 1 */
     .xShmMap = _cShmMap,
     .xShmLock = _cShmLock,
     .xShmBarrier = _cShmBarrier,
     .xShmUnmap = _cShmUnmap,
+    /* everything above is required for version 1-2 */
     .xFetch = _cFetch,
     .xUnfetch = _cUnfetch
 };
@@ -884,6 +886,7 @@ static sqlite3_vfs composite_vfs = {
     .xSleep = _cSleep,
     .xCurrentTime = _cCurrentTime,
     .xGetLastError = _cGetLastError,
+    /* everything above is required in version 1 */
     .xCurrentTimeInt64 = _cCurrentTimeInt64,
     /* everything above is required in versions 1-2 */
     .xSetSystemCall = 0,
