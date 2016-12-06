@@ -73,24 +73,27 @@ static void print_row(struct rs_row* row) {
     printf("%s", row->col_data[i]);
     if( i < row->col_count ) printf(" |");
   }
-  printf("\n");
 }
 
 void print_column_names(sqlite3_stmt *stmt) {
   struct rs_row* row;
 
   row = generate_row_from_column_names(stmt);
+  printf("\t");
   print_row(row);
+  printf("\n");
   free_row(row);
 
-  printf("==\n");
+  printf("\t==\n");
 }
 
 void print_statement_columns(sqlite3_stmt *stmt) {
   struct rs_row* row;
 
   row = generate_row(stmt);
+  printf("\t");
   print_row(row);
+  printf("\n");
   free_row(row);
 }
 
@@ -128,8 +131,6 @@ int execute_statement(sqlite3 *db, const char* zSql) {
         return SQLITE_ERROR;
     }
   }
-
-  printf("Printed %d rows\n\n", row_count);
 
   /* free the statement from memory */
   if( sqlite3_finalize(stmt) != SQLITE_OK ) {
