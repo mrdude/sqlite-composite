@@ -10,14 +10,18 @@ SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
 HDR=$(wildcard *.h)
 EXE=sqlite
+COS_OBJ=sqlite.o
 
-.PHONY: all preprocessed clean
+.PHONY: all composite clean
 
 all: $(OBJ)
 	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
 
 $(OBJ): $(@:.o=.c) $(HDR)
 	$(CC) $(CFLAGS) -c -o $@ $(@:.o=.c)
+
+composite:
+	$(CC) $(CFLAGS) -c -o $(COS_OBJ) $(SRC)
 
 clean:
 	rm -f $(EXE) $(OBJ)
