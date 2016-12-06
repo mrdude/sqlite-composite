@@ -76,10 +76,14 @@ int run_example_statements(sqlite3 *db) {
     "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);",
     "INSERT INTO users (name) VALUES ('Billy'), ('Vegeta'), ('Jack'), ('Some other guy');",
     "SELECT * FROM users;",
-    ""
+    "SELECT id FROM users WHERE name == 'Billy';",
+    "CREATE TABLE scores (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, score INTEGER NOT NULL, FOREIGN KEY(user_id) REFERENCES users(id));",
+    "INSERT INTO scores (user_id, score) VALUES (1, 34), (2, 9001), (2, 9002), (3, 10), (3, 5);",
+    "SELECT scores.id, users.name, scores.score FROM users, scores WHERE scores.user_id == users.id;",
+    "SELECT users.name, scores.score FROM users JOIN users ON users.id == scores.user_id ORDER BY scores.score DESC LIMIT 3;"
   };
 
-  const int statement_count = 3;
+  const int statement_count = 8;
 
   int i;
   for( i = 0; i < statement_count; i++ ) {
