@@ -3,10 +3,6 @@
 #include "sqlite3.h"
 #if SQLITE_OS_OTHER
 
-/* TODO: when I port this to composite, I won't have access to these headers. */
-#include <inttypes.h> /* for PRIu64 */
-#include <stdio.h> /* for debugging printf()'s in fs_write and fs_read */
-
 /* returns 1 if the given strings are equal, 0 if not */
 int _fs_strequals(const char* s1, const char* s2, const int n) {
     int i = 0;
@@ -65,7 +61,6 @@ static char* _fs_copystring(const char* str, int n) {
     /* get the length of the string */
     int len;
     for( len = 0; str[len] != '\0' && len < n; len++ ) {}
-    printf("_fs_copystring(str = %s) | len = %d\n", str, len);
 
     /* malloc() some memory for our copy */
     char* new_str = _FS_MALLOC(len+1);
@@ -111,16 +106,14 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
     struct fs_file* file;
     for( file = _fs_file_list->next; file != 0; file = file->next ) {
         if( _fs_strequals(file->zName, zName, MAX_PATHNAME) ) {
-            printf("\t_fs_find_file(zName = %s) => file = %p\n", zName, file);
             return file;
         }
     }
-    printf("\t_fs_find_file(zName = %s) => file = 0\n", zName);
+
     return 0;
 }
 
 static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
-    printf("\t_fs_file_alloc(zName = %s)\n", zName);
     struct composite_vfs_data* cVfs = (struct composite_vfs_data*)(vfs->pAppData);
     struct fs_file* file = _FS_MALLOC( sizeof(struct fs_file) );
     if( file == 0 )
@@ -220,12 +213,10 @@ struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
     }
     //}
     if( file == 0 ) {
-        printf("\tfs_open(zName = %s) => 0\n", zName);
         return 0;
     }
 
     file->ref++;
-    printf("\tfs_open(zName = %s) => file = %p\n", zName, file);
     return file;
 }
 
@@ -257,11 +248,6 @@ int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf) {
         _fs_copydata( (char*)buf, (const char*)(&file->data.buf[offset]), bytes_read);
     }
 
-    printf("\tfs_read(file = %s, offset = %" PRIu64 ", len = %d, buf = <...>) => read %d bytes\n",
-        file->zName,
-        offset,
-        len,
-        bytes_read);
     return bytes_read;
 }
 
@@ -285,12 +271,7 @@ int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* bu
 
     /* adjust file->data.len */
     file->data.len = end_offset;
-
-    printf("\tfs_write(file = %s, offset = %" PRIu64 ", len = %d, buf = <...>) => wrote %d bytes\n",
-        file->zName,
-        offset,
-        len,
-        len);
+    
     return len;
 }
 
