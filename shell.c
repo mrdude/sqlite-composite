@@ -2,6 +2,34 @@
 
 #include <stdio.h>
 
+void print_statement_columns(sqlite3_stmt *stmt) {
+  const int col_count = sqlite3_column_count();
+  int i;
+
+  for( i = 0; i < col_count; i++ ) {
+    /* print column ID */
+    printf("Column %d: ", i);
+
+    /* print column type */
+    switch( sqlite3_column_type(stmt, i) ) {
+      case SQLITE_INTEGER: printf("Integer"); break;
+      case SQLITE_FLOAT:   printf("Float  "); break;
+      case SQLITE_BLOB:    printf("Blob   "); break;
+      case SQLITE_NULL:    printf("Null   "); break;
+      case SQLITE_TEXT:    printf("Text   "); break;
+    }
+
+    printf(" -> ");
+
+    /* print column data */
+    printf("TODO");
+
+    printf("\n");
+  }
+
+  printf("End of Row\n-\n\n");
+}
+
 int execute_statement(sqlite3 *db, const char* zSql) {
   sqlite3_stmt *stmt;
 
@@ -20,6 +48,7 @@ int execute_statement(sqlite3 *db, const char* zSql) {
       case SQLITE_BUSY:
         break;
       case SQLITE_ROW:
+        print_statement_columns(stmt);
         break;
       case SQLITE_DONE:
         done = 1;
