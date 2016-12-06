@@ -61,7 +61,7 @@ int execute_statement(sqlite3 *db, const char* zSql) {
     }
   }
 
-  printf("Printed %d rows\n", row_count);
+  printf("Printed %d rows\n\n", row_count);
 
   /* free the statement from memory */
   if( sqlite3_finalize(stmt) != SQLITE_OK ) {
@@ -71,8 +71,22 @@ int execute_statement(sqlite3 *db, const char* zSql) {
   return SQLITE_OK;
 }
 
-int run_example_statement(sqlite3 *db) {
-  return execute_statement(db, "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);");
+int run_example_statements(sqlite3 *db) {
+  const char** zStatements = {
+    "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);",
+    "INSERT INTO users (name) VALUES ('Billy'), ('Vegeta'), ('Jack'), ('Some other guy');",
+    "SELECT * FROM users;",
+    ""
+  };
+
+  int i;
+  for( i = 0; zStatements[i] != 0; i++ ) {
+    if( execute_statement(db, zStatements[i]) != SQLITE_OK ) {
+      return SQLITE_ERROR;
+    }
+  }
+
+  return SQLITE_OK;
 }
 
 int main(void) {
@@ -80,7 +94,7 @@ int main(void) {
   sqlite3_open("dh", &db);
   printf("Hello whirled!\n");
 
-  printf("%s\n", run_example_statement(db) == SQLITE_OK ? "ok" : "error");
+  printf("%s\n", run_example_statements(db) == SQLITE_OK ? "All tests passed" : "A test failed");
 
   printf("Goodbye!\n");
   sqlite3_close(db);
