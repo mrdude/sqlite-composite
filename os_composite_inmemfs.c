@@ -5,6 +5,7 @@
 
 /* TODO: when I port this to composite, I won't have access to these headers. */
 #include <string.h> /* for strncpy() and strncmp() */
+#include <stdio.h> /* for debugging printf()'s in fs_write and fs_read */
 
 #include "os_composite.h"
 
@@ -162,7 +163,9 @@ void fs_deinit() {
     /* free all files from memory */
     struct fs_file* file = _fs_file_list;
     for( ; file != 0; file = file->next ) {
+        void* next = file->next;
         _fs_file_free(file);
+        file = next;
     }
 
     /* clear the file list */
@@ -213,6 +216,11 @@ int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf) {
         strncpy( (char*)buf, (const char*)(&file->data.buf[offset]), (size_t)bytes_read);
     }
 
+    printf("\tfs_read(file = %s, offset = %" PRIu64 ", len = %d, buf = <...>) => read %d bytes\n",
+        file->zName,
+        offset,
+        len,
+        bytes_read);
     return bytes_read;
 }
 
@@ -237,6 +245,11 @@ int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* bu
     /* adjust file->data.len */
     file->data.len = end_offset;
 
+    printf("\tfs_write(file = %s, offset = %" PRIu64 ", len = %d, buf = <...>) => wrote %d bytes\n",
+        file->zName,
+        offset,
+        len,
+        len);
     return len;
 }
 
