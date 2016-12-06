@@ -33,7 +33,7 @@ static struct rs_row* generate_row(sqlite3_stmt *stmt) {
   row->col_data = malloc( sizeof(char*) * row->col_count );
 
   int i;
-  for( i = 0; i < col_count; i++ ) {
+  for( i = 0; i < row->col_count; i++ ) {
     row->col_data[i] = _copy_string( sqlite3_column_text(stmt, i), &row->col_len[i] );
   }
 
