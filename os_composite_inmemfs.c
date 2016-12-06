@@ -42,7 +42,7 @@ static void _FS_FREE(void* mem) {
 static char* _fs_copystring(const char* str, int n) {
     /* get the length of the string */
     int len;
-    for( len = 0; str[len] == '\0' && len < n; len++ ) {}
+    for( len = 0; str[len] != '\0' && len < n; len++ ) {}
     printf("_fs_copystring(str = %s) | len = %d\n", str, len);
 
     /* malloc() some memory for our copy */
