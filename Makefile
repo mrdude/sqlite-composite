@@ -23,7 +23,7 @@ $(OBJ): $(@:.o=.c) $(HDR)
 
 composite:
 	cat $(COS_SRC_INPUT) > $(COS_SRC_AMALGAMATION)
-	$(CC) $(CFLAGS) -c -o $(EXE) $(COS_SRC_AMALGAMATION) shell.c sqlite3.c
+	$(CC) $(CFLAGS) -o $(EXE) $(COS_SRC_AMALGAMATION) shell.c sqlite3.c
 
 clean:
 	rm -f $(EXE) $(OBJ) $(COS_SRC_AMALGAMATION)
