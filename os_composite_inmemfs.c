@@ -4,7 +4,7 @@
 #if SQLITE_OS_OTHER
 
 /* returns 1 if the given strings are equal, 0 if not */
-int _fs_strequals(const char* s1, const char* s2, const int n) {
+static int _fs_strequals(const char* s1, const char* s2, const int n) {
     int i = 0;
     for( ; i < n; i++ ) {
         if( s1[n] == 0 && s2[n] == 0 ) {
@@ -19,7 +19,7 @@ int _fs_strequals(const char* s1, const char* s2, const int n) {
     return 0;
 }
 
-void _fs_copydata(char* dst, const char* src, int n) {
+static void _fs_copydata(char* dst, const char* src, int n) {
     int i = 0;
     for( ; i < n; i++ ) {
         dst[i] = src[i];
@@ -271,7 +271,7 @@ int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* bu
 
     /* adjust file->data.len */
     file->data.len = end_offset;
-    
+
     return len;
 }
 
