@@ -201,7 +201,14 @@ static int _cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
     #if SQLITE_COS_PROFILE_VFS
         struct cFile* file = (struct cFile*)baseFile;
         CTRACE_STRING_DEF(80);
-        CTRACE_APPEND("cFileControl(file = %s, op = %d, pArg = <...>)", file->zName, op);
+        CTRACE_APPEND("cFileControl(file = %s, op = ", file->zName);
+
+        switch(op) {
+            case SQLITE_FCNTL_SIZE_HINT: CTRACE_APPEND("SQLITE_FCNTL_SIZE_HINT"); break;
+            default: CTRACE_APPEND("Unknown(%d)", op); break;
+        }
+
+        CTRACE_APPEND(", pArg = <...>");
     #endif
 
     const int res = cFileControl(baseFile, op, pArg);

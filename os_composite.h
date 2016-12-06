@@ -174,6 +174,7 @@ void fs_close(struct fs_file* file);
 int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf);
 int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* buf);
 int fs_truncate(struct fs_file* file, sqlite3_int64 size);
+void fs_size_hint(struct fs_file* file, sqlite3_int64 size);
 int fs_exists(sqlite3_vfs* vfs, const char *zName);
 int fs_delete(sqlite3_vfs* vfs, const char *zName);
 

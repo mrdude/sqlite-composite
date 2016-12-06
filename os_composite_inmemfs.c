@@ -283,6 +283,10 @@ int fs_truncate(struct fs_file* file, sqlite3_int64 size) {
     return 1;
 }
 
+void fs_size_hint(struct fs_file* file, sqlite3_int64 size) {
+    _fs_data_ensure_capacity(file, size);
+}
+
 /* returns 1 if the given file exists, 0 if it doesn't */
 int fs_exists(sqlite3_vfs* vfs, const char *zName) {
     struct fs_file* file = _fs_find_file(vfs, zName);
@@ -302,7 +306,7 @@ int fs_delete(sqlite3_vfs* vfs, const char *zName) {
     } else { /* the file is open somewhere */
         file->deleteOnClose = 1; /* when this file is closed, it will be deleted */
     }
-    
+
     return 1;
 }
 
