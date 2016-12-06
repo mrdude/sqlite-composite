@@ -178,7 +178,7 @@ void fs_init() {
 void fs_deinit() {
     /* free all files from memory */
     struct fs_file* file = _fs_file_list->next;
-    for( ; file != 0; file = file->next ) {
+    for( ; file != 0; ) {
         void* next = file->next;
         _fs_file_free(file);
         file = next;
