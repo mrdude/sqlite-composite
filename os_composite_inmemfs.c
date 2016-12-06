@@ -74,7 +74,7 @@ static void _fs_file_unlink(struct fs_file* file) {
 
     while( next != 0 ) {
         if( next == file ) {
-            prev->next = next->next;
+            if( prev ) prev->next = next->next;
             file->next = 0;
             break;
         }
