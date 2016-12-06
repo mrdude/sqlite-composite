@@ -1,5 +1,5 @@
 #include "sqlite3.h"
-#if SQLITE_OS_OTHER
+#if SQLITE_OS_OTHER && SQLITE_THREADSAFE
 
 #include "os_composite.h"
 
@@ -62,4 +62,4 @@ int cMutexNotheld(sqlite3_mutex *mutex) {
     return 1;
 }
 
-#endif // SQLITE_OS_OTHER
+#endif // SQLITE_OS_OTHER && SQLITE_THREADSAFE

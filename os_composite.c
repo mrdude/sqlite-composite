@@ -577,6 +577,7 @@ static int _cCurrentTimeInt64(sqlite3_vfs* vfs, sqlite3_int64* time) {
 }
 
 /* sqlite_mutex function prototypes */
+#if SQLITE_THREADSAFE
 static int _cMutexInit(void) {
     #if SQLITE_COS_PROFILE_MUTEX
         CTRACE_STRING_DEF(80);
@@ -731,6 +732,7 @@ static int _cMutexNotheld(sqlite3_mutex *mutex) {
 
     return res;
 }
+#endif
 
 /* sqlite_mem function prototypes */
 static void* _cMemMalloc(int sz) {
@@ -894,6 +896,7 @@ static sqlite3_vfs composite_vfs = {
     .xNextSystemCall = 0
 };
 
+#if SQLITE_THREADSAFE
 static const sqlite3_mutex_methods composite_mutex_methods = {
     .xMutexInit = _cMutexInit,
     .xMutexEnd = _cMutexEnd,
@@ -905,6 +908,7 @@ static const sqlite3_mutex_methods composite_mutex_methods = {
     .xMutexHeld = _cMutexHeld,
     .xMutexNotheld = _cMutexNotheld
 };
+#endif
 
 const sqlite3_mem_methods composite_mem_methods = {
     .xMalloc = _cMemMalloc,
