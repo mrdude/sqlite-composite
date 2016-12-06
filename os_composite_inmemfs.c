@@ -87,7 +87,7 @@ static void _fs_file_unlink(struct fs_file* file) {
 /* searches _fs_file_list for the file with the given name, or 0 if it doesn't exist */
 static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
     struct fs_file* file;
-    for( file = _fs_file_list; file != 0; file = file->next ) {
+    for( file = _fs_file_list->next; file != 0; file = file->next ) {
         if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
             printf("\t_fs_find_file(zName = %s) => file = %p\n", zName, file);
             return file;
