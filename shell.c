@@ -2,32 +2,26 @@
 
 #include <stdio.h>
 
+void print_column_names(sqlite3_stmt *stmt) {
+  const int col_count = sqlite3_column_count(stmt);
+  int i;
+
+  for( i = 0; i < col_count; i++ ) {
+    printf("| %s |", sqlite3_column_name(stmt, i));
+  }
+
+  printf("\n==\n");
+}
+
 void print_statement_columns(sqlite3_stmt *stmt) {
   const int col_count = sqlite3_column_count(stmt);
   int i;
 
   for( i = 0; i < col_count; i++ ) {
-    /* print column ID */
-    printf("Column %d: ", i);
-
-    /* print column type */
-    switch( sqlite3_column_type(stmt, i) ) {
-      case SQLITE_INTEGER: printf("Integer"); break;
-      case SQLITE_FLOAT:   printf("Float  "); break;
-      case SQLITE_BLOB:    printf("Blob   "); break;
-      case SQLITE_NULL:    printf("Null   "); break;
-      case SQLITE_TEXT:    printf("Text   "); break;
-    }
-
-    printf(" -> ");
-
-    /* print column data */
-    printf("%s", sqlite3_column_text(stmt, i));
-
-    printf("\n");
+    printf("| %s |", sqlite3_column_text(stmt, i));
   }
-
-  printf("-\n\n");
+  
+  printf("\n");
 }
 
 int execute_statement(sqlite3 *db, const char* zSql) {
@@ -49,6 +43,10 @@ int execute_statement(sqlite3 *db, const char* zSql) {
       case SQLITE_BUSY:
         break;
       case SQLITE_ROW:
+        if( row_count == 0 ) {
+          print_column_names(stmt);
+        }
+
         print_statement_columns(stmt);
         row_count++;
         break;
