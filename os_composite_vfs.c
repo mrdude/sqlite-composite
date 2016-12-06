@@ -102,14 +102,15 @@ int cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
 /* "VFS implementations should return [SQLITE_NOTFOUND] for file control opcodes that they do not recognize."
  */
 int cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
+    struct cFile* file = (struct cFile*)baseFile;
+    struct fs_file* fd;
+    
     switch( op ) {
         case SQLITE_FCNTL_SIZE_HINT:
             /* "[SQLITE_FCNTL_SIZE_HINT] opcode is used by SQLite to give the VFS layer a hint
              * of how large the database file will grow to be during the current transaction...the
              * underlying VFS might choose to preallocate database file space based on this hint..."
              */
-             struct cFile* file = (struct cFile*)baseFile;
-             struct fs_file* fd;
              if( file->fd ) {
                  fd = (struct fs_file*)file->fd;
                  int size_hint = *((int *)pArg);
