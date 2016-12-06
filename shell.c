@@ -147,6 +147,42 @@ int execute_statement(sqlite3 *db, const char* zSql) {
     }
   }
 
+  /* set column widths */
+  {
+    int col_count = 0;
+    if( row_list->next != 0 ) {
+      col_count = row_list->next->col_count;
+    }
+
+    int* col_len = malloc( sizeof(int) * col_count );
+    int i;
+    for( i = 0; i < col_count; i++ )
+      col_len[i] = 0;
+
+    /* calculate column widths */
+    struct rs_row *row;
+    for( i = 0; i < col_count; i++ ) {
+      /* loop through each row */
+      row = row_list->next;
+      while( row ) {
+        if( row->col_len[i] > col_len[i] ) {
+          col_len[i] = row->col_len[i];
+        }
+        row = row->next;
+      }
+    }
+
+    /* set column widths */
+    row = row_list->next;
+    while( row ) {
+      row->col_len[i] = col_len[i];
+      row = row->next;
+    }
+
+
+    free( col_len );
+  }
+
   /* print the statement results */
   struct rs_row* r = row_list->next;
   while(r) {
