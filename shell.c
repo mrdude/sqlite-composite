@@ -72,7 +72,7 @@ static void print_row(struct rs_row* row) {
   int i;
   for( i = 0; i < row->col_count; i++ ) {
     if( i > 0 ) printf("| ");
-    printf("%-" row->col_len[i] "s", row->col_data[i]);
+    printf("%-15s", row->col_data[i]);
     if( i < row->col_count ) printf(" |");
   }
 }
@@ -110,32 +110,19 @@ int execute_statement(sqlite3 *db, const char* zSql) {
     return SQLITE_ERROR;
   }
 
-  /* create the list of rows */
-  struct rs_row* row_list = malloc( sizeof(struct rs_row) );
-  row_list->next = 0;
-
-  struct rs_row* end_of_row = row_list;
-
   /* execute the statement */
   int done = 0;
   int row_count = 0;
-  struct rs_row* new_row;
   while( !done ) {
     switch( sqlite3_step(stmt) ) {
       case SQLITE_BUSY:
         break;
       case SQLITE_ROW:
         if( row_count == 0 ) {
-          new_row = generate_row_from_column_names(stmt);
-          end_of_row->next = new_row;
-          new_row->next = 0;
-          end_of_row = new_row;
+          print_column_names(stmt);
         }
 
-        new_row = generate_row(stmt);
-        end_of_row->next = new_row;
-        new_row->next = 0;
-        end_of_row = new_row;
+        print_statement_columns(stmt);
         row_count++;
         break;
       case SQLITE_DONE:
@@ -145,57 +132,6 @@ int execute_statement(sqlite3 *db, const char* zSql) {
       case SQLITE_MISUSE:
         return SQLITE_ERROR;
     }
-  }
-
-  /* set column widths */
-  {
-    int col_count = 0;
-    if( row_list->next != 0 ) {
-      col_count = row_list->next->col_count;
-    }
-
-    int* col_len = malloc( sizeof(int) * col_count );
-    int i;
-    for( i = 0; i < col_count; i++ )
-      col_len[i] = 0;
-
-    /* calculate column widths */
-    struct rs_row *row;
-    for( i = 0; i < col_count; i++ ) {
-      /* loop through each row */
-      row = row_list->next;
-      while( row ) {
-        if( row->col_len[i] > col_len[i] ) {
-          col_len[i] = row->col_len[i];
-        }
-        row = row->next;
-      }
-    }
-
-    /* set column widths */
-    row = row_list->next;
-    while( row ) {
-      row->col_len[i] = col_len[i];
-      row = row->next;
-    }
-
-
-    free( col_len );
-  }
-
-  /* print the statement results */
-  struct rs_row* r = row_list->next;
-  while(r) {
-    print_row(r);
-    r = r->next;
-  }
-  
-  /* free the list */
-  struct rs_row* next = row_list->next;
-  while(row_list) {
-    free_row(row_list);
-    row_list = next;
-    next = next->next;
   }
 
   /* free the statement from memory */
