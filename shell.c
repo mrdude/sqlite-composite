@@ -119,7 +119,7 @@ int execute_statement(sqlite3 *db, const char* zSql) {
   /* execute the statement */
   int done = 0;
   int row_count = 0;
-  struct rs_row* new_row = row;
+  struct rs_row* new_row;
   while( !done ) {
     switch( sqlite3_step(stmt) ) {
       case SQLITE_BUSY:
