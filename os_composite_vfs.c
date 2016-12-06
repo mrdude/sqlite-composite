@@ -282,7 +282,7 @@ int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
     }
 
     /* return the number of bytes generated */
-    return nBytes;
+    return nByte;
 }
 
 /* sleep for at least the given number of microseconds
