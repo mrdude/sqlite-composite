@@ -165,6 +165,9 @@ static int _fs_data_ensure_capacity(struct fs_file* file, sqlite3_int64 sz) {
 /* inmem fs functions */
 void fs_init() {
     _fs_file_list = _FS_MALLOC( sizeof(struct fs_file) );
+    _fs_file_list->zName = 0;
+    _fs_file_list->data.buf = 0;
+    _fs_file_list->next = 0;
 }
 
 void fs_deinit() {
