@@ -17,6 +17,15 @@ int execute_statement(sqlite3 *db, const char* zSql) {
     printf("Rows: %d, Cols: %d\n", nRow, nCol);
     printf("ErrorMsg: %s\n", zErrorMsg);
     printf("zResult: %p\n", zResult);
+    printf("\n");
+
+    nCol++;
+    for( i = 0; i < (nRow * nCol); i++ ) {
+      printf("|| %s ||", zResult[i]);
+      if( i % nCol == 0 ) {
+        printf("\n");
+      }
+    }
   }
 
   if( zResult ) {
