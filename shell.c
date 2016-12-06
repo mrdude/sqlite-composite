@@ -2,13 +2,18 @@
 
 #include <stdio.h>
 
-int run_example_statement(sqlite3 *db) {
+int execute_statement(sqlite3 *db, const char* zSql) {
   sqlite3_stmt *stmt;
-  const char* zSql = "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);";
+
+  /* print the statement */
+  printf("> %s\n", zSql);
+  
+  /* prepare the statement */
   if( sqlite3_prepare(db, zSql, -1, &stmt, 0) != SQLITE_OK ) {
     return SQLITE_ERROR;
   }
 
+  /* execute the statement */
   int done = 0;
   while( !done ) {
     switch( sqlite3_step(stmt) ) {
@@ -25,11 +30,16 @@ int run_example_statement(sqlite3 *db) {
     }
   }
 
+  /* free the statement from memory */
   if( sqlite3_finalize(stmt) != SQLITE_OK ) {
     return SQLITE_ERROR;
   }
 
   return SQLITE_OK;
+}
+
+int run_example_statement(sqlite3 *db) {
+  return execute_statement("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);");
 }
 
 int main(void) {
