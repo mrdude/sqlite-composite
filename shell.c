@@ -43,12 +43,14 @@ int execute_statement(sqlite3 *db, const char* zSql) {
 
   /* execute the statement */
   int done = 0;
+  int row_count = 0;
   while( !done ) {
     switch( sqlite3_step(stmt) ) {
       case SQLITE_BUSY:
         break;
       case SQLITE_ROW:
         print_statement_columns(stmt);
+        row_count++;
         break;
       case SQLITE_DONE:
         done = 1;
@@ -59,6 +61,8 @@ int execute_statement(sqlite3 *db, const char* zSql) {
     }
   }
 
+  printf("Printed %d rows\n", row_count);
+  
   /* free the statement from memory */
   if( sqlite3_finalize(stmt) != SQLITE_OK ) {
     return SQLITE_ERROR;
