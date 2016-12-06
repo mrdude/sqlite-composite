@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 void print_statement_columns(sqlite3_stmt *stmt) {
-  const int col_count = sqlite3_column_count();
+  const int col_count = sqlite3_column_count(stmt);
   int i;
 
   for( i = 0; i < col_count; i++ ) {
@@ -62,7 +62,7 @@ int execute_statement(sqlite3 *db, const char* zSql) {
   }
 
   printf("Printed %d rows\n", row_count);
-  
+
   /* free the statement from memory */
   if( sqlite3_finalize(stmt) != SQLITE_OK ) {
     return SQLITE_ERROR;
@@ -72,7 +72,7 @@ int execute_statement(sqlite3 *db, const char* zSql) {
 }
 
 int run_example_statement(sqlite3 *db) {
-  return execute_statement("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);");
+  return execute_statement(db, "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);");
 }
 
 int main(void) {
