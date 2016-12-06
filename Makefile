@@ -5,11 +5,15 @@ CFLAGS+= -DSQLITE_COS_PROFILE_MEMORY=0
 CFLAGS+= -g
 
 SRC=$(wildcard *.c)
+OBJ=$(SRC:.c=.o)
 HDR=$(wildcard *.h)
 EXE=sqlite
 
-all:
-	$(CC) $(CFLAGS) -o $(EXE) $(SRC)
+all: $(OBJ)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
+
+$(OBJ): $(@:.o=.c) $(HDR)
+	$(CC) $(CFLAGS) -c -o $@ $(@:.o=.c)
 
 clean:
-	rm -f $(EXE)
+	rm -f $(EXE) $(OBJ)
