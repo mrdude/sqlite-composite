@@ -72,7 +72,7 @@ int execute_statement(sqlite3 *db, const char* zSql) {
 }
 
 int run_example_statements(sqlite3 *db) {
-  const char** zStatements = {
+  const char* zStatements[] = {
     "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);",
     "INSERT INTO users (name) VALUES ('Billy'), ('Vegeta'), ('Jack'), ('Some other guy');",
     "SELECT * FROM users;",
