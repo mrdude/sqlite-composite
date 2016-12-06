@@ -69,9 +69,9 @@ static void free_row(struct rs_row* row) {
 static void print_row(struct rs_row* row) {
   int i;
   for( i = 0; i < row->col_count; i++ ) {
-    if( i != 0 ) printf("| ");
+    if( i > 0 ) printf("| ");
     printf("%s", row->col_data[i]);
-    if( i != row->col_count-1 ) printf(" |");
+    if( i < row->col_count ) printf(" |");
   }
   printf("\n");
 }
@@ -83,7 +83,7 @@ void print_column_names(sqlite3_stmt *stmt) {
   print_row(row);
   free_row(row);
 
-  printf("\n==\n");
+  printf("==\n");
 }
 
 void print_statement_columns(sqlite3_stmt *stmt) {
