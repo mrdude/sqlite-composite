@@ -936,7 +936,7 @@ int sqlite3_os_init(void){
   sqlite3_config(SQLITE_CONFIG_MALLOC, &composite_mem_methods);
 
   struct composite_vfs_data *data = &composite_vfs_app_data;
-  data->random_fd = open("/dev/random", O_RDONLY);
+  data->prng_state = 4; /* seed the PRNG with a completely random value */
   cVfsInit();
   sqlite3_vfs_register(&composite_vfs, 1);
 

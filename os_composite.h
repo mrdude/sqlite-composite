@@ -147,7 +147,7 @@ struct cFile {
 };
 
 struct composite_vfs_data {
-    int random_fd;
+    sqlite3_uint64 prng_state;
 };
 
 /* inmem fs structs */

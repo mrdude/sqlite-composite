@@ -104,7 +104,7 @@ int cCheckReservedLock(sqlite3_file* baseFile, int *pResOut) {
 int cFileControl(sqlite3_file* baseFile, int op, void *pArg) {
     struct cFile* file = (struct cFile*)baseFile;
     struct fs_file* fd;
-    
+
     switch( op ) {
         case SQLITE_FCNTL_SIZE_HINT:
             /* "[SQLITE_FCNTL_SIZE_HINT] opcode is used by SQLite to give the VFS layer a hint
@@ -247,33 +247,42 @@ int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
     return SQLITE_OK;
 }
 
+/* xorshift* */
+static uint64_t get_random(sqlite3_uint64 *state) {
+    const sqlite3_uint64 magic = 2685821657736338717L;
+    *state ^= *state >> 12;
+    *state ^= *state << 25;
+    *state ^= *state >> 17;
+    return (*state) * magic;
+}
+
 /* attempts to return nByte bytes of randomness.
  * @return the actual number of bytes of randomness generated
  */
 int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
     //TODO how to get this from composite?
-    /* this SQLite documentation says cRandomness() supposed to return the actual
-     * number of bytes of randomness generated, but after testing this in valgrind I
-     * think that SQLite assumes that it always gets nByte's worth of randomness.
-     *
-     * Before I tried read()-ing from /dev/random until I had enough randomness, but
-     * that just made the program hang.
-     *
-     * Right now I deal with this by getting as much randomness as possible, then
-     * filling the rest of the buffer with 0s.
-     *
-     * If cRandomness() doesn't require secure-random, I can just swap this with my own PRNG.
+    /* cRandom uses the prng defined in get_random() to get random bytes
      */
     struct composite_vfs_data *data = (struct composite_vfs_data*)vfs->pAppData;
-    
-    int bytes_read = read(data->random_fd, zOut, nByte);
 
-    /* zero out the rest of the bytes */
-    int i;
-    for( i = bytes_read; i < nByte; i++ ) zOut[i] = 0;
+    int i = 0;
+    for( ; i + 8 < nByte; i += 8 ) {
+        sqlite3_uint64 rand = get_random( &data->prng_state );
+        *((sqlite3_uint64*)&zOut[i]) = rand;
+    }
 
-    /* return the number of bytes read */
-    return bytes_read;
+    for( ; i + 4 < nByte; i += 4 ) {
+        int rand = (int)get_random( &data->prng_state );
+        *((int*)&zOut[i]) = rand;
+    }
+
+    for( ; i < nByte; i++ ) {
+        char rand = (char)get_random( &data->prng_state );
+        zOut[i] = rand;
+    }
+
+    /* return the number of bytes generated */
+    return nBytes;
 }
 
 /* sleep for at least the given number of microseconds
