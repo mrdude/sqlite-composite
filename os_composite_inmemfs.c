@@ -89,11 +89,11 @@ static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
     struct fs_file* file;
     for( file = _fs_file_list; file != 0; file = file->next ) {
         if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
-            printf("\t_fs_file_alloc(zName = %s) => file = %p\n", zName, file);
+            printf("\_fs_find_file(zName = %s) => file = %p\n", zName, file);
             return file;
         }
     }
-    printf("\t_fs_file_alloc(zName = %s) => file = 0\n", zName);
+    printf("\_fs_find_file(zName = %s) => file = 0\n", zName);
     return 0;
 }
 
@@ -186,10 +186,12 @@ struct fs_file* fs_open(sqlite3_vfs* vfs, const char* zName) {
     }
     //}
     if( file == 0 ) {
+        printf("fs_open(zName = %s) => 0\n", zName);
         return 0;
     }
 
     file->ref++;
+    printf("fs_open(zName = %s) => file = %p\n", zName, file);
     return file;
 }
 
