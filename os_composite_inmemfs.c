@@ -132,12 +132,17 @@ static struct fs_file* _fs_file_alloc(sqlite3_vfs* vfs, const char *zName) {
 
 /* free the file and all of its blocks */
 static void _fs_file_free(struct fs_file* file) {
-    _FS_FREE( (char*)file->zName );
-    _FS_FREE( file->data.buf );
-    _FS_FREE( file );
+    if( file->zName ) {
+        _FS_FREE( (char*)file->zName );
+        file->zName = 0;
+    }
 
-    file->zName = 0;
-    file->data.buf = 0;
+    if( file->data.buf ) {
+        _FS_FREE( file->data.buf );
+        file->data.buf = 0;
+    }
+
+    _FS_FREE( file );
 }
 
 /* makes sure that there is sz bytes of space in file's data buffer
