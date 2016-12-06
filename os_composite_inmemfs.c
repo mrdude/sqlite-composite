@@ -7,11 +7,11 @@
 static int _fs_strequals(const char* s1, const char* s2, const int n) {
     int i = 0;
     for( ; i < n; i++ ) {
-        if( s1[n] == 0 && s2[n] == 0 ) {
+        if( s1[i] == 0 && s2[i] == 0 ) {
             return 1;
         }
 
-        if( s1[n] != s2[n] ) {
+        if( s1[i] != s2[i] ) {
             return 0;
         }
     }
