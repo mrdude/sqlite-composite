@@ -4,9 +4,31 @@
 #if SQLITE_OS_OTHER
 
 /* TODO: when I port this to composite, I won't have access to these headers. */
-#include <string.h> /* for strncpy() and strncmp() */
 #include <inttypes.h> /* for PRIu64 */
 #include <stdio.h> /* for debugging printf()'s in fs_write and fs_read */
+
+/* returns 1 if the given strings are equal, 0 if not */
+int _fs_strequals(const char* s1, const char* s2, const int n) {
+    int i = 0;
+    for( ; i < n; i++ ) {
+        if( s1[n] == 0 && s2[n] == 0 ) {
+            return 1;
+        }
+
+        if( s1[n] != s2[n] ) {
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+void _fs_copydata(char* dst, const char* src, int n) {
+    int i = 0;
+    for( ; i < n; i++ ) {
+        dst[i] = src[i];
+    }
+}
 
 #include "os_composite.h"
 
@@ -88,7 +110,7 @@ static void _fs_file_unlink(struct fs_file* file) {
 static struct fs_file* _fs_find_file(sqlite3_vfs* vfs, const char* zName) {
     struct fs_file* file;
     for( file = _fs_file_list->next; file != 0; file = file->next ) {
-        if( strncmp(file->zName, zName, MAX_PATHNAME) == 0 ) {
+        if( _fs_strequals(file->zName, zName, MAX_PATHNAME) ) {
             printf("\t_fs_find_file(zName = %s) => file = %p\n", zName, file);
             return file;
         }
@@ -232,7 +254,7 @@ int fs_read(struct fs_file* file, sqlite3_int64 offset, int len, void* buf) {
 
     /* copy the bytes into the buffer */
     if( bytes_read > 0 ) {
-        strncpy( (char*)buf, (const char*)(&file->data.buf[offset]), (size_t)bytes_read);
+        _fs_copydata( (char*)buf, (const char*)(&file->data.buf[offset]), bytes_read);
     }
 
     printf("\tfs_read(file = %s, offset = %" PRIu64 ", len = %d, buf = <...>) => read %d bytes\n",
@@ -259,7 +281,7 @@ int fs_write(struct fs_file* file, sqlite3_int64 offset, int len, const void* bu
     }
 
     /* perform the write */
-    strncpy( (char*)(&file->data.buf[offset]), (const char*)buf, (size_t)len );
+    _fs_copydata( (char*)(&file->data.buf[offset]), (const char*)buf, len );
 
     /* adjust file->data.len */
     file->data.len = end_offset;
