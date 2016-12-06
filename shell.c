@@ -79,8 +79,10 @@ int run_example_statements(sqlite3 *db) {
     ""
   };
 
+  const int statement_count = 3;
+
   int i;
-  for( i = 0; zStatements[i] != 0; i++ ) {
+  for( i = 0; i < statement_count; i++ ) {
     if( execute_statement(db, zStatements[i]) != SQLITE_OK ) {
       return SQLITE_ERROR;
     }
