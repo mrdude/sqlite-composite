@@ -5,6 +5,7 @@
 
 /* TODO: when I port this to composite, I won't have access to these headers. */
 #include <string.h> /* for strncpy() and strncmp() */
+#include <inttype.h> /* for PRIu64 */
 #include <stdio.h> /* for debugging printf()'s in fs_write and fs_read */
 
 #include "os_composite.h"
