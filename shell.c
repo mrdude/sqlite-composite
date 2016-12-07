@@ -98,6 +98,8 @@ int run_example_statements(sqlite3 *db) {
 }
 
 int main(void) {
+  sqlite3_initialize();
+
   sqlite3* db;
   sqlite3_open("dh", &db);
   printf("Hello whirled!\n");
@@ -106,5 +108,7 @@ int main(void) {
 
   printf("Goodbye!\n");
   sqlite3_close(db);
+  
+  sqlite3_shutdown();
   return 0;
 }
