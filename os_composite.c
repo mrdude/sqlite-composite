@@ -799,7 +799,7 @@ static void* _cMemRealloc(void* mem, int newSize) {
             outstanding_memory += cMemSize(newPtr);
         }
 
-        CTRACE_PRINT(" => newPtr = %p, newSize = %" PRIu64 "\n", newPtr, outstanding_memory);
+        CTRACE_PRINT(" => newPtr = %p, memUsage = %" PRIu64 "\n", newPtr, outstanding_memory);
         CTRACE_PRINT();
     #endif
 
@@ -864,6 +864,7 @@ static void _cMemShutdown(void* pAppData) {
     cMemShutdown(pAppData);
 
     #if SQLITE_COS_PROFILE_MEMORY
+        CTRACE_PRINT(" => memUsage = %" PRIu64 "\n", outstanding_memory);
         CTRACE_PRINT();
     #endif
 }
