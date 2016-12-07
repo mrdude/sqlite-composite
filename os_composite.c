@@ -741,6 +741,10 @@ static int _cMutexNotheld(sqlite3_mutex *mutex) {
 #endif
 
 /* sqlite_mem function prototypes */
+#if SQLITE_COS_PROFILE_MEMORY
+static sqlite3_int64 outstanding_memory = 0;
+#endif
+
 static void* _cMemMalloc(int sz) {
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_STRING_DEF(80);
@@ -750,7 +754,11 @@ static void* _cMemMalloc(int sz) {
     void* mem = cMemMalloc(sz);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        CTRACE_APPEND(" => mem = %p", mem);
+        if( mem ) {
+            outstanding_memory += sz;
+        }
+
+        CTRACE_APPEND(" => mem = %p, memUsage = %" PRIu64, mem, outstanding_memory);
         CTRACE_PRINT();
     #endif
 
@@ -761,11 +769,17 @@ static void _cMemFree(void* mem) {
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_STRING_DEF(80);
         CTRACE_APPEND("cMemFree(mem = %p)", mem);
+        const int mem_size = cMemSize(mem);
     #endif
 
     cMemFree(mem);
 
     #if SQLITE_COS_PROFILE_MEMORY
+        if( mem ) {
+            outstanding_memory -= mem_size;
+        }
+
+        CTRACE_APPEND(" => memUsage = %" PRIu64, outstanding_memory);
         CTRACE_PRINT();
     #endif
 }
@@ -774,12 +788,18 @@ static void* _cMemRealloc(void* mem, int newSize) {
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_STRING_DEF(80);
         CTRACE_APPEND("cMemRealloc(mem = %p, newSize = %d)", mem, newSize);
+        const old_mem_size = cMemSize(mem);
     #endif
 
     void* newPtr = cMemRealloc(mem, newSize);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        CTRACE_PRINT(" => newPtr = %p\n", newPtr);
+        if( mem ) {
+            outstanding_memory -= old_mem_size;
+            outstanding_memory += cMemSize(newPtr);
+        }
+
+        CTRACE_PRINT(" => newPtr = %p, newSize = %" PRIu64 "\n", newPtr, outstanding_memory);
         CTRACE_PRINT();
     #endif
 
@@ -811,7 +831,7 @@ static int _cMemRoundup(int sz) {
     const int newSz = cMemRoundup(sz);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        CTRACE_APPEND("newSz = %d", newSz);
+        CTRACE_APPEND("newSz = %d\n", newSz);
         CTRACE_PRINT();
     #endif
 
