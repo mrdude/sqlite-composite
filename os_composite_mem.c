@@ -46,10 +46,10 @@ static int _get_memory_size(void* mem_allocation) {
     static char memory_arena[MEMORY_ARENA_SIZE];
 
     static char* _free_memory = &memory_arena[0];
-    static char* _memory_extent = _free_memory + MEMORY_ARENA_SIZE;
 
     static char* _malloc_region(int sz) {
         /* make sure that we have enough memory left */
+        const char* _memory_extent = &memory_arena[0] + MEMORY_ARENA_SIZE;
         sqlite3_int64 mem_remaining = (_memory_extent - _free_memory);
         if( _free_memory + sz >= _memory_extent ) return 0;
 
