@@ -21,20 +21,20 @@ static void* _get_memory(char* region_start) {
 static char* _malloc_region(int sz) {
     char* region_start = malloc(sz + sizeof(int));
     *((int*)region_start) = sz;
-    composite_mem_app_data.outstanding_memory += sz;
+    composite_mem_app_data.outstanding_memory += sz + sizeof(int);
     composite_mem_app_data.max_memory = max( composite_mem_app_data.outstanding_memory, composite_mem_app_data.max_memory );
     return region_start;
 }
 
 static void _free_region(char* region) {
     const int sz = *((int*)region);
-    composite_mem_app_data.outstanding_memory -= sz;
+    composite_mem_app_data.outstanding_memory -= sz + sizeof(int);
     free(region);
 }
 
 static int _get_memory_size(void* mem_allocation) {
     char* region_start = _get_region(mem_allocation);
-    int sz = *((int*)region_start);
+    const int sz = *((int*)region_start);
     return sz;
 }
 
