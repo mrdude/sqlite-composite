@@ -46,7 +46,7 @@ static int _get_memory_size(void* mem_allocation) {
     static char memory_arena[MEMORY_ARENA_SIZE];
 
     static char* _free_memory = &memory_arena;
-    static char* _memory_extent = _free_memory * MEMORY_ARENA_SIZE;
+    const static char* _memory_extent = _free_memory + MEMORY_ARENA_SIZE;
 
     static char* _malloc_region(int sz) {
         /* make sure that we have enough memory left */
