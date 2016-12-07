@@ -1,9 +1,10 @@
 
 #if SQLITE_OS_OTHER
 
-#include <stdlib.h> /* for malloc() and friends */
-
 #include "os_composite.h"
+
+static char* _malloc_region(int sz);
+static void _free_region(char* region);
 
 static inline sqlite3_int64 max(sqlite3_int64 a, int b) {
     sqlite3_int64 c = (sqlite3_int64)b;
@@ -18,25 +19,53 @@ static void* _get_memory(char* region_start) {
     return (void*)(region_start + sizeof(int));
 }
 
-static char* _malloc_region(int sz) {
-    char* region_start = malloc(sz + sizeof(int));
-    *((int*)region_start) = sz;
-    composite_mem_app_data.outstanding_memory += sz + sizeof(int);
-    composite_mem_app_data.max_memory = max( composite_mem_app_data.outstanding_memory, composite_mem_app_data.max_memory );
-    return region_start;
-}
-
-static void _free_region(char* region) {
-    const int sz = *((int*)region);
-    composite_mem_app_data.outstanding_memory -= sz + sizeof(int);
-    free(region);
-}
-
 static int _get_memory_size(void* mem_allocation) {
     char* region_start = _get_region(mem_allocation);
     const int sz = *((int*)region_start);
     return sz;
 }
+
+#if SQLITE_MEM_USE_MALLOC
+    #include <stdlib.h> /* for malloc() and free() */
+
+    static char* _malloc_region(int sz) {
+        char* region_start = malloc(sz + sizeof(int));
+        *((int*)region_start) = sz;
+        composite_mem_app_data.outstanding_memory += sz + sizeof(int);
+        composite_mem_app_data.max_memory = max( composite_mem_app_data.outstanding_memory, composite_mem_app_data.max_memory );
+        return region_start;
+    }
+
+    static void _free_region(char* region) {
+        const int sz = *((int*)region);
+        composite_mem_app_data.outstanding_memory -= sz + sizeof(int);
+        free(region);
+    }
+#else
+    #define MEMORY_ARENA_SIZE (1024*1024*4) //4MB
+    static char memory_arena[MEMORY_ARENA_SIZE];
+
+    static char* _free_memory = &memory_arena;
+    static char* _memory_extent = _free_memory * MEMORY_ARENA_SIZE;
+
+    static char* _malloc_region(int sz) {
+        /* make sure that we have enough memory left */
+        sqlite3_int64 mem_remaining = (_memory_extent - _free_memory);
+        if( _free_memory + sz >= _memory_extent ) return 0;
+
+        char* region_start = _free_memory;
+        _free_memory += sz;
+
+        *((int*)region_start) = sz;
+        composite_mem_app_data.outstanding_memory += sz + sizeof(int);
+        composite_mem_app_data.max_memory = max( composite_mem_app_data.outstanding_memory, composite_mem_app_data.max_memory );
+        return region_start;
+    }
+
+    static void _free_region(char* region) {
+        //Do nothing
+    }
+#endif
 
 /* Memory allocation function */
 void* cMemMalloc(int sz) {
