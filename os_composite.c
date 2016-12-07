@@ -831,7 +831,7 @@ static int _cMemRoundup(int sz) {
     const int newSz = cMemRoundup(sz);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        CTRACE_APPEND("newSz = %d\n", newSz);
+        CTRACE_APPEND(" => newSz = %d\n", newSz);
         CTRACE_PRINT();
     #endif
 
@@ -967,7 +967,10 @@ int sqlite3_os_init(void){
 /* shutdown the OS interface */
 int sqlite3_os_end(void) {
   cVfsDeinit();
-  return SQLITE_OK; 
+  #if SQLITE_COS_PROFILE_MEMORY
+    printf("memUsage = %" PRIu64 "\n", outstanding_memory);
+  #endif
+  return SQLITE_OK;
 }
 
 #endif
