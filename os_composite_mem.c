@@ -45,7 +45,7 @@ static int _get_memory_size(void* mem_allocation) {
     #define MEMORY_ARENA_SIZE (1024*1024*4) //4MB
     static char memory_arena[MEMORY_ARENA_SIZE];
 
-    static char* _free_memory = &memory_arena;
+    static char* _free_memory = &memory_arena[0];
     const static char* _memory_extent = _free_memory + MEMORY_ARENA_SIZE;
 
     static char* _malloc_region(int sz) {
