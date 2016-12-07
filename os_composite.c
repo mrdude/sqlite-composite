@@ -742,7 +742,8 @@ static int _cMutexNotheld(sqlite3_mutex *mutex) {
 
 /* sqlite_mem function prototypes */
 #if SQLITE_COS_PROFILE_MEMORY
-static sqlite3_int64 outstanding_memory = 0;
+static sqlite3_int64 outstanding_memory = 0; /* how many bytes of memory have we given out? */
+static sqlite3_int64 max_memory = 0; /* the largest value of 'outstanding_memory' that we've seen over the life */
 #endif
 
 static void* _cMemMalloc(int sz) {
@@ -756,6 +757,9 @@ static void* _cMemMalloc(int sz) {
     #if SQLITE_COS_PROFILE_MEMORY
         if( mem ) {
             outstanding_memory += sz;
+            if( outstanding_memory > max_memory ) {
+                max_memory = outstanding_memory;
+            }
         }
 
         CTRACE_APPEND(" => mem = %p, memUsage = %" PRIu64, mem, outstanding_memory);
@@ -795,8 +799,13 @@ static void* _cMemRealloc(void* mem, int newSize) {
 
     #if SQLITE_COS_PROFILE_MEMORY
         if( mem ) {
-            outstanding_memory -= old_mem_size;
             outstanding_memory += cMemSize(newPtr);
+
+            if( outstanding_memory > max_memory ) {
+                max_memory = outstanding_memory;
+            }
+
+            outstanding_memory -= old_mem_size;
         }
 
         CTRACE_PRINT(" => newPtr = %p, memUsage = %" PRIu64 "\n", newPtr, outstanding_memory);
@@ -969,6 +978,7 @@ int sqlite3_os_end(void) {
   cVfsDeinit();
   #if SQLITE_COS_PROFILE_MEMORY
     printf("memUsage = %" PRIu64 "\n", outstanding_memory);
+    printf("maxMemUsage = %" PRIu64 "\n", max_memory);
   #endif
   return SQLITE_OK;
 }
