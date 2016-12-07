@@ -952,8 +952,10 @@ int sqlite3_os_init(void){
 /* shutdown the OS interface */
 int sqlite3_os_end(void) {
   cVfsDeinit();
-  printf("memUsage = %" PRIu64 "\n", composite_mem_app_data.outstanding_memory);
-  printf("maxMemUsage = %" PRIu64 "\n", composite_mem_app_data.max_memory);
+  #if SQLITE_COS_PROFILE_MEMORY
+    printf("memUsage = %" PRIu64 "\n", composite_mem_app_data.outstanding_memory);
+    printf("maxMemUsage = %" PRIu64 "\n", composite_mem_app_data.max_memory);
+  #endif
   return SQLITE_OK;
 }
 
