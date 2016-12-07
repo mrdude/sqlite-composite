@@ -27,6 +27,7 @@ static char* _malloc_region(int sz) {
 }
 
 static void _free_region(char* region) {
+    const int sz = *((int*)region);
     composite_mem_app_data.outstanding_memory -= sz;
     free(region);
 }
