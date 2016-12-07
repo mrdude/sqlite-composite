@@ -5,27 +5,35 @@
 
 #include "os_composite.h"
 
-char* _get_region(void* mem_allocation) {
-    return ((char*)mem_allocation) - sizeof(size_t);
+static inline sqlite3_int64 max(sqlite3_int64 a, int b) {
+    sqlite3_int64 c = (sqlite3_int64)b;
+    return (a > c) ? a : c;
 }
 
-void* _get_memory(char* region_start) {
-    return (void*)(region_start + sizeof(size_t));
+static char* _get_region(void* mem_allocation) {
+    return ((char*)mem_allocation) - sizeof(int);
 }
 
-char* _malloc_region(size_t sz) {
-    char* region_start = malloc(sz + sizeof(size_t));
+static void* _get_memory(char* region_start) {
+    return (void*)(region_start + sizeof(int));
+}
+
+static char* _malloc_region(int sz) {
+    char* region_start = malloc(sz + sizeof(int));
     *((int*)region_start) = sz;
+    composite_mem_app_data.outstanding_memory += sz;
+    composite_mem_app_data.max_memory = max( composite_mem_app_data.outstanding_memory, composite_mem_app_data.max_memory );
     return region_start;
 }
 
-void _free_region(char* region) {
+static void _free_region(char* region) {
+    composite_mem_app_data.outstanding_memory -= sz;
     free(region);
 }
 
-size_t _get_memory_size(void* mem_allocation) {
+static int _get_memory_size(void* mem_allocation) {
     char* region_start = _get_region(mem_allocation);
-    size_t sz = *((size_t*)region_start);
+    int sz = *((int*)region_start);
     return sz;
 }
 

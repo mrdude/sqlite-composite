@@ -741,11 +741,6 @@ static int _cMutexNotheld(sqlite3_mutex *mutex) {
 #endif
 
 /* sqlite_mem function prototypes */
-#if SQLITE_COS_PROFILE_MEMORY
-static sqlite3_int64 outstanding_memory = 0; /* how many bytes of memory have we given out? */
-static sqlite3_int64 max_memory = 0; /* the largest value of 'outstanding_memory' that we've seen over the life */
-#endif
-
 static void* _cMemMalloc(int sz) {
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_STRING_DEF(80);
@@ -755,14 +750,7 @@ static void* _cMemMalloc(int sz) {
     void* mem = cMemMalloc(sz);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        if( mem ) {
-            outstanding_memory += sz;
-            if( outstanding_memory > max_memory ) {
-                max_memory = outstanding_memory;
-            }
-        }
-
-        CTRACE_APPEND(" => mem = %p, memUsage = %" PRIu64, mem, outstanding_memory);
+        CTRACE_APPEND(" => mem = %p", mem);
         CTRACE_PRINT();
     #endif
 
@@ -773,17 +761,11 @@ static void _cMemFree(void* mem) {
     #if SQLITE_COS_PROFILE_MEMORY
         CTRACE_STRING_DEF(80);
         CTRACE_APPEND("cMemFree(mem = %p)", mem);
-        const int mem_size = cMemSize(mem);
     #endif
 
     cMemFree(mem);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        if( mem ) {
-            outstanding_memory -= mem_size;
-        }
-
-        CTRACE_APPEND(" => memUsage = %" PRIu64, outstanding_memory);
         CTRACE_PRINT();
     #endif
 }
@@ -798,17 +780,7 @@ static void* _cMemRealloc(void* mem, int newSize) {
     void* newPtr = cMemRealloc(mem, newSize);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        if( mem ) {
-            outstanding_memory += cMemSize(newPtr);
-
-            if( outstanding_memory > max_memory ) {
-                max_memory = outstanding_memory;
-            }
-
-            outstanding_memory -= old_mem_size;
-        }
-
-        CTRACE_PRINT(" => newPtr = %p, memUsage = %" PRIu64 "\n", newPtr, outstanding_memory);
+        CTRACE_PRINT(" => newPtr = %p", newPtr);
         CTRACE_PRINT();
     #endif
 
@@ -824,7 +796,7 @@ static int _cMemSize(void* mem) {
     const int sz = cMemSize(mem);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        CTRACE_APPEND("=> sz = %d\n", sz);
+        CTRACE_APPEND("=> sz = %d", sz);
         CTRACE_PRINT();
     #endif
 
@@ -840,7 +812,7 @@ static int _cMemRoundup(int sz) {
     const int newSz = cMemRoundup(sz);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        CTRACE_APPEND(" => newSz = %d\n", newSz);
+        CTRACE_APPEND(" => newSz = %d", newSz);
         CTRACE_PRINT();
     #endif
 
@@ -873,7 +845,6 @@ static void _cMemShutdown(void* pAppData) {
     cMemShutdown(pAppData);
 
     #if SQLITE_COS_PROFILE_MEMORY
-        CTRACE_PRINT(" => memUsage = %" PRIu64 "\n", outstanding_memory);
         CTRACE_PRINT();
     #endif
 }
@@ -901,6 +872,11 @@ struct sqlite3_io_methods composite_io_methods = {
     /* everything above is required for version 1-2 */
     .xFetch = _cFetch,
     .xUnfetch = _cUnfetch
+};
+
+struct composite_mem_data composite_mem_app_data = {
+    .outstanding_memory = 0,
+    .max_memory = 0
 };
 
 struct composite_vfs_data composite_vfs_app_data;
@@ -976,10 +952,8 @@ int sqlite3_os_init(void){
 /* shutdown the OS interface */
 int sqlite3_os_end(void) {
   cVfsDeinit();
-  #if SQLITE_COS_PROFILE_MEMORY
-    printf("memUsage = %" PRIu64 "\n", outstanding_memory);
-    printf("maxMemUsage = %" PRIu64 "\n", max_memory);
-  #endif
+  printf("memUsage = %" PRIu64 "\n", composite_mem_app_data.outstanding_memory);
+  printf("maxMemUsage = %" PRIu64 "\n", composite_mem_app_data.max_memory);
   return SQLITE_OK;
 }
 

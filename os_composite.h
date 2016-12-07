@@ -139,6 +139,7 @@
 /* API structs */
 extern struct sqlite3_io_methods composite_io_methods;
 extern struct composite_vfs_data composite_vfs_app_data;
+extern struct composite_mem_data composite_mem_app_data;
 extern const sqlite3_mem_methods composite_mem_methods;
 
 /* cFile */
@@ -150,6 +151,11 @@ struct cFile {
 
 struct composite_vfs_data {
     sqlite3_uint64 prng_state;
+};
+
+struct composite_mem_data {
+    sqlite3_int64 outstanding_memory; /* how many bytes of memory have we given out? */
+    sqlite3_int64 max_memory; /* the largest value of 'outstanding_memory' that we've seen over the life */
 };
 
 /* inmem fs structs */

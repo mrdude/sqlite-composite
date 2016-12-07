@@ -34,8 +34,6 @@ static void _fs_copydata(char* dst, const char* src, int n) {
  */
 #define MAX_FILE_LEN ( (int64_t)(1L<<(sizeof(int64_t)-1)) )
 
-#define MIN(type, a, b) ( ((type)(a)) < ((type)(b)) ? (type)(a) : (type)(b) )
-
 static struct fs_file* _fs_file_list = 0;
 
 /* private inmem fs functions */
