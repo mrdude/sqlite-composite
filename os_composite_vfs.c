@@ -232,7 +232,9 @@ int cAccess(sqlite3_vfs* vfs, const char *zName, int flags, int *pResOut) {
 }
 
 int cFullPathname(sqlite3_vfs* vfs, const char *zName, int nOut, char *zOut) {
-    const int zNameLen = strnlen(zName, MAX_PATHNAME);
+    int zNameLen = 0;
+    for( ; zName[zNameLen] != 0 && zNameLen < MAX_PATHNAME; zNameLen++ ) {}
+
     if( nOut < zNameLen ) /* these isn't enough room to copy the string */
         return SQLITE_CANTOPEN;
     
@@ -258,7 +260,6 @@ static sqlite3_uint64 get_random(sqlite3_uint64 *state) {
  * @return the actual number of bytes of randomness generated
  */
 int cRandomness(sqlite3_vfs* vfs, int nByte, char *zOut) {
-    //TODO how to get this from composite?
     /* cRandom uses the prng defined in get_random() to get random bytes
      */
     struct composite_vfs_data *data = (struct composite_vfs_data*)vfs->pAppData;
