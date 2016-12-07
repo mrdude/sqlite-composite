@@ -1,102 +1,29 @@
 #include "sqlite3.h"
 
 #include <stdio.h>
-#include <stdlib.h> /* for malloc() */
-
-struct rs_row {
-  int col_count;
-  int* col_len;
-  char** col_data;
-
-  struct rs_row* next;
-};
-
-static char* _copy_string(const char* str, int *str_len) {
-  int len = 0;
-  for( ; str[len] != 0; len++ ) {}
-
-  (*str_len) = len;
-
-  char* new_str = malloc( sizeof(char) * (len+1) );
-  int i;
-  for( i = 0; i < len; i++ ) {
-    new_str[i] = str[i];
-  }
-  new_str[len] = 0;
-
-  return new_str;
-}
-
-static struct rs_row* generate_row(sqlite3_stmt *stmt) {
-  struct rs_row* row = malloc( sizeof(struct rs_row) );
-  row->col_count = sqlite3_column_count(stmt);
-
-  row->col_len = malloc( sizeof(int) * row->col_count );
-  row->col_data = malloc( sizeof(char*) * row->col_count );
-
-  int i;
-  for( i = 0; i < row->col_count; i++ ) {
-    row->col_data[i] = _copy_string( sqlite3_column_text(stmt, i), &row->col_len[i] );
-  }
-
-  return row;
-}
-
-static struct rs_row* generate_row_from_column_names(sqlite3_stmt *stmt) {
-  struct rs_row* row = malloc( sizeof(struct rs_row) );
-  row->col_count = sqlite3_column_count(stmt);
-
-  row->col_len = malloc( sizeof(int) * row->col_count );
-  row->col_data = malloc( sizeof(char*) * row->col_count );
-
-  int i;
-  for( i = 0; i < row->col_count; i++ ) {
-    row->col_data[i] = _copy_string( sqlite3_column_name(stmt, i), &row->col_len[i] );
-  }
-
-  return row;
-}
-
-static void free_row(struct rs_row* row) {
-  int i;
-  for( i = 0; i < row->col_count; i++ ) {
-    free( row->col_data[i] );
-  }
-
-  free( row->col_data );
-  free( row->col_len );
-  free( row );
-}
-
-static void print_row(struct rs_row* row) {
-  int i;
-  for( i = 0; i < row->col_count; i++ ) {
-    if( i > 0 ) printf("| ");
-    printf("%-15s", row->col_data[i]);
-    if( i < row->col_count ) printf(" |");
-  }
-}
 
 void print_column_names(sqlite3_stmt *stmt) {
-  struct rs_row* row;
+  const int col_count = sqlite3_column_count(stmt);
+  int i;
 
-  row = generate_row_from_column_names(stmt);
-  printf("\t");
-  print_row(row);
-  printf("\n");
-  free_row(row);
-
-  printf("\t==\n");
+  for( i = 0; i < col_count; i++ ) {
+    const char* str = sqlite3_column_name(stmt, i);
+    if( i > 0 ) printf("| ");
+    printf("%-15s", str);
+    if( i < col_count ) printf(" |");
+  }
 }
 
 void print_statement_columns(sqlite3_stmt *stmt) {
-  struct rs_row* row;
+  const int col_count = sqlite3_column_count(stmt);
+  int i;
 
-  row = generate_row(stmt);
-  printf("\t");
-  print_row(row);
-  printf("\n");
-  free_row(row);
+  for( i = 0; i < col_count; i++ ) {
+    const char* str = sqlite3_column_text(stmt, i);
+    if( i > 0 ) printf("| ");
+    printf("%-15s", str);
+    if( i < col_count ) printf(" |");
+  }
 }
 
 int execute_statement(sqlite3 *db, const char* zSql) {
@@ -119,10 +46,14 @@ int execute_statement(sqlite3 *db, const char* zSql) {
         break;
       case SQLITE_ROW:
         if( row_count == 0 ) {
+          printf("\t");
           print_column_names(stmt);
+          printf("\n\t==\n");
         }
 
+        printf("\t");
         print_statement_columns(stmt);
+        printf("\n");
         row_count++;
         break;
       case SQLITE_DONE:
